@@ -1,0 +1,8 @@
+# Normalise line endings: LF in the repo, so Linux CI and the Makefile behave.
+* text=auto eol=lf
+
+# Binary assets
+*.png binary
+
+# Keep CSV diffs readable
+*.csv text eol=lf
