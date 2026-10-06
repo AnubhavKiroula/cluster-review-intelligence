@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 320" width="1200" height="320" role="img" aria-label="Cluster Review Intelligence banner">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0B2545"/>
+      <stop offset="1" stop-color="#13315C"/>
+    </linearGradient>
+    <linearGradient id="ridge" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2A9D8F"/>
+      <stop offset="1" stop-color="#1F6F66"/>
+    </linearGradient>
+  </defs>
+
+  <!-- sky -->
+  <rect width="1200" height="320" fill="url(#sky)"/>
+
+  <!-- sun / moon -->
+  <circle cx="990" cy="92" r="46" fill="#F4A259" opacity="0.95"/>
+  <circle cx="990" cy="92" r="46" fill="none" stroke="#F4A259" stroke-opacity="0.25" stroke-width="18"/>
+
+  <!-- stars -->
+  <g fill="#FFFFFF" opacity="0.5">
+    <circle cx="120" cy="60" r="2"/><circle cx="260" cy="40" r="1.6"/>
+    <circle cx="420" cy="70" r="1.8"/><circle cx="640" cy="48" r="1.4"/>
+    <circle cx="760" cy="80" r="1.8"/><circle cx="1130" cy="56" r="1.6"/>
+  </g>
+
+  <!-- distant ridge -->
+  <path d="M0 230 L160 150 L320 210 L470 130 L640 215 L820 140 L1000 205 L1200 150 L1200 320 L0 320 Z"
+        fill="#1B4066"/>
+
+  <!-- near ridge with snow caps -->
+  <path d="M0 300 L140 190 L250 250 L390 170 L520 250 L680 185 L840 255 L1000 180 L1200 245 L1200 320 L0 320 Z"
+        fill="url(#ridge)"/>
+  <path d="M390 170 L420 200 L360 200 Z" fill="#E8F1F2" opacity="0.85"/>
+  <path d="M1000 180 L1030 210 L970 210 Z" fill="#E8F1F2" opacity="0.85"/>
+
+  <!-- stylised hill-town property skyline -->
+  <g fill="#F4A259">
+    <rect x="150" y="250" width="34" height="50"/>
+    <polygon points="150,250 167,232 184,250"/>
+    <rect x="210" y="262" width="28" height="38"/>
+    <polygon points="210,262 224,246 238,262"/>
+    <rect x="262" y="256" width="40" height="44"/>
+    <polygon points="262,256 282,238 302,256"/>
+  </g>
+  <g fill="#E0E7EC" opacity="0.9">
+    <rect x="159" y="262" width="7" height="9"/><rect x="170" y="262" width="7" height="9"/>
+    <rect x="218" y="272" width="6" height="8"/><rect x="226" y="272" width="6" height="8"/>
+    <rect x="272" y="268" width="8" height="10"/><rect x="286" y="268" width="8" height="10"/>
+  </g>
+
+  <!-- title -->
+  <g font-family="'Segoe UI', Helvetica, Arial, sans-serif">
+    <text x="60" y="130" fill="#FFFFFF" font-size="48" font-weight="700">Cluster Review Intelligence</text>
+    <text x="62" y="168" fill="#F4A259" font-size="22" font-weight="500">Competitive benchmarking for hill-town tourism clusters</text>
+    <text x="62" y="196" fill="#9FB3C8" font-size="15">Aspect + sentiment · cluster benchmark · trend &amp; changepoint · Hinglish-aware</text>
+  </g>
+</svg>

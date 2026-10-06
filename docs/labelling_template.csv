@@ -1,0 +1,3 @@
+review_id,property_id,date,text,language_hint,gold_aspects,gold_sentiment_per_aspect,notes
+1,Property A,2025-01-12,"Example: Khaana accha tha lekin room thanda tha",hinglish,"Food;Room","Food=1;Room=-1","mixed aspects example"
+2,,,,,"","","leave gold_* blank until a human labels it"
