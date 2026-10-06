@@ -1,0 +1,116 @@
+# Aspect taxonomy for the rule/lexicon baseline.
+# Cue terms are lowercase and matched against NORMALISED review text
+# (see cri.normalize). Terms include English, Hindi (Devanagari), and
+# romanised Hinglish variants so mixed-language reviews are covered.
+#
+# This file is config: extend the cue lists to improve recall without touching
+# code. Keep terms reasonably distinct across aspects.
+
+aspects:
+  Food:
+    - food
+    - khaana
+    - khana
+    - breakfast
+    - nashta
+    - dinner
+    - lunch
+    - meal
+    - thali
+    - swaad
+    - taste
+    - menu
+    - restaurant
+    - खाना
+    - नाश्ता
+
+  Room:
+    - room
+    - kamra
+    - kamre
+    - bed
+    - bistar
+    - heater
+    - heating
+    - geyser
+    - blanket
+    - kambal
+    - "hot water"
+    - "garam paani"
+    - कमरा
+    - हीटर
+
+  Housekeeping:
+    - housekeeping
+    - towel
+    - towels
+    - "room service"
+    - bedsheet
+    - chadar
+    - "change the sheets"
+    - laundry
+
+  Staff:
+    - staff
+    - reception
+    - receptionist
+    - manager
+    - behaviour
+    - behavior
+    - vyavhaar
+    - caretaker
+    - स्टाफ
+
+  Location:
+    - location
+    - view
+    - nazara
+    - nazaara
+    - scenery
+    - mountain
+    - pahad
+    - market
+    - jagah
+    - locality
+    - नज़ारा
+
+  "Value for Money":
+    - value
+    - price
+    - paisa
+    - "paisa vasool"
+    - expensive
+    - mehenga
+    - mehnga
+    - costly
+    - cheap
+    - sasta
+    - worth
+    - overpriced
+    - tariff
+
+  Cleanliness:
+    - clean
+    - cleanliness
+    - saaf
+    - safai
+    - "saaf-safai"
+    - dirty
+    - ganda
+    - gandagi
+    - hygiene
+    - bathroom
+    - washroom
+    - गंदा
+    - साफ
+
+  "Booking Experience":
+    - booking
+    - "check-in"
+    - checkin
+    - "check in"
+    - checkout
+    - reservation
+    - booked
+    - refund
+    - "payment process"
