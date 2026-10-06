@@ -15,7 +15,7 @@ keywords = ["tourism", "reviews", "nlp", "benchmarking", "hinglish", "uttarakhan
 # Pinned for reproducibility (see CLAUDE.md). Bumped via Dependabot PRs.
 dependencies = [
     "numpy==1.26.2",
-    "pandas==2.1.3",
+    "pandas==3.0.6",
     "pyyaml==6.0.3",
 ]
 
