@@ -1,0 +1,115 @@
+# Sentiment lexicon for the rule/lexicon baseline (cri.classify.RuleClassifier).
+#
+# Owner: Archit [R] (tuning config, see docs/HACKATHON_PLAN.md section 3.1).
+# Edit freely to improve recall from error analysis - no code changes needed.
+#
+# Rules (validated when cri.classify is imported; a bad edit fails loudly):
+#   - every entry is a non-empty, lowercase string (review text is lowercased
+#     before matching, so an entry with capitals could never match);
+#   - a word may not appear in both `positive` and `negative`;
+#   - single words match whole tokens; `*_phrases` match as substrings of a clause;
+#   - a `negation` token flips the sign of the next few sentiment words.
+# Changing these lists changes classifier output: re-run `python -m pytest`.
+
+# Single positive words (English, romanised Hindi, then Devanagari).
+positive:
+- accha
+- amazing
+- awesome
+- badhiya
+- beautiful
+- best
+- clean
+- comfortable
+- cozy
+- delicious
+- excellent
+- fresh
+- friendly
+- good
+- great
+- helpful
+- khush
+- lovely
+- mast
+- nice
+- perfect
+- polite
+- saaf
+- sasta
+- shandar
+- spacious
+- tasty
+- warm
+- wonderful
+- अच्छा
+- बढ़िया
+- शानदार
+- साफ
+- सुंदर
+
+# Single negative words (English, romanised Hindi, then Devanagari).
+negative:
+- awful
+- bad
+- bekaar
+- broken
+- cold
+- dirty
+- disappointed
+- disappointing
+- expensive
+- ganda
+- gandagi
+- kharaab
+- kharab
+- leaking
+- mehenga
+- mehnga
+- noisy
+- overpriced
+- pathetic
+- poor
+- problem
+- rude
+- slow
+- smelly
+- stale
+- terrible
+- thanda
+- unhelpful
+- worst
+- खराब
+- गंदगी
+- गंदा
+- ठंडा
+- बेकार
+- महंगा
+
+# Multiword positive expressions, matched as substrings.
+positive_phrases:
+- paisa vasool
+- value for money
+- well maintained
+
+# Multiword negative expressions, matched as substrings (e.g. negated verbs).
+negative_phrases:
+- not working
+- did not work
+- didn't work
+- no hot water
+- not clean
+- kaam nahi
+- nahi chal
+- band tha
+- kaam nahi kar
+
+# Tokens that flip the polarity of the following sentiment words.
+negation:
+- bina
+- nahi
+- never
+- 'no'
+- not
+- without
+

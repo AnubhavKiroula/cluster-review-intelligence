@@ -1,47 +1,94 @@
 """Aspect + sentiment classification.
 
 Defines a small ``Classifier`` interface so a stronger backend (multilingual
-transformer or LLM API) can be dropped in later without changing callers, plus a
+transformer or LLM API) can be dropped in without changing callers, plus a
 transparent rule/lexicon baseline (``RuleClassifier``) that needs no downloads.
+
+Both word lists are config, not code: the aspect taxonomy lives in
+``resources/aspects.yaml`` and the sentiment lexicon in ``resources/lexicon.yaml``.
+Pick a backend with :func:`get_classifier` (``CRI_MODEL_BACKEND`` env var).
 """
 
 from __future__ import annotations
 
 import importlib.resources
+import os
 from abc import ABC, abstractmethod
+from collections.abc import Iterable
 from dataclasses import dataclass
+from pathlib import Path
 
 import yaml
 
 from .normalize import normalize, split_sentences, tokenize
 
-# --- Sentiment lexicon (English + romanised Hindi) ------------------------------
+BACKENDS = ("rule", "transformer")
 
-POSITIVE = {
-    "good", "great", "nice", "best", "amazing", "excellent", "lovely",
-    "delicious", "tasty", "clean", "helpful", "friendly", "polite",
-    "comfortable", "cozy", "beautiful", "wonderful", "awesome", "perfect",
-    "spacious", "warm", "fresh", "accha", "badhiya", "mast", "shandar",
-    "saaf", "sasta", "khush",
-    # Devanagari
-    "बढ़िया", "अच्छा", "साफ", "शानदार", "सुंदर",
-}
-NEGATIVE = {
-    "bad", "worst", "poor", "terrible", "awful", "dirty", "cold", "rude",
-    "slow", "broken", "expensive", "overpriced", "disappointing",
-    "disappointed", "smelly", "noisy", "unhelpful", "pathetic", "stale",
-    "leaking", "ganda", "gandagi", "bekaar", "kharaab", "kharab", "thanda",
-    "mehenga", "mehnga", "problem",
-    # Devanagari
-    "बेकार", "ठंडा", "खराब", "गंदा", "गंदगी", "महंगा",
-}
-# Multiword expressions matched as substrings (order-sensitive negations etc.).
-POSITIVE_PHRASES = ("paisa vasool", "value for money", "well maintained")
-NEGATIVE_PHRASES = (
-    "not working", "did not work", "didn't work", "no hot water",
-    "not clean", "kaam nahi", "nahi chal", "band tha", "kaam nahi kar",
-)
-NEGATION = {"not", "no", "nahi", "never", "without", "bina"}
+
+# --- Config loading + validation ------------------------------------------------
+
+
+def _read_resource(name: str) -> str:
+    return importlib.resources.files("cri.resources").joinpath(name).read_text(encoding="utf-8")
+
+
+def _check_terms(source: str, key: str, value: object) -> list[str]:
+    if not isinstance(value, list) or not value:
+        raise ValueError(f"{source}: '{key}' must be a non-empty list of strings.")
+    for term in value:
+        if not isinstance(term, str) or not term.strip():
+            raise ValueError(f"{source}: '{key}' contains an empty or non-string entry: {term!r}")
+        if term != term.strip().lower():
+            raise ValueError(
+                f"{source}: '{key}' entry {term!r} must be lowercase with no surrounding "
+                "spaces (review text is lowercased before matching)."
+            )
+    return value
+
+
+def parse_lexicon(data: object, source: str = "lexicon.yaml") -> dict[str, list[str]]:
+    """Validate a lexicon mapping; raise ValueError naming the exact problem."""
+    keys = ("positive", "negative", "positive_phrases", "negative_phrases", "negation")
+    if not isinstance(data, dict):
+        raise ValueError(f"{source}: expected a mapping with keys {list(keys)}.")
+    missing = [k for k in keys if k not in data]
+    if missing:
+        raise ValueError(f"{source}: missing key(s) {missing}.")
+    lex = {k: _check_terms(source, k, data[k]) for k in keys}
+    pairs = (("positive", "negative"), ("positive_phrases", "negative_phrases"),
+             ("negation", "positive"), ("negation", "negative"))
+    for a, b in pairs:
+        both = sorted(set(lex[a]) & set(lex[b]))
+        if both:
+            raise ValueError(f"{source}: {both} appear in both '{a}' and '{b}'.")
+    return lex
+
+
+def load_aspects() -> dict[str, list[str]]:
+    """Aspect taxonomy (ordered). ``CRI_ASPECTS_PATH`` overrides the bundled file."""
+    override = os.environ.get("CRI_ASPECTS_PATH")
+    if override:
+        source, text = override, Path(override).read_text(encoding="utf-8")
+    else:
+        source, text = "aspects.yaml", _read_resource("aspects.yaml")
+    data = yaml.safe_load(text)
+    aspects = data.get("aspects") if isinstance(data, dict) else None
+    if not isinstance(aspects, dict) or not aspects:
+        raise ValueError(f"{source}: expected a non-empty 'aspects' mapping.")
+    return {str(name): _check_terms(source, str(name), cues) for name, cues in aspects.items()}
+
+
+_LEXICON = parse_lexicon(yaml.safe_load(_read_resource("lexicon.yaml")))
+
+# Module-level names kept for backward compatibility; contents come from lexicon.yaml.
+POSITIVE = frozenset(_LEXICON["positive"])
+NEGATIVE = frozenset(_LEXICON["negative"])
+POSITIVE_PHRASES = tuple(_LEXICON["positive_phrases"])
+NEGATIVE_PHRASES = tuple(_LEXICON["negative_phrases"])
+NEGATION = frozenset(_LEXICON["negation"])
+
+
+# --- Interface ------------------------------------------------------------------
 
 
 @dataclass(frozen=True)
@@ -53,12 +100,6 @@ class AspectSentiment:
     sentence: str
 
 
-def _load_aspects() -> dict[str, list[str]]:
-    resource = importlib.resources.files("cri.resources").joinpath("aspects.yaml")
-    data = yaml.safe_load(resource.read_text(encoding="utf-8"))
-    return data["aspects"]
-
-
 class Classifier(ABC):
     """Interface: map raw review text to a list of (aspect, sentiment) mentions."""
 
@@ -66,12 +107,19 @@ class Classifier(ABC):
     def classify_review(self, text: str) -> list[AspectSentiment]:
         ...
 
+    def classify_reviews(self, texts: Iterable[str]) -> list[list[AspectSentiment]]:
+        """Classify many reviews. Backends that batch (e.g. a model) override this."""
+        return [self.classify_review(text) for text in texts]
+
+
+# --- Rule / lexicon baseline ----------------------------------------------------
+
 
 class RuleClassifier(Classifier):
     """Lexicon + cue-term baseline. Deterministic and inspectable."""
 
     def __init__(self, aspects: dict[str, list[str]] | None = None) -> None:
-        self.aspects = aspects if aspects is not None else _load_aspects()
+        self.aspects = aspects if aspects is not None else load_aspects()
         # Pre-split cue terms into single-token vs multiword for matching.
         self._single: dict[str, set[str]] = {}
         self._multi: dict[str, list[str]] = {}
@@ -130,16 +178,35 @@ class RuleClassifier(Classifier):
                 found.append(aspect)
         return found
 
+    def aspect_clauses(self, text: str) -> list[tuple[str, list[str]]]:
+        """(clause, aspects) for every normalised clause that mentions an aspect."""
+        if not isinstance(text, str):
+            return []
+        out = []
+        for sentence in split_sentences(normalize(text)):
+            aspects = self.sentence_aspects(sentence)
+            if aspects:
+                out.append((sentence, aspects))
+        return out
+
     # -- public API -------------------------------------------------------------
 
     def classify_review(self, text: str) -> list[AspectSentiment]:
-        results: list[AspectSentiment] = []
-        norm = normalize(text)
-        for sentence in split_sentences(norm):
-            aspects = self.sentence_aspects(sentence)
-            if not aspects:
-                continue
-            sentiment = self.sentence_sentiment(sentence)
-            for aspect in aspects:
-                results.append(AspectSentiment(aspect, sentiment, sentence))
-        return results
+        return [
+            AspectSentiment(aspect, self.sentence_sentiment(sentence), sentence)
+            for sentence, aspects in self.aspect_clauses(text)
+            for aspect in aspects
+        ]
+
+
+def get_classifier(name: str | None = None) -> Classifier:
+    """Build a backend by name, or from ``CRI_MODEL_BACKEND`` (default ``rule``)."""
+    choice = (name or os.environ.get("CRI_MODEL_BACKEND") or "rule").strip().lower()
+    if choice == "rule":
+        return RuleClassifier()
+    if choice == "transformer":
+        # Imported lazily so the default install never needs torch/transformers.
+        from .transformer_backend import TransformerClassifier
+
+        return TransformerClassifier()
+    raise ValueError(f"Unknown classifier backend {choice!r}; available: {', '.join(BACKENDS)}.")
