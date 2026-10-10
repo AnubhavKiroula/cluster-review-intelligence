@@ -172,11 +172,18 @@ def generate(
     seed: int = 42,
     start: str = DEFAULT_START,
     end: str = DEFAULT_END,
+    inject_patterns: bool = True,
 ) -> pd.DataFrame:
-    """Generate the synthetic reviews DataFrame (schema-compliant)."""
+    """Generate the synthetic reviews DataFrame (schema-compliant).
+
+    ``inject_patterns=False`` produces the same mechanics with NO injected patterns
+    (a "null" dataset): every detection on it is a false positive by construction,
+    which is how ``cri.calibration`` measures false-alarm rates.
+    ``start``/``end`` accept ``YYYY-MM`` or full ``YYYY-MM-DD`` dates (inclusive months).
+    """
     rng = np.random.default_rng(seed)
     baseline = _baseline_matrix(rng)
-    months = pd.date_range(start=start, end=f"{end}-28", freq="MS")
+    months = pd.period_range(start=start, end=end, freq="M").to_timestamp()
     weights = ASPECT_WEIGHTS / ASPECT_WEIGHTS.sum()
 
     rows: list[dict] = []
@@ -184,14 +191,15 @@ def generate(
         for month in months:
             n_reviews = int(rng.integers(14, 22))
             # Extra heating complaints every December (market-wide burst).
-            n_dec_extra = 5 if month.month == 12 else 0
+            n_dec_extra = 5 if inject_patterns and month.month == 12 else 0
 
             for _ in range(n_reviews):
                 k = int(rng.integers(1, 3))  # 1 or 2 aspects per review
                 chosen = rng.choice(ASPECTS, size=k, replace=False, p=weights)
                 sentences, langs, sentiments = [], [], []
                 for aspect in chosen:
-                    p_pos = _p_positive(prop, aspect, month, baseline[prop][aspect])
+                    base = baseline[prop][aspect]
+                    p_pos = _p_positive(prop, aspect, month, base) if inject_patterns else base
                     polarity = "pos" if rng.random() < p_pos else "neg"
                     text, lang, sent = _pick_sentence(rng, aspect, polarity)
                     sentences.append(text)
@@ -244,9 +252,16 @@ def main(argv: list[str] | None = None) -> None:
     parser.add_argument("--seed", default=42, type=int)
     parser.add_argument("--start", default=DEFAULT_START)
     parser.add_argument("--end", default=DEFAULT_END)
+    parser.add_argument(
+        "--no-patterns",
+        action="store_true",
+        help="generate a null dataset with no injected patterns (for calibration)",
+    )
     args = parser.parse_args(argv)
 
-    df = generate(seed=args.seed, start=args.start, end=args.end)
+    df = generate(
+        seed=args.seed, start=args.start, end=args.end, inject_patterns=not args.no_patterns
+    )
     args.out.parent.mkdir(parents=True, exist_ok=True)
     df.to_csv(args.out, index=False, encoding="utf-8")
     print(
