@@ -24,9 +24,11 @@ def test_property_f_should_fix_food_first(labelled):
     assert top["aspect"] == "Food"
     assert top["started"] == "2025-06"
     assert top["gap"] > 0.5
+    assert top["basis"] == "cluster"
     # the gap is measured on the same months for both sides
-    assert top["gap"] == pytest.approx(top["cluster_mean"] - top["current_mean"], abs=1e-3)
+    assert top["gap"] == pytest.approx(top["reference_mean"] - top["current_mean"], abs=1e-3)
     assert "2025-06" in top["rationale"] and "Food" in top["rationale"]
+    assert "relative to the market" in top["rationale"]
 
 
 def test_ranking_is_by_impact_and_every_row_is_behind(labelled):
@@ -53,6 +55,30 @@ def test_unknown_property_gives_empty_frame(labelled):
     assert priority_actions(labelled, "Property Z").empty
 
 
+def test_missing_started_is_none_not_nan():
+    lab = label_reviews(generate(seed=2))  # F has a decline AND an overall lag here
+    pa = priority_actions(lab, "Property F", top_n=8)
+    assert pa["started"].notna().any() and pa["started"].isna().any()
+    assert all(v is None for v in pa["started"] if not isinstance(v, str))
+
+
+def test_two_property_cluster_does_not_claim_a_market_comparison(labelled):
+    two = labelled[labelled["property_id"].isin(["Property A", "Property F"])]
+    top = priority_actions(two, "Property F").iloc[0]
+    assert top["aspect"] == "Food" and top["basis"] == "own history"
+    assert "relative to the market" not in top["rationale"]
+    assert "too few properties" in top["rationale"]
+
+
+def test_single_property_upload_still_gets_its_own_declines(labelled):
+    one = labelled[labelled["property_id"] == "Property F"]
+    pa = priority_actions(one, "Property F")
+    assert len(pa) >= 1
+    top = pa.iloc[0]
+    assert top["aspect"] == "Food" and top["started"] == "2025-06"
+    assert top["basis"] == "own history" and top["gap"] > 0.5
+
+
 def test_destination_summary_labels_each_aspect(labelled):
     ds = destination_summary(labelled).set_index("aspect")
     assert list(destination_summary(labelled).columns) == DESTINATION_COLUMNS
@@ -61,6 +87,7 @@ def test_destination_summary_labels_each_aspect(labelled):
     assert "December" in ds.at["Room", "pattern"]
     assert ds.at["Food", "scope"] == "property-specific"
     assert set(ds["scope"]) <= {"market-wide", "property-specific", "stable"}
+    assert (ds["n_properties_reviewed"] == 12).all()
     assert ((ds["pct_negative"] >= 0) & (ds["pct_negative"] <= 1)).all()
 
 

@@ -5,12 +5,19 @@ signature and documented columns. Additive extensions (Day 0, agreed in the PR):
 
 * ``ClusterData.reviews`` has a ``review_id`` column and ``labelled`` carries it too,
   so every mention links back to its review (used by ``search_reviews``).
-* Extra columns: ``property_scorecard`` -> ``n_reviews``; ``changepoints`` ->
-  ``raw_delta, market_delta, p_value, q_value``; ``market_scope`` -> ``pattern``;
-  ``destination_summary`` -> ``pattern, n_properties``; ``priority_actions`` ->
-  ``current_mean, cluster_mean, n``.
+* Extra columns: ``property_scorecard`` -> ``n_reviews, q_value``; ``changepoints``
+  -> ``raw_delta, market_delta, p_value, q_value``; ``market_scope`` -> ``pattern``;
+  ``destination_summary`` -> ``pattern, n_properties_reviewed``; ``priority_actions``
+  -> ``current_mean, reference_mean, basis, n``.
 * Scope values: ``market_scope`` may return ``undetermined`` (fewer than 3
-  properties); ``destination_summary`` also uses ``stable`` (no negative shift).
+  properties review the aspect); ``destination_summary`` also uses ``stable``.
+* Missing optional values: ``priority_actions.started`` and
+  ``changepoints.market_delta`` can be missing (``None`` / NaN); test with
+  ``pd.isna``. ``ci_low``/``ci_high`` are NaN below 10 reviews.
+
+Ingestion is normalised here, once: ``property_id`` becomes text (so numeric ids
+like 101 work everywhere) and timezone-aware dates become naive local time in
+``LOCAL_TZ`` (so months are the calendar months the guests experienced).
 
 All functions are pure: they never mutate ``ClusterData``. In Streamlit, cache
 ``load_cluster`` and the heavier calls with ``st.cache_data``.
@@ -20,7 +27,9 @@ the valid options; empty results are empty frames with the documented columns.
 
 from __future__ import annotations
 
+import numbers
 import os
+import re
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -35,9 +44,12 @@ from .pipeline import label_reviews
 from .schema import validate_reviews
 
 SCORECARD_COLUMNS = [
-    "aspect", "mean", "ci_low", "ci_high", "n", "cluster_mean", "diff", "flag", "n_reviews",
+    "aspect", "mean", "ci_low", "ci_high", "n", "cluster_mean", "diff", "flag",
+    "n_reviews", "q_value",
 ]
 TREND_COLUMNS = ["month", "mean", "n"]
+LOCAL_TZ = "Asia/Kolkata"  # Uttarakhand clusters: tz-aware review dates are converted here
+REVIEW_COLUMNS = ["review_id", "property_id", "date", "platform", "rating", "language_hint", "text"]
 SEARCH_COLUMNS = [
     "review_id", "property_id", "date", "platform", "rating", "language_hint",
     "aspect", "sentiment", "sentence", "text",
@@ -69,8 +81,21 @@ def _with_review_ids(reviews: pd.DataFrame) -> pd.DataFrame:
 
 
 def _mentions_synthetic(*names: str) -> bool:
-    # CLAUDE.md rule 2: synthetic data always carries "synthetic" in its filename.
-    return any("synthetic" in name.lower() for name in names)
+    # CLAUDE.md rule 2: synthetic data always carries "synthetic" in its file or
+    # folder name, so every path component is checked.
+    return any("synthetic" in str(name).lower() for name in names)
+
+
+def _normalise(reviews: pd.DataFrame) -> pd.DataFrame:
+    """One dtype per column for everything downstream (see module docstring)."""
+    reviews = reviews.assign(property_id=reviews["property_id"].astype(str).str.strip())
+    dates = reviews["date"]
+    if isinstance(dates.dtype, pd.DatetimeTZDtype):
+        dates = dates.dt.tz_convert(LOCAL_TZ).dt.tz_localize(None)
+    elif not pd.api.types.is_datetime64_any_dtype(dates):
+        # Mixed UTC offsets arrive as objects: align them on UTC, then local time.
+        dates = pd.to_datetime(dates, utc=True).dt.tz_convert(LOCAL_TZ).dt.tz_localize(None)
+    return reviews.assign(date=dates)
 
 
 def _files_in(directory: Path) -> list[str]:
@@ -85,18 +110,18 @@ def load_cluster(path=None, *, synthetic=True, seed=42) -> ClusterData:
     * no ``path``, ``synthetic=False``: every file in ``$CRI_DATA_RAW_DIR``
       (default ``data/raw``).
 
-    ``is_synthetic`` is True whenever any source filename contains "synthetic", so
-    the dashboard banner also appears for ``data/sample/synthetic_reviews.csv``.
+    ``is_synthetic`` is True whenever any source file or folder name contains
+    "synthetic", so the dashboard banner also appears for the bundled sample.
     The classifier backend follows ``CRI_MODEL_BACKEND`` (default ``rule``).
     """
     if path is not None:
         p = Path(path)
         if p.is_dir():
             reviews = load_dir(p)
-            is_synthetic = _mentions_synthetic(p.name, *_files_in(p))
+            is_synthetic = _mentions_synthetic(*p.resolve().parts, *_files_in(p))
         else:
             reviews = load_reviews(p)
-            is_synthetic = _mentions_synthetic(p.name)
+            is_synthetic = _mentions_synthetic(*p.resolve().parts)
         source = p.name or str(p)
     elif synthetic:
         reviews = validate_reviews(generate(seed=seed))
@@ -104,9 +129,10 @@ def load_cluster(path=None, *, synthetic=True, seed=42) -> ClusterData:
     else:
         raw = Path(os.environ.get("CRI_DATA_RAW_DIR", "data/raw"))
         reviews = load_dir(raw)
-        is_synthetic, source = _mentions_synthetic(raw.name, *_files_in(raw)), str(raw)
+        is_synthetic = _mentions_synthetic(*raw.resolve().parts, *_files_in(raw))
+        source = str(raw)
 
-    reviews = _with_review_ids(reviews)
+    reviews = _normalise(_with_review_ids(reviews))
     labelled = label_reviews(reviews, classifier=get_classifier())
     return ClusterData(reviews, labelled, is_synthetic, source)
 
@@ -114,8 +140,13 @@ def load_cluster(path=None, *, synthetic=True, seed=42) -> ClusterData:
 # --- Lookups ------------------------------------------------------------------------
 
 
+def _natural_key(text: str) -> list:
+    return [int(t) if t.isdigit() else t.lower() for t in re.split(r"(\d+)", text)]
+
+
 def list_properties(d: ClusterData) -> list[str]:
-    return sorted(str(p) for p in d.reviews["property_id"].unique())
+    """Property ids in natural order ('Property 2' before 'Property 10')."""
+    return sorted((str(p) for p in d.reviews["property_id"].unique()), key=_natural_key)
 
 
 def list_aspects() -> list[str]:
@@ -152,7 +183,9 @@ def _taxonomy_order(frame: pd.DataFrame) -> pd.DataFrame:
 def property_scorecard(d: ClusterData, property_id: str) -> pd.DataFrame:
     """aspect, mean, ci_low, ci_high, n, cluster_mean, diff, flag (lead|lag|on_par).
 
-    One row per aspect the property is mentioned for, in taxonomy order.
+    One row per aspect the property is mentioned for, in taxonomy order. Flags are
+    FDR-controlled across the whole cluster (``q_value``) and never contradict the
+    CI; aspects with fewer than 10 reviews get no CI and no flag.
     """
     _check_property(d, property_id)
     bench = _benchmark.benchmark_vs_cluster(d.labelled, property_id=property_id)
@@ -174,19 +207,7 @@ def trend(d: ClusterData, property_id: str, aspect: str) -> pd.DataFrame:
     """month, mean, n for one property-aspect (months with at least one mention)."""
     _check_property(d, property_id)
     _check_aspect(aspect)
-    lab = d.labelled
-    sub = lab[(lab["property_id"] == property_id) & (lab["aspect"] == aspect)]
-    if sub.empty:
-        return pd.DataFrame(columns=TREND_COLUMNS)
-    monthly = sub.set_index("date")["sentiment"].resample("MS").agg(["mean", "count"])
-    monthly = monthly[monthly["count"] > 0]
-    return pd.DataFrame(
-        {
-            "month": monthly.index,
-            "mean": monthly["mean"].to_numpy(dtype=float),
-            "n": monthly["count"].to_numpy(dtype="int64"),
-        }
-    )
+    return _benchmark.monthly_stats(d.labelled, property_id, aspect)[TREND_COLUMNS]
 
 
 def changepoints(d: ClusterData, property_id=None, aspect=None) -> pd.DataFrame:
@@ -220,10 +241,10 @@ def destination_summary(d: ClusterData) -> pd.DataFrame:
 
 def priority_actions(d: ClusterData, property_id: str, top_n: int = 5) -> pd.DataFrame:
     """aspect, gap, volume, impact_score, started, rationale -> "fix this first"."""
-    if isinstance(top_n, bool) or not isinstance(top_n, int) or top_n < 1:
+    if isinstance(top_n, bool) or not isinstance(top_n, numbers.Integral) or top_n < 1:
         raise ValueError(f"top_n must be a positive integer, got {top_n!r}")
     _check_property(d, property_id)
-    return _insights.priority_actions(d.labelled, property_id, top_n=top_n)
+    return _insights.priority_actions(d.labelled, property_id, top_n=int(top_n))
 
 
 def search_reviews(
@@ -238,7 +259,8 @@ def search_reviews(
     """Filtered reviews for the explorer, one row per (review, matched clause).
 
     ``aspect``/``sentiment`` filter on the classified clauses; without them, reviews
-    with no detected aspect are kept (empty ``aspect``) so misses can be audited.
+    with no detected aspect are kept (``aspect``/``sentence`` NaN, ``sentiment``
+    <NA>) so misses can be audited.
     ``start``/``end`` are inclusive dates. ``query`` is a literal, case-insensitive
     substring of the review text. Newest first.
     """
@@ -249,7 +271,7 @@ def search_reviews(
     if sentiment is not None and (isinstance(sentiment, bool) or sentiment not in (-1, 0, 1)):
         raise ValueError(f"sentiment must be -1, 0, or 1, got {sentiment!r}")
 
-    reviews = d.reviews
+    reviews = d.reviews[REVIEW_COLUMNS]  # extra raw columns never collide with clause ones
     if property_id is not None:
         reviews = reviews[reviews["property_id"] == property_id]
     day = reviews["date"].dt.normalize()

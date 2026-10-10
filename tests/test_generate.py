@@ -54,3 +54,14 @@ def test_seed_42_reproduces_the_committed_sample():
 
     committed = load_reviews("data/sample/synthetic_reviews.csv")
     assert committed.equals(validate_reviews(generate(seed=42)))
+
+
+def test_cli_refuses_an_output_name_without_synthetic(tmp_path):
+    import pytest
+
+    from cri.generate import main
+
+    with pytest.raises(SystemExit):
+        main(["--out", str(tmp_path / "reviews.csv")])
+    main(["--out", str(tmp_path / "synthetic_null.csv"), "--no-patterns"])
+    assert (tmp_path / "synthetic_null.csv").exists()

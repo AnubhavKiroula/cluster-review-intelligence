@@ -258,6 +258,10 @@ def main(argv: list[str] | None = None) -> None:
         help="generate a null dataset with no injected patterns (for calibration)",
     )
     args = parser.parse_args(argv)
+    if "synthetic" not in args.out.name.lower():
+        # CLAUDE.md rule 2: synthetic data must say so in its filename; the loader
+        # relies on this to show the SYNTHETIC banner.
+        parser.error(f"--out filename must contain 'synthetic' (got {args.out.name!r})")
 
     df = generate(
         seed=args.seed, start=args.start, end=args.end, inject_patterns=not args.no_patterns

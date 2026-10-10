@@ -225,3 +225,71 @@ def test_search_empty_result_keeps_columns(d):
 def test_invalid_input_raises_value_error(d, call):
     with pytest.raises(ValueError):
         call(d)
+
+
+# --- regressions from the adversarial review -----------------------------------------
+
+
+def test_numeric_property_ids_work_everywhere(tmp_path):
+    sample = generate(seed=3)
+    ids = {f"Property {c}": 100 + i for i, c in enumerate("ABCDEFGHIJKL")}
+    data = api.load_cluster(_write(sample.assign(property_id=sample["property_id"].map(ids)),
+                                   tmp_path / "numeric_ids.csv"))
+    first = api.list_properties(data)[0]
+    assert first == "100"
+    assert len(api.property_scorecard(data, first)) > 0
+    assert not api.cluster_matrix(data).isna().all().all()
+    assert len(api.trend(data, first, "Food")) > 0
+    api.market_scope(data)
+    api.destination_summary(data)
+
+
+def test_properties_are_listed_in_natural_order(tmp_path):
+    sample = generate(seed=3)
+    renamed = sample.assign(property_id=sample["property_id"].str.replace("Property ", "P"))
+    renamed = renamed.assign(property_id=renamed["property_id"].map(
+        {f"P{c}": f"Hotel {i + 1}" for i, c in enumerate("ABCDEFGHIJKL")}))
+    data = api.load_cluster(_write(renamed, tmp_path / "names.csv"))
+    assert api.list_properties(data)[:3] == ["Hotel 1", "Hotel 2", "Hotel 3"]
+
+
+@pytest.mark.parametrize("fmt", ["%Y-%m-%dT08:15:00Z", "%Y-%m-%dT10:00:00+05:30"])
+def test_timezone_aware_dates_become_naive_local_time(tmp_path, fmt):
+    sample = generate(seed=2)
+    stamped = sample.assign(date=pd.to_datetime(sample["date"]).dt.strftime(fmt))
+    data = api.load_cluster(_write(stamped, tmp_path / "tz.csv"))
+    assert data.reviews["date"].dt.tz is None
+    assert len(api.priority_actions(data, "Property F")) > 0
+    assert not api.search_reviews(data, start="2025-01-01", end="2025-03-31").empty
+
+
+def test_raw_columns_named_like_clause_columns_do_not_break_search(tmp_path):
+    sample = generate(seed=2).assign(sentiment="positive", aspect="misc", sentence="x")
+    data = api.load_cluster(_write(sample, tmp_path / "collide.csv"))
+    assert (api.search_reviews(data, sentiment=-1)["sentiment"] == -1).all()
+    assert (api.search_reviews(data, aspect="Food")["aspect"] == "Food").all()
+
+
+def test_synthetic_detected_from_a_parent_folder(tmp_path):
+    folder = tmp_path / "synthetic"
+    folder.mkdir()
+    data = api.load_cluster(_write(generate(seed=3).head(300), folder / "reviews.csv"))
+    assert data.is_synthetic
+
+
+def test_top_n_accepts_numpy_integers(d):
+    import numpy as np
+
+    assert len(api.priority_actions(d, "Property D", top_n=np.int64(2))) == 2
+
+
+def test_empty_trend_has_typed_columns(tmp_path):
+    sample = generate(seed=3).head(400)
+    quiet = pd.DataFrame([{**sample.iloc[0].to_dict(), "property_id": "Property Z",
+                           "text": "We stayed two nights."}])
+    data = api.load_cluster(_write(pd.concat([sample, quiet]), tmp_path / "quiet.csv"))
+    tr = api.trend(data, "Property Z", "Food")
+    assert tr.empty
+    assert pd.api.types.is_datetime64_any_dtype(tr["month"]) and tr["n"].dtype == "int64"
+    unmatched = api.search_reviews(data, property_id="Property Z")
+    assert len(unmatched) == 1 and unmatched["aspect"].isna().all()
