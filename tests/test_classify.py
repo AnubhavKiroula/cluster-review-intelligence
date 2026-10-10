@@ -135,3 +135,33 @@ def test_classify_reviews_matches_one_by_one_and_tolerates_missing_text():
     texts = ["The food was delicious.", "The staff were rude."]
     assert clf.classify_reviews(texts) == [clf.classify_review(t) for t in texts]
     assert clf.classify_review(None) == []
+
+
+# --- regressions from the adversarial review -----------------------------------------
+
+
+def test_precomposed_devanagari_nukta_matches_the_lexicon():
+    decomposed = "खाना बढ़िया था"
+    # U+0922 U+093C (letter + nukta) -> U+095D (precomposed), as many keyboards type it
+    precomposed = decomposed.replace("ढ़", "ढ़")
+    assert precomposed != decomposed
+    clf = RuleClassifier()
+    assert [(r.aspect, r.sentiment) for r in clf.classify_review(precomposed)] == [("Food", 1)]
+
+
+@pytest.mark.parametrize(
+    ("key", "entry"),
+    [("positive", "well-maintained"), ("positive", "very good"),
+     ("positive_phrases", "value, for money"), ("negative_phrases", "bad aur slow")],
+)
+def test_entries_that_can_never_match_are_rejected(key, entry):
+    lexicon = _valid_lexicon()
+    lexicon[key] = [entry]
+    with pytest.raises(ValueError, match="can never match"):
+        parse_lexicon(lexicon)
+
+
+def test_aspect_cues_get_the_same_normalisation_as_text():
+    # aspects.yaml lists "saaf-safai"; normalize() rewrites the text to "saaf safai".
+    res = RuleClassifier().classify_review("Saaf-safai bahut badhiya thi")
+    assert [(r.aspect, r.sentiment) for r in res] == [("Cleanliness", 1)]

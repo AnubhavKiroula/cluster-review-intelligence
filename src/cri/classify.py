@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import importlib.resources
 import os
+import unicodedata
 from abc import ABC, abstractmethod
 from collections.abc import Iterable
 from dataclasses import dataclass
@@ -33,6 +34,7 @@ def _read_resource(name: str) -> str:
 
 
 def _check_terms(source: str, key: str, value: object) -> list[str]:
+    """Validate a list of terms; return them NFC-normalised (as review text is)."""
     if not isinstance(value, list) or not value:
         raise ValueError(f"{source}: '{key}' must be a non-empty list of strings.")
     for term in value:
@@ -43,7 +45,20 @@ def _check_terms(source: str, key: str, value: object) -> list[str]:
                 f"{source}: '{key}' entry {term!r} must be lowercase with no surrounding "
                 "spaces (review text is lowercased before matching)."
             )
-    return value
+    return [unicodedata.normalize("NFC", term) for term in value]
+
+
+def _check_matchable(source: str, key: str, terms: list[str], *, phrase: bool) -> None:
+    """Reject entries that review text could never match after normalisation."""
+    for term in terms:
+        if phrase:
+            ok = split_sentences(normalize(term)) == [term]
+            why = "it is changed or split by normalisation (e.g. a comma, 'aur' or 'or')"
+        else:
+            ok = tokenize(term) == [term]
+            why = "single-word lists match whole tokens; put multiword entries in *_phrases"
+        if not ok:
+            raise ValueError(f"{source}: '{key}' entry {term!r} can never match: {why}.")
 
 
 def parse_lexicon(data: object, source: str = "lexicon.yaml") -> dict[str, list[str]]:
@@ -55,6 +70,8 @@ def parse_lexicon(data: object, source: str = "lexicon.yaml") -> dict[str, list[
     if missing:
         raise ValueError(f"{source}: missing key(s) {missing}.")
     lex = {k: _check_terms(source, k, data[k]) for k in keys}
+    for k in keys:
+        _check_matchable(source, k, lex[k], phrase=k.endswith("_phrases"))
     pairs = (("positive", "negative"), ("positive_phrases", "negative_phrases"),
              ("negation", "positive"), ("negation", "negative"))
     for a, b in pairs:
@@ -126,7 +143,9 @@ class RuleClassifier(Classifier):
         for aspect, cues in self.aspects.items():
             singles, multis = set(), []
             for cue in cues:
-                cue = cue.lower()
+                # Cues go through the same normalisation as review text, so e.g.
+                # "saaf-safai" (which normalize() rewrites) still matches.
+                cue = normalize(cue)
                 if " " in cue or "-" in cue or any(ord(c) > 0x7F for c in cue):
                     multis.append(cue)
                 else:

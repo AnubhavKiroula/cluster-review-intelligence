@@ -8,6 +8,7 @@ rule classifier can assign aspects per sentence.
 from __future__ import annotations
 
 import re
+import unicodedata
 
 # Devanagari Unicode block.
 _DEVANAGARI = re.compile(r"[ऀ-ॿ]")
@@ -62,8 +63,13 @@ def detect_language(text: str) -> str:
 
 
 def normalize(text: str) -> str:
-    """Lowercase, map emoji/spelling variants, collapse whitespace."""
-    text = text.lower()
+    """NFC-normalise, lowercase, map emoji/spelling variants, collapse whitespace.
+
+    NFC makes visually identical Devanagari spellings identical code points (e.g. a
+    precomposed nukta letter typed by many keyboards vs letter + nukta), so the
+    same word always matches the lexicon.
+    """
+    text = unicodedata.normalize("NFC", text).lower()
     for emoji, token in _EMOJI_SENTIMENT.items():
         text = text.replace(emoji, token)
     text = _EMOJI_ANY.sub(" ", text)
