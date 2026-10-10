@@ -94,7 +94,7 @@ def find_changepoint(
     ss: np.ndarray,
     raw_s: np.ndarray | None = None,
     *,
-    market_weight: np.ndarray | None = None,
+    market_var: np.ndarray | None = None,
     min_months: int = 4,
     min_units: int = 10,
 ) -> Changepoint | None:
@@ -108,23 +108,23 @@ def find_changepoint(
     is Bonferroni-adjusted for the number of candidates. Returns None when no split
     is admissible. The caller applies cross-series FDR control and an effect floor.
 
-    ``market_weight`` (per month, ``1 / L`` where L units estimated a market mean
-    that was subtracted from that month's values) adds the variance of that shared
-    estimate: every unit in a month carries the same market error, so a segment mean
-    has extra variance ``sigma^2 * sum_t (n_t / n_segment)^2 / L_t``. Ignoring it makes
-    the test anti-conservative.
+    ``market_var`` (per month) is the variance of a market estimate that was
+    subtracted from that month's values. Every unit in a month shares that error, so
+    a segment mean gains ``sum_t (n_t / n_segment)^2 * market_var_t`` of variance;
+    leaving it out makes the test anti-conservative. It must come from the data
+    the market was estimated on (the other properties), not from this series.
     """
     n = np.asarray(n, dtype=float)
     s = np.asarray(s, dtype=float)
     ss = np.asarray(ss, dtype=float)
     raw_s = s if raw_s is None else np.asarray(raw_s, dtype=float)
-    weight = np.zeros_like(n) if market_weight is None else np.asarray(market_weight, float)
+    mvar = np.zeros_like(n) if market_var is None else np.asarray(market_var, dtype=float)
     months = len(n)
     if months < 2 * min_months:
         return None
 
     cn, cs, css, craw = np.cumsum(n), np.cumsum(s), np.cumsum(ss), np.cumsum(raw_s)
-    cmk = np.cumsum(n * n * weight)
+    cmk = np.cumsum(n * n * mvar)
     total_n = cn[-1]
     k = np.arange(min_months, months - min_months + 1)
     n1 = cn[k - 1]
@@ -141,7 +141,7 @@ def find_changepoint(
     dof = total_n - 2
     market_1 = cmk[k - 1] / (n1 * n1)
     market_2 = (cmk[-1] - cmk[k - 1]) / (n2 * n2)
-    se = np.sqrt(within / dof * (1.0 / n1 + 1.0 / n2 + market_1 + market_2))
+    se = np.sqrt(within / dof * (1.0 / n1 + 1.0 / n2) + market_1 + market_2)
     diff = m2 - m1
     with np.errstate(divide="ignore", invalid="ignore"):
         t = np.where(se > 0, diff / se, np.where(diff != 0, np.inf * np.sign(diff), 0.0))

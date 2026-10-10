@@ -20,6 +20,7 @@ from cri.benchmark import (
 )
 from cri.generate import generate
 from cri.pipeline import label_reviews
+from sim_helpers import constant, simulate, starting, step
 
 
 @pytest.fixture(scope="module")
@@ -95,13 +96,39 @@ def test_seasonal_food_decline_is_not_mistaken_for_seasonality(labelled):
     assert (dips["aspect"] == "Food").sum() == 0
 
 
-def test_benchmark_flags_property_f_food_as_lagging(labelled):
+def test_benchmark_flags_a_clear_laggard(labelled):
     bench = benchmark_vs_cluster(labelled)
-    row = bench[
-        (bench["property_id"] == "Property F") & (bench["aspect"] == "Food")
-    ].iloc[0]
+    row = bench[(bench["property_id"] == "Property D") & (bench["aspect"] == "Food")].iloc[0]
     assert row["flag"] == "lag"
-    assert row["ci_high"] < row["cluster_mean"]
+    assert row["ci_high"] < row["cluster_mean"] and row["q_value"] <= 0.05
+
+
+def test_flags_never_contradict_the_interval_shown(labelled):
+    bench = benchmark_vs_cluster(labelled)
+    lead, lag = bench[bench["flag"] == "lead"], bench[bench["flag"] == "lag"]
+    assert (lead["ci_low"] > lead["cluster_mean"]).all()
+    assert (lag["ci_high"] < lag["cluster_mean"]).all()
+    assert (bench.loc[bench["flag"] != "on_par", "q_value"] <= 0.05).all()
+
+
+def test_property_f_all_time_food_gap_is_not_overclaimed(labelled):
+    # F's all-time Food mean blends 17 good months and 7 bad ones: its gap is weak
+    # once ~100 pairs are tested together. The real signal is the 2025-06 decline,
+    # which the changepoint (and priority_actions) report.
+    bench = benchmark_vs_cluster(labelled)
+    row = bench[(bench["property_id"] == "Property F") & (bench["aspect"] == "Food")].iloc[0]
+    assert row["diff"] < 0 and row["q_value"] > 0.05 and row["flag"] == "on_par"
+
+
+def test_lead_lag_flags_are_fdr_controlled_on_a_null_cluster():
+    # 12 identical properties x 4 aspects: every flag would be false.
+    parts = [
+        simulate({f"P{i}": constant(0.6) for i in range(12)}, aspect=a, per_month=3, seed=50 + j)
+        .assign(review_id=lambda f, j=j: f["review_id"] + j * 10**6)
+        for j, a in enumerate(["Food", "Room", "Staff", "Location"])
+    ]
+    bench = benchmark_vs_cluster(pd.concat(parts, ignore_index=True))
+    assert (bench["flag"] == "on_par").all()
 
 
 # --- null data stays quiet --------------------------------------------------------
@@ -190,7 +217,8 @@ def test_bootstrap_ci_narrows_with_more_reviews():
 
 def test_bootstrap_ci_edge_cases():
     assert all(np.isnan(bootstrap_mean_ci(np.array([]), np.array([]))))
-    assert bootstrap_mean_ci(np.array([3.0]), np.array([3.0])) == (1.0, 1.0)
+    # One review cannot give an interval: NaN, never a zero-width "certain" CI.
+    assert all(np.isnan(bootstrap_mean_ci(np.array([3.0]), np.array([3.0]))))
 
 
 def test_property_ci_is_identical_alone_or_in_the_full_run(labelled):
@@ -203,7 +231,10 @@ def test_property_ci_is_identical_alone_or_in_the_full_run(labelled):
 def test_flags_need_enough_reviews(labelled):
     tiny = labelled[labelled["review_id"].isin(labelled["review_id"].unique()[:150])]
     bench = benchmark_vs_cluster(tiny)
-    assert (bench.loc[bench["n_reviews"] < 10, "flag"] == "on_par").all()
+    small = bench[bench["n_reviews"] < 10]
+    assert len(small) > 0
+    assert (small["flag"] == "on_par").all()
+    assert small["ci_low"].isna().all() and small["ci_high"].isna().all()
 
 
 # --- review units ------------------------------------------------------------------
@@ -218,3 +249,73 @@ def test_review_units_collapse_mentions_of_one_review(labelled):
 def test_review_units_fallback_without_review_id(labelled):
     units = review_units(labelled.drop(columns="review_id"))
     assert not units.duplicated(["property_id", "date", "aspect"]).any()
+
+
+# --- regressions from the adversarial review -----------------------------------------
+
+
+def test_property_entering_the_data_does_not_fake_declines_elsewhere():
+    # E (strong, high volume) only appears from 2025: nobody actually changes.
+    lab = simulate(
+        {**{k: constant(0.5) for k in "ABCD"}, "E": starting(0.9, "2025-01")},
+        per_month={"A": 15, "B": 15, "C": 15, "D": 15, "E": 45},
+        seed=0,
+    )
+    assert detect_changepoints(lab).empty
+
+
+def test_changepoint_test_is_calibrated_for_a_standout_property_in_a_small_cluster():
+    # Null data: A is much better rated (low variance) than B and C. The market
+    # error must use the competitors' variance, or A's p-values are too small.
+    from cri.benchmark import _changepoints_from_units
+
+    ps = []
+    for s in range(150):
+        lab = simulate({"A": constant(0.92), "B": constant(0.5), "C": constant(0.5)},
+                       per_month=6, seed=1000 + s)
+        raw = _changepoints_from_units(review_units(lab), 0.0, 1.0)
+        ps.extend(raw.loc[raw["property_id"] == "A", "p_value"])
+    assert np.mean(np.asarray(ps) <= 0.05) <= 0.06
+
+
+def test_one_year_market_step_is_a_step_not_seasonality():
+    lab = simulate({k: step(0.75, 0.35, "2025-07") for k in "ABCDEF"},
+                   start="2025-01", end="2025-12", per_month=20, seed=1)
+    patterns = detect_market_patterns(lab)
+    assert (patterns["kind"] == "seasonal").sum() == 0
+    steps = patterns[patterns["kind"] == "step"]
+    assert len(steps) == 1 and steps.iloc[0]["change_month"] == "2025-07"
+
+
+def test_aspect_reviewed_at_one_property_is_still_tested():
+    food = simulate({k: constant(0.6) for k in "ABC"}, seed=3)
+    spa = simulate({"A": step(0.9, 0.1, "2025-01")}, aspect="Spa", seed=4)
+    lab = pd.concat([food, spa.assign(review_id=spa["review_id"] + 10**6)], ignore_index=True)
+    cps = detect_changepoints(lab)
+    spa_cp = cps[cps["aspect"] == "Spa"]
+    assert len(spa_cp) == 1 and spa_cp.iloc[0]["change_month"] == "2025-01"
+    assert np.isnan(spa_cp.iloc[0]["market_delta"])  # no market to compare with
+    scope = market_wide_summary(lab).set_index("aspect")
+    assert scope.at["Spa", "scope"] == "undetermined"
+
+
+def test_missing_change_month_is_none_not_nan(labelled):
+    # Seasonal (no change month) next to a step row: the gap must stay None, since
+    # NaN is truthy and pandas 3 would otherwise store it in a string column.
+    hit = _inject_market_step(labelled, "Staff", pd.Timestamp("2025-03-01"), flip=0.9)
+    patterns = detect_market_patterns(hit)
+    assert set(patterns["kind"]) == {"seasonal", "step"}
+    seasonal = patterns[patterns["kind"] == "seasonal"]
+    assert all(v is None for v in seasonal["change_month"])
+
+
+def test_effect_floor_is_applied_before_rounding(monkeypatch):
+    import cri.benchmark as b
+    from cri.changepoint import Changepoint
+
+    monkeypatch.setattr(
+        b, "find_changepoint",
+        lambda *a, **k: Changepoint(index=6, delta=-0.3996, raw_delta=-0.3996, p_value=1e-9),
+    )
+    lab = simulate({"A": constant(0.5)}, seed=0)
+    assert b.detect_changepoints(lab).empty  # |delta| 0.3996 < 0.4, even though it rounds to 0.4

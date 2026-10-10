@@ -5,8 +5,10 @@ Operates on the long frame produced by :func:`cri.pipeline.label_reviews`
 
 Two questions, each tested at the level it is about (rules in docs/methodology.md):
 
-* "Is it me?"  -> a property's sentiment *relative to the rest of the market*
-  (leave-one-out cluster mean) is tested for a step change.
+* "Is it me?"  -> a property's sentiment *relative to the rest of the market* is
+  tested for a step change. The market reference removes each other property's
+  own level first, so it does not move when properties enter, leave, or change
+  review volume.
 * "Is it the market?" -> properties are the independent replicates; a seasonal dip
   or a step change counts as market-wide only when it holds across properties.
 
@@ -17,6 +19,7 @@ bootstrap use one unit per (review, aspect) rather than one per mention.
 from __future__ import annotations
 
 import calendar
+import math
 import zlib
 
 import numpy as np
@@ -27,7 +30,7 @@ from .changepoint import bh_qvalues, find_changepoint, t_sf
 # --- Thresholds (all documented in docs/methodology.md) -------------------------
 
 BENCHMARK_MARGIN = 0.05  # minimum |property - cluster| gap to call lead/lag
-MIN_REVIEWS_FOR_FLAG = 10  # below this a CI is too unstable to flag lead/lag
+MIN_REVIEWS_FOR_FLAG = 10  # fewer reviews: no CI shown and no lead/lag flag
 BOOTSTRAP_SAMPLES = 2000
 CI_LEVEL = 0.95
 FDR_Q = 0.05  # Benjamini-Hochberg false-discovery rate for every test family
@@ -37,10 +40,15 @@ CHANGEPOINT_MIN_UNITS = 10  # reviews on each side of a split
 MARKET_WIDE_FRACTION = 0.6  # share of properties that must share a market pattern
 MARKET_MIN_EFFECT = 0.3  # a property "participates" if its drop is >= 0.3 (~15% flipping)
 MIN_PROPERTIES_FOR_SCOPE = 3  # with fewer properties "me vs market" is undetermined
-SEASONAL_MIN_MONTH_UNITS = 3  # reviews in the calendar month, per property
-SEASONAL_MIN_REST_UNITS = 10  # reviews in the rest of the year, per property
+SEASONAL_MIN_YEARS = 2  # a dip must be seen in >= 2 years to be called seasonal
+SEASONAL_MIN_MONTH_UNITS = 2  # reviews in the calendar month, per property and year
+SEASONAL_MIN_REST_UNITS = 5  # reviews in the rest of that year, per property
 STEP_MIN_SIDE_UNITS = 5  # reviews per property on each side of a market step split
 
+BENCHMARK_COLUMNS = [
+    "property_id", "aspect", "mean", "n", "n_reviews", "ci_low", "ci_high",
+    "cluster_mean", "diff", "p_value", "q_value", "flag",
+]
 CHANGEPOINT_COLUMNS = [
     "property_id", "aspect", "change_month", "delta", "direction",
     "raw_delta", "market_delta", "p_value", "q_value",
@@ -51,6 +59,18 @@ MARKET_PATTERN_COLUMNS = [
 ]
 SEASONAL_COLUMNS = ["property_id", "aspect", "target_month", "gap", "q_value"]
 SCOPE_COLUMNS = ["aspect", "n_properties", "fraction", "scope", "properties", "pattern"]
+
+
+def undetermined_note(n_properties: int) -> str:
+    """Single source for the 'too few properties' explanation shown to users."""
+    noun = "property" if n_properties == 1 else "properties"
+    return f"only {n_properties} {noun} with reviews: cannot separate market from property"
+
+
+def none_for_missing(values: pd.Series) -> pd.Series:
+    """Optional text column with real ``None`` for missing values (pandas 3 would
+    otherwise store NaN in a string column, and NaN is truthy)."""
+    return values.astype(object).where(values.notna(), None)
 
 
 # --- Units --------------------------------------------------------------------------
@@ -92,16 +112,14 @@ def bootstrap_mean_ci(
 
     ``sums``/``counts`` are each review's sentiment total and mention count, so the
     point estimate equals the plain mention mean while the interval reflects that
-    mentions from one review are not independent (a cluster bootstrap).
+    mentions from one review are not independent (a cluster bootstrap). Fewer than
+    two reviews give no interval (NaN), never a misleading zero-width one.
     """
     sums = np.asarray(sums, dtype=float)
     counts = np.asarray(counts, dtype=float)
     r = len(sums)
-    if r == 0:
+    if r < 2:
         return (float("nan"), float("nan"))
-    if r == 1:
-        point = float(sums[0] / counts[0])
-        return (point, point)
     rng = np.random.default_rng(seed)
     means = np.empty(n_boot)
     chunk = max(1, min(n_boot, 2_000_000 // r))  # bound memory on large real groups
@@ -117,12 +135,9 @@ def bootstrap_mean_ci(
 
 
 def aspect_scores(labelled: pd.DataFrame) -> pd.DataFrame:
-    """Mean sentiment, count, and standard error per (property, aspect)."""
+    """Mean sentiment (mention-level) and mention count per (property, aspect)."""
     grouped = labelled.groupby(["property_id", "aspect"])["sentiment"]
-    scores = grouped.agg(mean="mean", n="count", std="std").reset_index()
-    scores["std"] = scores["std"].fillna(0.0)
-    scores["se"] = scores["std"] / np.sqrt(scores["n"].clip(lower=1))
-    return scores
+    return grouped.agg(mean="mean", n="count").reset_index()
 
 
 def cluster_means(scores: pd.DataFrame) -> pd.Series:
@@ -130,59 +145,107 @@ def cluster_means(scores: pd.DataFrame) -> pd.Series:
     return scores.groupby("aspect")["mean"].mean()
 
 
+def _two_sided_p(diff: np.ndarray, se: np.ndarray) -> np.ndarray:
+    with np.errstate(divide="ignore", invalid="ignore"):
+        z = np.abs(diff) / se
+    p = np.array([math.erfc(v / math.sqrt(2.0)) if np.isfinite(v) else 0.0 for v in z])
+    p[(se == 0) & (diff == 0)] = 1.0
+    p[np.isnan(se)] = np.nan
+    return p
+
+
 def benchmark_vs_cluster(labelled: pd.DataFrame, property_id: str | None = None) -> pd.DataFrame:
     """Flag each property-aspect as lead / lag / on_par vs the cluster.
 
-    Adds a review-level bootstrap CI (``ci_low``/``ci_high``). A flag needs at least
-    ``MIN_REVIEWS_FOR_FLAG`` reviews, a gap above ``BENCHMARK_MARGIN``, and a CI that
-    excludes the cluster mean. Pass ``property_id`` to bootstrap only that property;
-    results are identical to the full run because each group has its own seed.
+    * ``ci_low``/``ci_high``: review-level bootstrap 95% CI (NaN below
+      ``MIN_REVIEWS_FOR_FLAG`` reviews).
+    * ``p_value``: two-sided test of mean = cluster mean using the review-level
+      (cluster-robust) standard error; ``q_value``: Benjamini-Hochberg over every
+      eligible property-aspect pair in the cluster, so flags are not one 5% test
+      each across ~100 pairs.
+    * A flag needs >= ``MIN_REVIEWS_FOR_FLAG`` reviews, a gap above
+      ``BENCHMARK_MARGIN``, ``q_value <= FDR_Q``, and a CI that excludes the cluster
+      mean (so a flag never contradicts the interval shown next to it).
+
+    Pass ``property_id`` to bootstrap only that property; results are identical to
+    the full run because each group has its own seed and q-values span the cluster.
     """
     scores = aspect_scores(labelled)
-    cmeans = cluster_means(scores)
-    units = review_units(labelled)
+    scores = scores.assign(cluster_mean=scores["aspect"].map(cluster_means(scores)))
+    units = review_units(labelled).merge(scores[["property_id", "aspect", "mean"]])
+    units = units.assign(dev2=(units["total"] - units["mean"] * units["mentions"]) ** 2)
+    robust = units.groupby(["property_id", "aspect"], as_index=False).agg(
+        n_reviews=("total", "size"), dev2=("dev2", "sum"), mentions=("mentions", "sum")
+    )
+    out = scores.merge(robust, on=["property_id", "aspect"], how="left")
+    r = out["n_reviews"].to_numpy(dtype=float)
+    with np.errstate(divide="ignore", invalid="ignore"):
+        se = np.where(r >= 2, np.sqrt(r / (r - 1) * out["dev2"]) / out["mentions"], np.nan)
+    diff = (out["mean"] - out["cluster_mean"]).to_numpy(dtype=float)
+    eligible = r >= MIN_REVIEWS_FOR_FLAG
+    p = _two_sided_p(diff, se)
+    q = np.full(len(out), np.nan)
+    if eligible.any():
+        q[eligible] = bh_qvalues(p[eligible])
+    out = out.assign(diff=diff, p_value=np.where(eligible, p, np.nan), q_value=q)
+    out["n_reviews"] = out["n_reviews"].astype("int64")
+
     if property_id is not None:
-        scores = scores[scores["property_id"] == property_id]
+        out = out[out["property_id"] == property_id]
         units = units[units["property_id"] == property_id]
     by_group = {
         key: (g["total"].to_numpy(dtype=float), g["mentions"].to_numpy(dtype=float))
         for key, g in units.groupby(["property_id", "aspect"])
     }
-    empty = np.empty(0)
-    lows, highs, n_reviews = [], [], []
-    for prop, aspect in zip(scores["property_id"], scores["aspect"], strict=True):
-        sums, counts = by_group.get((prop, aspect), (empty, empty))
-        lo, hi = bootstrap_mean_ci(sums, counts, seed=_group_seed(prop, aspect))
+    lows, highs = [], []
+    for prop, aspect, n_rev in zip(out["property_id"], out["aspect"], out["n_reviews"],
+                                   strict=True):
+        if n_rev < MIN_REVIEWS_FOR_FLAG:
+            lows.append(float("nan"))
+            highs.append(float("nan"))
+            continue
+        lo, hi = bootstrap_mean_ci(*by_group[(prop, aspect)], seed=_group_seed(prop, aspect))
         lows.append(lo)
         highs.append(hi)
-        n_reviews.append(len(sums))
+    out = out.assign(ci_low=lows, ci_high=highs)
 
-    out = scores.assign(
-        n_reviews=np.asarray(n_reviews, dtype="int64"),
-        ci_low=lows,
-        ci_high=highs,
-        cluster_mean=scores["aspect"].map(cmeans),
-    )
-    out["diff"] = out["mean"] - out["cluster_mean"]
-    enough = out["n_reviews"] >= MIN_REVIEWS_FOR_FLAG
-    lead = enough & (out["diff"] > BENCHMARK_MARGIN) & (out["ci_low"] > out["cluster_mean"])
-    lag = enough & (out["diff"] < -BENCHMARK_MARGIN) & (out["ci_high"] < out["cluster_mean"])
+    significant = (out["q_value"] <= FDR_Q).to_numpy()
+    lead = significant & (out["diff"] > BENCHMARK_MARGIN) & (out["ci_low"] > out["cluster_mean"])
+    lag = significant & (out["diff"] < -BENCHMARK_MARGIN) & (out["ci_high"] < out["cluster_mean"])
     out["flag"] = np.select([lead, lag], ["lead", "lag"], default="on_par")
-    return out.reset_index(drop=True)
+    return out[BENCHMARK_COLUMNS].reset_index(drop=True)
 
 
 # --- Monthly trends -----------------------------------------------------------------
 
 
-def monthly_series(labelled: pd.DataFrame, property_id: str, aspect: str) -> pd.Series:
-    """Monthly mean sentiment for one property-aspect (month start index)."""
+def monthly_stats(labelled: pd.DataFrame, property_id: str, aspect: str) -> pd.DataFrame:
+    """month, mean, n for one property-aspect (months with at least one mention)."""
     mask = (labelled["property_id"] == property_id) & (labelled["aspect"] == aspect)
     sub = labelled.loc[mask]
     if sub.empty:
-        return pd.Series(dtype=float)
-    return sub.set_index("date")["sentiment"].resample("MS").mean().dropna()
+        return pd.DataFrame(
+            {
+                "month": pd.Series(dtype="datetime64[ns]"),
+                "mean": pd.Series(dtype=float),
+                "n": pd.Series(dtype="int64"),
+            }
+        )
+    monthly = sub.set_index("date")["sentiment"].resample("MS").agg(["mean", "count"])
+    monthly = monthly[monthly["count"] > 0]
+    return pd.DataFrame(
+        {
+            "month": monthly.index,
+            "mean": monthly["mean"].to_numpy(dtype=float),
+            "n": monthly["count"].to_numpy(dtype="int64"),
+        }
+    )
 
 
+def monthly_series(labelled: pd.DataFrame, property_id: str, aspect: str) -> pd.Series:
+    """Monthly mean sentiment for one property-aspect (month start index)."""
+    stats = monthly_stats(labelled, property_id, aspect)
+    return pd.Series(stats["mean"].to_numpy(), index=pd.DatetimeIndex(stats["month"]))
 
 
 # --- "Is it me?": property-vs-market changepoints -----------------------------------
@@ -191,30 +254,52 @@ def monthly_series(labelled: pd.DataFrame, property_id: str, aspect: str) -> pd.
 def _changepoints_from_units(units: pd.DataFrame, min_effect: float, q: float) -> pd.DataFrame:
     if units.empty:
         return pd.DataFrame(columns=CHANGEPOINT_COLUMNS)
-    u = units.assign(month=units["date"].dt.to_period("M"), sq=units["value"] ** 2)
-    g = u.groupby(["property_id", "aspect", "month"], as_index=False, sort=True).agg(
-        n=("value", "size"), s=("value", "sum"), ss=("sq", "sum")
+    # Each property's own level and within-property variance, per aspect.
+    pa = units.groupby(["property_id", "aspect"])["value"].agg(
+        alpha="mean", n_pa="size", var="var"
     )
-    if units["property_id"].nunique() >= MIN_PROPERTIES_FOR_SCOPE:
-        totals = g.groupby(["aspect", "month"])[["n", "s"]].transform("sum")
-        loo_n, loo_s = totals["n"] - g["n"], totals["s"] - g["s"]
-        has_market = (loo_n > 0).to_numpy()
-        g = g[has_market]
-        market = (loo_s[has_market] / loo_n[has_market]).to_numpy(dtype=float)
-        market_weight = 1.0 / loo_n[has_market].to_numpy(dtype=float)
-    else:
-        # Too few properties for a meaningful market reference: test the raw series,
-        # so a single hotel still sees its own changes (market_delta is undefined).
-        market = market_weight = None
+    pa["ssw"] = pa["var"].fillna(0.0) * (pa["n_pa"] - 1)
+    pa["dfw"] = pa["n_pa"] - 1
+    asp_ssw = pa.groupby(level="aspect")["ssw"].transform("sum")
+    asp_dfw = pa.groupby(level="aspect")["dfw"].transform("sum")
+    # Pooled variance of the OTHER properties (the data the market is estimated from).
+    with np.errstate(divide="ignore", invalid="ignore"):
+        pa["v_loo"] = ((asp_ssw - pa["ssw"]) / (asp_dfw - pa["dfw"])).where(
+            asp_dfw - pa["dfw"] > 0
+        )
+    pa["v_loo"] = pa["v_loo"].fillna(1.0)  # values lie in [-1, 1]: 1 is the max variance
+
+    u = units.join(pa[["alpha", "v_loo"]], on=["property_id", "aspect"])
+    u = u.assign(
+        month=u["date"].dt.to_period("M"),
+        sq=u["value"] ** 2,
+        centred=u["value"] - u["alpha"],
+    )
+    g = u.groupby(["property_id", "aspect", "month"], as_index=False, sort=True).agg(
+        n=("value", "size"), s=("value", "sum"), ss=("sq", "sum"),
+        c=("centred", "sum"), v_loo=("v_loo", "first"),
+    )
+    # Per aspect: is there a market to compare with?
+    residual = (
+        g.groupby("aspect")["property_id"].transform("nunique") >= MIN_PROPERTIES_FOR_SCOPE
+    )
+    totals = g.groupby(["aspect", "month"])[["n", "c"]].transform("sum")
+    loo_n, loo_c = totals["n"] - g["n"], totals["c"] - g["c"]
+    # Residual aspects: drop months where no other property has reviews.
+    g = g.assign(residual=residual, loo_n=loo_n, loo_c=loo_c)
+    g = g[~g["residual"] | (g["loo_n"] > 0)]
+
     n = g["n"].to_numpy(dtype=float)
     s = g["s"].to_numpy(dtype=float)
     ss = g["ss"].to_numpy(dtype=float)
-    if market is None:
-        rs, rss = s, ss
-    else:
-        # Exact algebra for sums of (value - market) and (value - market)^2 per month.
-        rs = s - n * market
-        rss = ss - 2 * market * s + n * market * market
+    is_res = g["residual"].to_numpy(dtype=bool)
+    with np.errstate(divide="ignore", invalid="ignore"):
+        # Market = mean deviation of the other properties from their OWN levels, so
+        # it does not move when a strong or weak property enters or leaves the data.
+        market = np.where(is_res, g["loo_c"].to_numpy(dtype=float) / g["loo_n"].to_numpy(), 0.0)
+        mvar = np.where(is_res, g["v_loo"].to_numpy(dtype=float) / g["loo_n"].to_numpy(), 0.0)
+    rs = s - n * market  # exact sums of (value - market) and (value - market)^2
+    rss = ss - 2 * market * s + n * market * market
     months = g["month"].dt.strftime("%Y-%m").to_numpy()
     codes = g.groupby(["property_id", "aspect"], sort=False).ngroup().to_numpy()
     if len(codes) == 0:
@@ -226,8 +311,7 @@ def _changepoints_from_units(units: pd.DataFrame, min_effect: float, q: float) -
     rows: list[dict] = []
     for a, z in zip(starts, ends, strict=True):
         cp = find_changepoint(
-            n[a:z], rs[a:z], rss[a:z], s[a:z],
-            market_weight=None if market_weight is None else market_weight[a:z],
+            n[a:z], rs[a:z], rss[a:z], s[a:z], market_var=mvar[a:z],
             min_months=CHANGEPOINT_MIN_MONTHS, min_units=CHANGEPOINT_MIN_UNITS,
         )
         if cp is None:
@@ -237,12 +321,11 @@ def _changepoints_from_units(units: pd.DataFrame, min_effect: float, q: float) -
                 "property_id": props[a],
                 "aspect": aspects[a],
                 "change_month": months[a + cp.index],
-                "delta": round(cp.delta, 3),
+                "delta": cp.delta,
                 "direction": "negative" if cp.delta < 0 else "positive",
-                "raw_delta": round(cp.raw_delta, 3),
-                "market_delta": (
-                    float("nan") if market is None else round(cp.raw_delta - cp.delta, 3)
-                ),
+                "raw_delta": cp.raw_delta,
+                # No market comparison was possible: the raw series was tested.
+                "market_delta": cp.raw_delta - cp.delta if is_res[a] else float("nan"),
                 "p_value": cp.p_value,
             }
         )
@@ -250,8 +333,10 @@ def _changepoints_from_units(units: pd.DataFrame, min_effect: float, q: float) -
         return pd.DataFrame(columns=CHANGEPOINT_COLUMNS)
     out = pd.DataFrame(rows)
     out["q_value"] = bh_qvalues(out["p_value"].to_numpy(dtype=float))
+    # Decide on unrounded values; round only what is displayed.
     keep = (out["q_value"] <= q) & (out["delta"].abs() >= min_effect)
-    return out.loc[keep, CHANGEPOINT_COLUMNS].reset_index(drop=True)
+    out = out.loc[keep, CHANGEPOINT_COLUMNS].reset_index(drop=True)
+    return out.round({"delta": 3, "raw_delta": 3, "market_delta": 3})
 
 
 def detect_changepoints(
@@ -261,12 +346,15 @@ def detect_changepoints(
 ) -> pd.DataFrame:
     """Significant step changes in a property's sentiment *relative to the market*.
 
-    Each review unit is residualised against the leave-one-out cluster mean for the
-    same aspect and month, so movement shared by the whole market (e.g. a seasonal
-    dip) cancels out. One pooled-variance t test per series (best split, Bonferroni
-    over splits), then Benjamini-Hochberg across all series, then an effect floor.
-    ``delta`` is the shift relative to the market; ``raw_delta`` is the property's
-    own shift and ``market_delta`` the part the market shared.
+    Each review unit is compared with the market for the same aspect and month: the
+    average deviation of the OTHER properties from their own levels. One
+    pooled-variance t test per series (best split, Bonferroni over splits, plus the
+    variance of the market estimate), then Benjamini-Hochberg across all series,
+    then an effect floor. ``delta`` is the shift relative to the market;
+    ``raw_delta`` is the property's own shift and ``market_delta`` the part the
+    market shared. Aspects reviewed at fewer than ``MIN_PROPERTIES_FOR_SCOPE``
+    properties have no market reference: their raw series is tested and
+    ``market_delta`` is NaN.
     """
     return _changepoints_from_units(review_units(labelled), min_effect, q)
 
@@ -282,46 +370,75 @@ def _upper_t_p(mean: float, sd: float, k: int) -> float:
 
 
 def _seasonal_tests(units: pd.DataFrame, min_effect: float) -> tuple[pd.DataFrame, dict]:
-    """Per (aspect, calendar month): is the month below the rest of the year across
-    properties? Each property contributes one gap (rest-of-year mean - month mean)."""
-    per_month = units.groupby(["aspect", "property_id", "cal"], as_index=False).agg(
+    """Per (aspect, calendar month): is the month below the rest of the SAME year,
+    across properties, in EVERY observed year?
+
+    Comparing within a year means a one-off step (e.g. a decline from July) is not
+    mistaken for seasonality; requiring every year (an intersection-union test: the
+    p-value is the largest per-year p-value) means the dip must recur.
+    """
+    per_month = units.groupby(["aspect", "property_id", "year", "cal"], as_index=False).agg(
         n=("value", "size"), s=("value", "sum")
     )
-    per_prop = units.groupby(["aspect", "property_id"], as_index=False).agg(
-        n_all=("value", "size"), s_all=("value", "sum")
+    per_year = units.groupby(["aspect", "property_id", "year"], as_index=False).agg(
+        n_y=("value", "size"), s_y=("value", "sum")
     )
-    pm = per_month.merge(per_prop, on=["aspect", "property_id"])
-    rest_n = pm["n_all"] - pm["n"]
-    pm = pm[(pm["n"] >= SEASONAL_MIN_MONTH_UNITS) & (rest_n >= SEASONAL_MIN_REST_UNITS)]
-    pm = pm.assign(
-        gap=(pm["s_all"] - pm["s"]) / (pm["n_all"] - pm["n"]) - pm["s"] / pm["n"],
+    m = per_month.merge(per_year, on=["aspect", "property_id", "year"])
+    rest_n = m["n_y"] - m["n"]
+    m = m[(m["n"] >= SEASONAL_MIN_MONTH_UNITS) & (rest_n >= SEASONAL_MIN_REST_UNITS)]
+    m = m.assign(gap=(m["s_y"] - m["s"]) / (m["n_y"] - m["n"]) - m["s"] / m["n"])
+
+    by_year = m.groupby(["aspect", "cal", "year"], as_index=False).agg(
+        k=("gap", "size"), mean=("gap", "mean"), sd=("gap", "std")
     )
-    pm = pm.assign(joins=pm["gap"] >= min_effect)
-    stats = pm.groupby(["aspect", "cal"], as_index=False, sort=True).agg(
-        n_tested=("gap", "size"), drop=("gap", "mean"), sd=("gap", "std"),
-        n_participating=("joins", "sum"),
-    )
-    stats = stats[stats["n_tested"] >= MIN_PROPERTIES_FOR_SCOPE]
-    p = [
-        _upper_t_p(float(m), float(sd), int(k))
-        for m, sd, k in zip(stats["drop"], stats["sd"].fillna(0.0), stats["n_tested"], strict=True)
+    by_year = by_year[by_year["k"] >= MIN_PROPERTIES_FOR_SCOPE]
+    by_year["p"] = [
+        _upper_t_p(float(a), float(b), int(c))
+        for a, b, c in zip(by_year["mean"], by_year["sd"].fillna(0.0), by_year["k"], strict=True)
     ]
-    tests = stats.assign(kind="seasonal", p_value=p).rename(columns={"cal": "calendar_month"})
-    members = pm[pm["joins"]]
+    tests = by_year.groupby(["aspect", "cal"], as_index=False).agg(
+        years=("year", "size"), p_value=("p", "max")
+    )
+    tests = tests[tests["years"] >= SEASONAL_MIN_YEARS]
+
+    per_prop = m.groupby(["aspect", "cal", "property_id"], as_index=False).agg(
+        years=("gap", "size"), gap=("gap", "mean"), worst=("gap", "min")
+    )
+    per_prop = per_prop[per_prop["years"] >= SEASONAL_MIN_YEARS]
+    joins = per_prop[(per_prop["gap"] >= min_effect) & (per_prop["worst"] > 0)]
+    drop = per_prop.groupby(["aspect", "cal"])["gap"].agg(["mean", "size"])
     gaps = {
         (aspect, int(cal)): dict(zip(sub["property_id"], sub["gap"].astype(float), strict=True))
-        for (aspect, cal), sub in members.groupby(["aspect", "cal"])
+        for (aspect, cal), sub in joins.groupby(["aspect", "cal"])
     }
-    return tests, gaps
+    rows = [
+        {
+            "aspect": t.aspect,
+            "calendar_month": int(t.cal),
+            "drop": float(drop.at[(t.aspect, t.cal), "mean"]),
+            "n_tested": int(drop.at[(t.aspect, t.cal), "size"]),
+            "n_participating": len(gaps.get((t.aspect, int(t.cal)), {})),
+            "p_value": float(t.p_value),
+        }
+        for t in tests.itertuples()
+        if (t.aspect, t.cal) in drop.index
+    ]
+    return pd.DataFrame(rows), gaps
 
 
-def _step_tests(units: pd.DataFrame, min_effect: float) -> tuple[pd.DataFrame, dict]:
+def _step_tests(
+    units: pd.DataFrame, grids: dict[str, pd.PeriodIndex], min_effect: float
+) -> tuple[pd.DataFrame, dict]:
     """Per aspect: did most properties decline after the same month? Each property
     contributes its own before/after shift at every candidate split; the split with
-    the largest average decline is tested across properties (Bonferroni over splits)."""
+    the largest average decline is tested across properties (Bonferroni over splits).
+
+    ``grids`` holds every month the aspect was observed in, so removing months that
+    a seasonal pattern explains does not shift where a split can fall.
+    """
     rows, gaps = [], {}
     for aspect, sa in units.groupby("aspect", sort=True):
-        grid = pd.PeriodIndex(sa["month"].unique(), freq="M").sort_values()
+        grid = grids[aspect]
         if len(grid) < 2 * CHANGEPOINT_MIN_MONTHS:
             continue
         splits = np.arange(CHANGEPOINT_MIN_MONTHS, len(grid) - CHANGEPOINT_MIN_MONTHS + 1)
@@ -350,7 +467,6 @@ def _step_tests(units: pd.DataFrame, min_effect: float) -> tuple[pd.DataFrame, d
         rows.append(
             {
                 "aspect": aspect,
-                "kind": "step",
                 "change_month": grid[splits[best]].strftime("%Y-%m"),
                 "drop": float(-mean[best]),
                 "n_tested": k,
@@ -361,59 +477,71 @@ def _step_tests(units: pd.DataFrame, min_effect: float) -> tuple[pd.DataFrame, d
     return pd.DataFrame(rows), gaps
 
 
-def _keep(tests: pd.DataFrame, n_cluster: int, q: float, min_fraction: float) -> pd.DataFrame:
-    """Benjamini-Hochberg within a test family, then require enough participants."""
+def _keep(tests: pd.DataFrame, coverage: pd.Series, q: float, min_fraction: float) -> pd.DataFrame:
+    """Benjamini-Hochberg within a test family, then require that at least
+    ``min_fraction`` of the properties reviewing the aspect participate."""
     if tests.empty:
         return tests
     tests = tests.assign(q_value=bh_qvalues(tests["p_value"].to_numpy(dtype=float)))
-    share = tests["n_participating"] / n_cluster
+    share = tests["n_participating"] / tests["aspect"].map(coverage)
     return tests[(tests["q_value"] <= q) & (share >= min_fraction)]
 
 
 def _findings_from_units(
     units: pd.DataFrame,
-    n_cluster: int,
     min_fraction: float = MARKET_WIDE_FRACTION,
     min_effect: float = MARKET_MIN_EFFECT,
     q: float = FDR_Q,
 ) -> list[dict]:
     """All significant market-level patterns as dicts, seasonal first, then steps."""
-    if units.empty or n_cluster < MIN_PROPERTIES_FOR_SCOPE:
+    if units.empty:
         return []
-    units = units.assign(cal=units["date"].dt.month, month=units["date"].dt.to_period("M"))
+    coverage = units.groupby("aspect")["property_id"].nunique()
+    units = units[units["aspect"].map(coverage) >= MIN_PROPERTIES_FOR_SCOPE]
+    if units.empty:
+        return []
+    units = units.assign(
+        cal=units["date"].dt.month,
+        year=units["date"].dt.year,
+        month=units["date"].dt.to_period("M"),
+    )
+    grids = {
+        aspect: pd.PeriodIndex(sa["month"].unique(), freq="M").sort_values()
+        for aspect, sa in units.groupby("aspect")
+    }
     s_tests, s_gaps = _seasonal_tests(units, min_effect)
-    seasonal = _keep(s_tests, n_cluster, q, min_fraction)
     findings = [
         {
             "aspect": r.aspect, "kind": "seasonal", "calendar_month": int(r.calendar_month),
             "change_month": None, "drop": round(float(r.drop), 3), "n_tested": int(r.n_tested),
+            "coverage": int(coverage[r.aspect]),
             "gaps": s_gaps.get((r.aspect, int(r.calendar_month)), {}),
             "p_value": float(r.p_value), "q_value": float(r.q_value),
         }
-        for r in seasonal.itertuples()
+        for r in _keep(s_tests, coverage, q, min_fraction).itertuples()
     ]
-    # A recurring seasonal dip is not a step: drop those aspect-months before step tests.
+    # A recurring seasonal dip is not a step: mask those aspect-months (the month grid
+    # itself is kept, so a step's location is unaffected).
     explained = {f"{f['aspect']}|{f['calendar_month']}" for f in findings}
     if explained:
         key = units["aspect"].astype(str) + "|" + units["cal"].astype(str)
         units = units[~key.isin(explained)]
-    t_tests, t_gaps = _step_tests(units, min_effect)
+    t_tests, t_gaps = _step_tests(units, grids, min_effect)
     findings += [
         {
             "aspect": r.aspect, "kind": "step", "calendar_month": None,
             "change_month": r.change_month, "drop": round(float(r.drop), 3),
-            "n_tested": int(r.n_tested), "gaps": t_gaps.get(r.aspect, {}),
+            "n_tested": int(r.n_tested), "coverage": int(coverage[r.aspect]),
+            "gaps": t_gaps.get(r.aspect, {}),
             "p_value": float(r.p_value), "q_value": float(r.q_value),
         }
-        for r in _keep(t_tests, n_cluster, q, min_fraction).itertuples()
+        for r in _keep(t_tests, coverage, q, min_fraction).itertuples()
     ]
     return findings
 
 
 def _market_findings(labelled: pd.DataFrame, **kwargs) -> list[dict]:
-    return _findings_from_units(
-        review_units(labelled), labelled["property_id"].nunique(), **kwargs
-    )
+    return _findings_from_units(review_units(labelled), **kwargs)
 
 
 def detect_market_patterns(
@@ -422,26 +550,29 @@ def detect_market_patterns(
     min_effect: float = MARKET_MIN_EFFECT,
     q: float = FDR_Q,
 ) -> pd.DataFrame:
-    """Market-wide patterns: seasonal dips (any calendar month) and step declines.
+    """Market-wide patterns: recurring seasonal dips (any calendar month) and step
+    declines.
 
     Properties are the replicates: a one-sample t test on the per-property drops,
     Benjamini-Hochberg within each family, and at least ``min_fraction`` of the
-    cluster's properties must drop by ``min_effect`` or more.
+    properties reviewing the aspect must drop by ``min_effect`` or more. Aspects
+    reviewed at fewer than ``MIN_PROPERTIES_FOR_SCOPE`` properties are not tested.
+    ``change_month`` is None for seasonal rows; ``calendar_month`` is <NA> for steps.
     """
-    n_cluster = labelled["property_id"].nunique()
     findings = _market_findings(labelled, min_fraction=min_fraction, min_effect=min_effect, q=q)
     rows = [
         {
             **{k: f[k] for k in ("aspect", "kind", "calendar_month", "change_month", "drop",
                                  "n_tested", "p_value", "q_value")},
             "n_participating": len(f["gaps"]),
-            "share": round(len(f["gaps"]) / n_cluster, 3),
-            "properties": ", ".join(sorted(f["gaps"])),
+            "share": round(len(f["gaps"]) / f["coverage"], 3),
+            "properties": ", ".join(sorted(map(str, f["gaps"]))),
         }
         for f in findings
     ]
     out = pd.DataFrame(rows, columns=MARKET_PATTERN_COLUMNS)
     out["calendar_month"] = out["calendar_month"].astype("Int64")
+    out["change_month"] = none_for_missing(out["change_month"])
     return out
 
 
@@ -469,13 +600,15 @@ def detect_seasonal_dips(labelled: pd.DataFrame, month: int | None = None) -> pd
 # --- Market-wide vs property-specific -----------------------------------------------
 
 
-def _describe(finding: dict, n_cluster: int) -> str:
+def _describe(finding: dict) -> str:
     k = len(finding["gaps"])
     if finding["kind"] == "seasonal":
         when = f"seasonal dip in {calendar.month_name[finding['calendar_month']]}"
     else:
         when = f"decline from {finding['change_month']}"
-    return f"{when} ({k}/{n_cluster} properties, average drop {finding['drop']:.2f})"
+    return (
+        f"{when} ({k}/{finding['coverage']} properties, average drop {finding['drop']:.2f})"
+    )
 
 
 def market_wide_summary(
@@ -483,36 +616,39 @@ def market_wide_summary(
 ) -> pd.DataFrame:
     """Classify each aspect's negative shifts as market-wide or property-specific.
 
-    * ``market-wide``: a significant pattern shared by >= ``min_fraction`` of
-      properties (seasonal dip or step decline).
+    * ``market-wide``: a significant pattern shared by >= ``min_fraction`` of the
+      properties reviewing the aspect (seasonal dip or step decline).
     * ``property-specific``: no market pattern, but one or more properties declined
       significantly *relative to the market*.
-    * ``undetermined``: fewer than ``MIN_PROPERTIES_FOR_SCOPE`` properties, so the
-      market cannot be separated from a single property.
+    * ``undetermined``: fewer than ``MIN_PROPERTIES_FOR_SCOPE`` properties review the
+      aspect, so the market cannot be separated from a single property.
 
-    Aspects with no negative shift are omitted.
+    ``fraction`` is relative to the properties reviewing the aspect. Aspects with no
+    negative shift are omitted.
     """
-    n_cluster = labelled["property_id"].nunique()
     units = review_units(labelled)
+    coverage = units.groupby("aspect")["property_id"].nunique()
     cps = _changepoints_from_units(units, CHANGEPOINT_MIN_EFFECT, FDR_Q)
     declines = cps[cps["direction"] == "negative"]
-    findings = _findings_from_units(units, n_cluster, min_fraction=min_fraction)
+    findings = _findings_from_units(units, min_fraction=min_fraction)
 
     rows: list[dict] = []
     for aspect in sorted(set(declines["aspect"]) | {f["aspect"] for f in findings}):
+        k = int(coverage.get(aspect, 0))
         own = declines[declines["aspect"] == aspect]
+        relative = "below the market" if k >= MIN_PROPERTIES_FOR_SCOPE else "declined"
         own_text = "; ".join(
-            f"{r.property_id} below the market from {r.change_month} ({r.delta:+.2f})"
+            f"{r.property_id} {relative} from {r.change_month} ({r.delta:+.2f})"
             for r in own.itertuples()
         )
         market = [f for f in findings if f["aspect"] == aspect]
-        if n_cluster < MIN_PROPERTIES_FOR_SCOPE:
+        if k < MIN_PROPERTIES_FOR_SCOPE:
             scope, props = "undetermined", set(own["property_id"])
-            pattern = f"only {n_cluster} properties: cannot separate market from property"
+            pattern = undetermined_note(k) + (f"; {own_text}" if own_text else "")
         elif market:
             scope = "market-wide"
             props = set().union(*(f["gaps"] for f in market))
-            pattern = "; ".join(_describe(f, n_cluster) for f in market)
+            pattern = "; ".join(_describe(f) for f in market)
             if own_text:
                 pattern += f"; also {own_text}"
         else:
@@ -521,9 +657,9 @@ def market_wide_summary(
             {
                 "aspect": aspect,
                 "n_properties": len(props),
-                "fraction": round(len(props) / n_cluster, 3),
+                "fraction": round(len(props) / k, 3) if k else 0.0,
                 "scope": scope,
-                "properties": ", ".join(sorted(props)),
+                "properties": ", ".join(sorted(map(str, props))),
                 "pattern": pattern,
             }
         )
