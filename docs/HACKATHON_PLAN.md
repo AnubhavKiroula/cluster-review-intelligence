@@ -136,6 +136,18 @@ def search_reviews(d: ClusterData, property_id=None, aspect=None, sentiment=None
                    start=None, end=None, query: str | None = None) -> pd.DataFrame: ...
 ```
 
+> **Additive extensions (Day 0, `[A]`)** — nothing above is removed or renamed;
+> details in the `src/cri/api.py` docstring:
+> - `labelled` (and `reviews`) carry a `review_id` column.
+> - Extra columns: `property_scorecard` → `n_reviews, q_value`; `changepoints` →
+>   `raw_delta, market_delta, p_value, q_value`; `market_scope` → `pattern`;
+>   `destination_summary` → `pattern, n_properties_reviewed`; `priority_actions` →
+>   `current_mean, reference_mean, basis, n`.
+> - Scope values: `market_scope` can return `undetermined` (fewer than 3 properties
+>   review the aspect); `destination_summary` also uses `stable`.
+> - May be missing: `priority_actions.started` (`None`), `changepoints.market_delta`,
+>   `ci_low`/`ci_high` (NaN below 10 reviews) — test with `pd.isna`.
+
 **Day-0 unblock rule:** `[A]` pushes `api.py` with *working or stubbed* returns
 (correct columns, plausible shapes) **within the first 2 hours**. From that moment
 `[P]` is never blocked, even if the internals are still being written.
@@ -176,12 +188,12 @@ makes Day 1 parallel.
 - [ ] Agree integration-window times in real clock hours and put them in a group chat.
 
 ### `[A]` Anubhav — unblock everyone
-- [ ] Create `src/cri/api.py` implementing §3.2 on top of existing modules.
+- [x] Create `src/cri/api.py` implementing §3.2 on top of existing modules.
       Stub anything not ready (`priority_actions`, `destination_summary`) with
       correct columns and a `# TODO` — **push within 2 h**.
-- [ ] Extract the sentiment lexicon from `classify.py` → `src/cri/resources/lexicon.yaml`;
+- [x] Extract the sentiment lexicon from `classify.py` → `src/cri/resources/lexicon.yaml`;
       `classify.py` loads it. Hand ownership of the YAML to `[R]`.
-- [ ] Add `tests/test_api.py` asserting every function returns the documented columns.
+- [x] Add `tests/test_api.py` asserting every function returns the documented columns.
 - [ ] Tell `[P]` and `[R]` the moment `api.py` is on `main`.
 
 ### `[P]` Purvansh — app skeleton
@@ -207,17 +219,18 @@ makes Day 1 parallel.
 Three tracks, zero file overlap. This is the big push.
 
 ### `[A]` Anubhav — analytics core
-- [ ] **Bootstrap CIs** in `benchmark.py`, replacing the normal approximation;
+- [x] **Bootstrap CIs** in `benchmark.py`, replacing the normal approximation;
       `property_scorecard` returns real `ci_low`/`ci_high`. Lead/lag flags only when the CI supports it.
-- [ ] **`priority_actions`** (`src/cri/insights.py`) — rank aspects by
+- [x] **`priority_actions`** (`src/cri/insights.py`) — rank aspects by
       `impact = gap_to_cluster × mention_volume`, attach the changepoint month as
       `started`, and generate a one-line `rationale` string. *This is our killer feature.*
-- [ ] **`destination_summary`** — cluster-level aggregate for the tourism-board page.
-- [ ] **Reduce changepoint false positives** — require the shift to exceed a
+- [x] **`destination_summary`** — cluster-level aggregate for the tourism-board page.
+- [x] **Reduce changepoint false positives** — require the shift to exceed a
       significance threshold, not just a fixed delta (see `methodology.md` §6).
-- [ ] Make `market_scope` robust when a cluster has few properties.
-- [ ] Tests for each of the above; keep `pytest` + `ruff` green.
-- [ ] *Stretch:* PELT via `ruptures`; a transformer `Classifier` behind a flag.
+- [x] Make `market_scope` robust when a cluster has few properties.
+- [x] Tests for each of the above; keep `pytest` + `ruff` green.
+- [x] *Stretch:* a transformer `Classifier` behind a flag (`CRI_MODEL_BACKEND=transformer`; built and tested, measured weaker than rules on Hinglish, so not the default).
+- [ ] *Stretch:* PELT via `ruptures` — deliberately not done: its penalty cannot be calibrated without real data (see `docs/methodology.md` §11).
 
 ### `[P]` Purvansh — the dashboard (biggest single chunk)
 - [ ] **Property view** — aspect bars vs cluster (with CI error bars), trend line

@@ -3,58 +3,72 @@
 Living project state. Update at meaningful milestones.
 
 ## What is being built
-G5 "Cluster Review Intelligence & Competitive Benchmarking" — turn a tourism
+G5 "Cluster Review Intelligence & Competitive Benchmarking": turn a tourism
 cluster's reviews into aspect-level, competitive, time-aware intelligence, and
-separate market-wide issues from property-specific ones. README-first MVP for the
-AI–Tourism Hackathon 2026.
+separate market-wide issues from property-specific ones. AI–Tourism Hackathon 2026.
+Team: Anubhav (analytics core), Purvansh (dashboard), Archit (data, eval, ops):
+see `docs/HACKATHON_PLAN.md` for the plan and file-ownership map.
 
 ## Current objective
-Polished, honest GitHub repo a judge can run in <5 min. README is the priority
-deliverable (judges see the repo link, not the code).
+Analytics core done; the dashboard (Purvansh) builds against `src/cri/api.py`.
 
 ## Architecture / state
-`src/cri/`: schema → loader (PII dropped) → normalize → classify (rule/lexicon,
-EN/Hinglish/Devanagari) → pipeline (labelled mentions) → benchmark (cluster
-lead/lag, market-wide vs property-specific) + changepoint. Config: `aspects.yaml`.
-Figures via `scripts/make_figures.py`; judge demo `scripts/demo.py`.
+`src/cri/`: schema → loader (PII dropped) → normalize → classify (rules by default,
+optional transformer via `CRI_MODEL_BACKEND`) → pipeline (mentions with
+`review_id`) → benchmark (review-level bootstrap CIs; "is it me?" changepoints vs
+the leave-one-out market; "is it the market?" seasonal/step patterns across
+properties; scope) → insights (priority actions, destination view) → **api.py**
+(the facade the dashboard imports). Config: `aspects.yaml`, `lexicon.yaml`.
+`python -m cri.calibration` reproduces every detector number in the docs.
 
 ## Completed (implemented + verified)
-- Phase 0: src layout, pyproject, ruff/pytest, Makefile, SECURITY/CONTRIBUTING/
-  CoC, dependabot, CI + Scorecard workflows (actions pinned by SHA, fetched from
-  the GitHub API — not guessed).
-- Phase 1: schema + loader; seeded SYNTHETIC generator (12 properties, 5,124
-  reviews, 2 injected patterns).
-- Phase 2: normalisation + rule/lexicon aspect+sentiment; pluggable `Classifier`
-  interface.
-- Phase 3: cluster benchmark, market-wide vs property-specific, simple
-  changepoint. 23 tests pass (recover both injected patterns). ruff clean.
-- Phase 6: full README, 3 Mermaid diagrams, 4 SYNTHETIC figures, SVG banner.
-- Phase 7: secret/PII/number scan clean; `docs/hardening.md` checklist.
+- MVP (Phases 0–3, 6–7): scaffold, synthetic generator, rule classifier, README.
+- Anubhav's Day-0/Day-1 track (branch `feat/anubhav-analytics-core`):
+  - `api.py` contract and `lexicon.yaml` extraction (byte-identical output);
+  - bootstrap CIs, significance-tested detectors, market-wide patterns,
+    `undetermined` scope for small clusters;
+  - `priority_actions`, `destination_summary`, calibration module;
+  - optional transformer backend (built and tested; see the known issues below).
 
 ## Verified
-`python -m pytest` → 23 passed. `python -m ruff check .` → clean.
-`python scripts/demo.py` recovers: Property F food changepoint @2025-06 (−1.24,
-strongest); Room = market-wide (10/12 properties). Figures regenerate from seed=42.
+- Tests: 148 pass, 2 skipped (opt-in real-model tests; they pass with the model
+  installed) on pandas 2.1.3/numpy 1.26 AND pandas 3.0.6/numpy 2.4.6 (warnings
+  as errors). Every commit on the branch passes on its own.
+- SYNTHETIC calibration (`--seeds 1-20`): food decline found 15/20, Room-December
+  market-wide 20/20, pattern-free seeds with any false alarm 1/20 (was 20/20).
+- Fresh null seeds 21–120: property changepoint false alarms 5/100 (nominal 5%);
+  market patterns 0/100. Lead/lag: 0.11 false flags per null cluster (was ~2.8).
+- A five-lens adversarial review (statistics, contract, edge cases, pandas 3,
+  quality) confirmed 10 problems; all fixed, each with a regression test.
+- Every `api` call < 300 ms on the 5,124-review sample; `load_cluster` ≈ 1.8 s.
 
-## Not built — Roadmap (intentionally skipped per scope)
-Streamlit dashboard; evaluation harness + real metrics (only a labelling template
-+ TBD table exist); model backends (transformer/LLM); bootstrap CIs; PELT/
-`ruptures`; CodeQL. All listed in README → Roadmap.
+## Next tasks
+1. Purvansh: build the dashboard on `api.py` (handle scope `undetermined`/`stable`,
+   `started`/`change_month` may be missing).
+2. Archit: real-data sourcing + eval harness; act on the flagged items in the PR
+   (schema blank-text bug, merge numpy 2 and pandas 3 Dependabot PRs together).
+3. Hackathon: tune on real data; re-run calibration if thresholds change.
 
-## Next tasks (tomorrow)
-1. Push branch `feat/mvp-scaffold-readme`, open PR, make repo public so the
-   Scorecard badge populates.
-2. Enable branch protection + required reviews (see `docs/hardening.md`).
-3. (Optional) start Streamlit dashboard; (optional) model backend behind the flag.
-4. Hand-label real reviews (`docs/labelling_template.csv`) to replace eval TBDs.
+## Important decisions
+- Statistical unit = (review, aspect); FDR q = 0.05; effect floors 0.4 (property
+  change) and 0.3 (market participation); market-wide needs ≥ 60% of properties.
+- Market reference = other properties' deviations from their own levels (robust
+  to hotels entering/leaving the data); lead/lag flags FDR-controlled.
+- Seasonality tested for all 12 months, within each year, must recur every year.
+- Ingestion normalised in `api.load_cluster`: ids → text, tz dates → Asia/Kolkata.
+- Transformer backend is opt-in, NOT default (measured weaker on Hinglish).
+- PELT not implemented (penalty cannot be calibrated without real data).
 
 ## Known issues / honest caveats
-- No real-world accuracy numbers yet (all `TBD` in `docs/TODO_RESULTS.md`).
-- Changepoint detector has false positives (fixed threshold); only strongest
-  shifts are reliable. See `docs/methodology.md` §6.
-- Validation is on SYNTHETIC data only — proves plumbing, not real accuracy.
+- Validation is SYNTHETIC only; real-data accuracy is `TBD`.
+- Flagged to Archit (his files): `schema.py` blank text / mixed-offset dates on
+  pandas 3, duplicate reviews across overlapping exports, numpy 2 + pandas 3
+  Dependabot PRs must merge together.
+- Detector recall is limited by sample size (15/20); thresholds not loosened.
+- The pinned transformer model misreads Hinglish negatives and some English
+  out-of-lexicon words; it does not recover the injected decline end-to-end.
 
 ## Commands
-`pip install -e ".[dev]"` · `pytest` · `ruff check .` ·
-`python scripts/demo.py` · `python scripts/make_figures.py` ·
-`python -m cri.generate --out data/sample/synthetic_reviews.csv`
+`pip install -e ".[dev]"` · `pytest` · `ruff check .` · `python scripts/demo.py` ·
+`python scripts/make_figures.py` · `python -m cri.calibration --seeds 1-20` ·
+optional: `pip install -e ".[model]"` then `CRI_MODEL_BACKEND=transformer`.

@@ -24,14 +24,24 @@ These require the team to hand-label a set of **real** reviews using
 ## Pattern recovery on SYNTHETIC data (reproducible, not a real-world metric)
 
 These are **not** accuracy claims about real reviews — they describe recovery of
-patterns the generator injected on purpose. Reproduce with `python -m pytest` and
-`python scripts/make_figures.py`.
+patterns the generator injected on purpose, and silence on pattern-free data.
+Reproduce with `python -m cri.calibration --seeds 1-20` (details: methodology §10).
 
-| Injected pattern                     | Recovered?            | Note                                  |
-|--------------------------------------|-----------------------|---------------------------------------|
-| Property F food decline (2025-06)    | Yes (changepoint)     | Strongest negative shift; `seed=42`.  |
-| December heating (market-wide, Room) | Yes (seasonal dip)    | Majority of properties; `seed=42`.    |
-| Spurious changepoint rate            | TBD (needs sweep)     | Known false positives; see methodology §6. |
+| Measure (20 SYNTHETIC seeds)              | Result | Wilson 95% CI | Note |
+|-------------------------------------------|--------|---------------|------|
+| Property F food decline found (±1 month)  | 15/20  | 0.53–0.89     | misses are seeds whose injected drop is small |
+| Room-December found market-wide           | 20/20  | 0.84–1.00     | |
+| Pattern-free seeds with any false alarm   | 1/20   | —             | previous fixed-threshold detectors: 20/20 |
+| Extra changepoints per injected seed      | 0.10   | —             | FDR (not FWER) control; see methodology §11 |
+
+## Optional transformer backend (measured, SYNTHETIC + hand-written)
+
+| Measure | Rule baseline | Transformer | Status |
+|---|---|---|---|
+| Polarity of the 36 unique SYNTHETIC templates | 33/36 | 26/36 | measured; templates favour the rules |
+| 12 hand-written probe sentences (illustrative only) | 4/12 | 4/12 | measured; not a benchmark |
+| Injected food decline recovered end-to-end (`seed=42`) | yes | no | measured: model misreads Hinglish negatives |
+| Precision / recall / F1 on real labelled reviews | TBD | TBD | needs the hand-labelled set |
 
 ## Dashboard
 

@@ -35,3 +35,33 @@ def test_injected_patterns_metadata():
     assert INJECTED_PATTERNS["food_decline"]["property"] == "Property F"
     assert INJECTED_PATTERNS["food_decline"]["change_month"] == "2025-06"
     assert INJECTED_PATTERNS["december_heating"]["scope"] == "market-wide"
+
+
+def test_null_mode_has_no_injected_patterns():
+    null = generate(seed=42, inject_patterns=False)
+    injected = generate(seed=42)
+    # The December burst of extra Room complaints only exists with patterns injected.
+    assert len(null) < len(injected)
+    validate_reviews(null)
+
+
+def test_end_accepts_a_full_date():
+    assert generate(seed=5, end="2025-12-31").equals(generate(seed=5, end="2025-12"))
+
+
+def test_seed_42_reproduces_the_committed_sample():
+    from cri.loader import load_reviews
+
+    committed = load_reviews("data/sample/synthetic_reviews.csv")
+    assert committed.equals(validate_reviews(generate(seed=42)))
+
+
+def test_cli_refuses_an_output_name_without_synthetic(tmp_path):
+    import pytest
+
+    from cri.generate import main
+
+    with pytest.raises(SystemExit):
+        main(["--out", str(tmp_path / "reviews.csv")])
+    main(["--out", str(tmp_path / "synthetic_null.csv"), "--no-patterns"])
+    assert (tmp_path / "synthetic_null.csv").exists()

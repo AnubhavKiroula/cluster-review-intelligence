@@ -21,6 +21,12 @@ dependencies = [
 
 [project.optional-dependencies]
 figures = ["matplotlib==3.10.8"]
+# Optional transformer sentiment backend (CRI_MODEL_BACKEND=transformer). Heavy:
+# not installed by default, in CI, or on Streamlit Cloud. See cri/transformer_backend.py.
+model = [
+    "transformers==5.19.0",
+    "torch==2.14.1",
+]
 dev = [
     "pytest==9.0.3",
     "ruff==0.16.10",
