@@ -10,6 +10,7 @@ from __future__ import annotations
 from pathlib import Path
 
 import pandas as pd
+import yaml
 
 from .loader import load_reviews
 from .schema import REQUIRED_COLUMNS, SchemaError, drop_identity_columns, validate_reviews
@@ -94,12 +95,17 @@ def adapt_frame(
 def load_source(
     path: str | Path,
     mapping: dict[str, str] | None = None,
+    mapping_file: str | Path | None = None,
 ) -> pd.DataFrame:
     """Load a mapped CSV/JSON source using the standard loader checks.
 
     The fast path preserves the standard loader's JSONL support; mapping is
     applied to the loaded raw frame before schema validation.
     """
+    if mapping is not None and mapping_file is not None:
+        raise ValueError("Pass either mapping or mapping_file, not both.")
+    if mapping_file is not None:
+        mapping = load_mapping(mapping_file)
     if mapping is None:
         return load_reviews(path)
 
@@ -112,3 +118,21 @@ def load_source(
     else:
         raise SchemaError(f"Unsupported file type '{suffix}'. Use .csv, .json, or .jsonl.")
     return adapt_frame(frame, mapping)
+
+
+def load_mapping(path: str | Path) -> dict[str, str]:
+    """Load a canonical-to-source column mapping from a small YAML config."""
+    path = Path(path)
+    try:
+        raw = yaml.safe_load(path.read_text(encoding="utf-8"))
+    except FileNotFoundError as exc:
+        raise FileNotFoundError(f"Mapping file not found: {path}") from exc
+    if not isinstance(raw, dict) or not isinstance(raw.get("columns"), dict):
+        raise SchemaError("Mapping YAML must contain a 'columns' mapping.")
+    mapping = raw["columns"]
+    if not all(isinstance(key, str) and isinstance(value, str) for key, value in mapping.items()):
+        raise SchemaError("Mapping YAML 'columns' values must all be strings.")
+    unknown = sorted(set(mapping) - set(REQUIRED_COLUMNS))
+    if unknown:
+        raise SchemaError(f"Mapping contains unknown canonical column(s): {unknown}.")
+    return mapping

@@ -50,7 +50,9 @@ reviews = load_source(
 )
 ```
 
-The adapter still drops identity columns and runs the normal schema validation.
+The adapter still drops identity columns and runs the normal schema validation. For
+repeatable loading, pass the same file through `mapping_file="data/source_mapping.example.yaml"`
+instead of constructing the dictionary in application code.
 Conservative aliases are available when no mapping is supplied; ambiguous matches
 are rejected rather than guessed. Exact duplicate rows from overlapping files are
 removed by `load_dir`.
