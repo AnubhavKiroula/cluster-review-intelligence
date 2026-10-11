@@ -55,12 +55,15 @@ for scope_name, group in plot.groupby("scope"):
     )
 
 # Guides: the API's market-wide threshold (vertical) and the average negative share
-# of the aspects shown (horizontal).
-fig.add_vline(x=api.MARKET_WIDE_FRACTION, line_dash="dot", line_color=theme.MUTED)
-fig.add_hline(y=avg_neg, line_dash="dot", line_color=theme.MUTED)
+# of the aspects shown (horizontal). Explicit widths: the simple_white template's
+# shape default is width 0, which drew both guides invisibly.
+guide = {"line_dash": "dot", "line_color": theme.MUTED, "line_width": 1.5}
+fig.add_vline(x=api.MARKET_WIDE_FRACTION, **guide)
+fig.add_hline(y=avg_neg, **guide)
 fig.add_annotation(
-    x=0.98, y=1.0, xref="x", yref="paper", showarrow=False,
-    text="broad reach →", font={"color": theme.MUTED, "size": 12},
+    x=api.MARKET_WIDE_FRACTION, y=0, xref="x", yref="paper", xanchor="left",
+    yanchor="bottom", showarrow=False, text=" market-wide threshold →",
+    font={"color": theme.MUTED, "size": 12},
 )
 common.style(
     fig,

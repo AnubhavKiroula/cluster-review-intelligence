@@ -13,6 +13,7 @@ skips otherwise.
 
 from __future__ import annotations
 
+import json
 import sys
 from pathlib import Path
 
@@ -51,9 +52,23 @@ def _errors(at) -> list[str]:
     return [e.message for e in at.exception]
 
 
+def _invisible_shapes(at) -> list[dict]:
+    """Chart lines drawn with width 0 (the simple_white template's shape default)."""
+    bad = []
+    for chart in at.get("plotly_chart"):
+        layout = json.loads(chart.proto.spec)["layout"]
+        defaults = layout.get("template", {}).get("layout", {}).get("shapedefaults", {})
+        default_width = defaults.get("line", {}).get("width", 2)
+        bad += [s for s in layout.get("shapes", [])
+                if s.get("line", {}).get("width", default_width) == 0]
+    return bad
+
+
 @pytest.mark.parametrize("path", PAGES, ids=lambda p: p.name)
 def test_page_runs_without_exception(app_test, path):
-    assert _errors(app_test(path)) == []
+    at = app_test(path)
+    assert _errors(at) == []
+    assert _invisible_shapes(at) == []
 
 
 def test_property_page_runs_for_every_property(app_test):
@@ -63,6 +78,7 @@ def test_property_page_runs_for_every_property(app_test):
     for prop in properties:
         at.sidebar.selectbox(key="property").set_value(prop).run()
         assert _errors(at) == [], prop
+        assert _invisible_shapes(at) == [], prop
 
 
 def test_explorer_classifies_a_typed_review(app_test):

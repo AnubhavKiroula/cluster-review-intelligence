@@ -31,6 +31,7 @@ else:
     when = "" if pd.isna(started) else f" — started around **{started}**"
     st.markdown(f"**{top['aspect']}** is the biggest opportunity{when}. {top['rationale']}")
     show = actions[["aspect", "gap", "volume", "impact_score", "started", "basis", "rationale"]]
+    show = show.assign(started=show["started"].map(lambda s: "—" if pd.isna(s) else s))
     st.dataframe(show, use_container_width=True, hide_index=True)
     common.download_button(actions, f"priority_actions_{prop}.csv", key="dl_actions")
 

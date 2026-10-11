@@ -66,7 +66,7 @@ fig = go.Figure(
 common.style(
     fig,
     height=max(320, 40 + 36 * len(ordered)),
-    xaxis={"title": "share of reviews negative", "tickformat": ".0%"},
+    xaxis={"title": "share of mentions negative", "tickformat": ".0%"},
     yaxis={"title": ""},
 )
 st.plotly_chart(fig, use_container_width=True)
