@@ -11,7 +11,7 @@ see `docs/HACKATHON_PLAN.md` for the plan and file-ownership map.
 
 ## Current objective
 Analytics core done; Archit's data/evaluation track now has a source-column
-adapter, label scoring CLI, and safer ingestion. The dashboard (Purvansh) builds
+  adapter/config, label scoring CLI, labelling pack, and safer ingestion. The dashboard (Purvansh) builds
 against `src/cri/api.py`.
 
 ## Architecture / state
@@ -31,8 +31,9 @@ properties; scope) → insights (priority actions, destination view) → **api.p
     `undetermined` scope for small clusters;
   - `priority_actions`, `destination_summary`, calibration module;
   - optional transformer backend (built and tested; see the known issues below).
-- Archit's data/evaluation slice: `src/cri/sources.py`, `eval/score.py`, annotation
-  schema, source-adapter tests, and dashboard dependency extras.
+- Archit's data/evaluation slice: `src/cri/sources.py`, YAML mapping config,
+  `eval/score.py`, annotation schema/guidelines/split tool, source-adapter tests,
+  and dashboard dependency extras.
 
 ## Verified
 - Tests: 148 pass, 2 skipped (opt-in real-model tests; they pass with the model

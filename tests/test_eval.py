@@ -2,6 +2,7 @@
 
 import pandas as pd
 from eval.score import evaluate
+from eval.split_labels import split_frame
 
 
 def _gold() -> pd.DataFrame:
@@ -57,3 +58,15 @@ def test_invalid_sentiment_is_rejected():
         assert "-1, 0, or 1" in str(error)
     else:
         raise AssertionError("invalid sentiment should fail loudly")
+
+
+def test_split_is_deterministic_and_disjoint():
+    frame = pd.DataFrame({"review_id": ["1", "2", "3", "4", "5"]})
+    first = split_frame(frame, ["A", "P", "R"])
+    second = split_frame(frame, ["A", "P", "R"])
+    first_counts = [len(first[key]) for key in ("A", "P", "R")]
+    second_counts = [len(second[key]) for key in ("A", "P", "R")]
+    assert first_counts == second_counts
+    assigned = pd.concat(first.values())
+    assert sorted(assigned["review_id"].tolist()) == ["1", "2", "3", "4", "5"]
+    assert assigned["review_id"].is_unique
