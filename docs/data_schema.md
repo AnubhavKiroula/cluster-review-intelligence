@@ -25,8 +25,11 @@ Any column named (case-insensitively) `reviewer_name`, `reviewer_id`, `reviewer`
 
 - All required columns present (clear error listing any missing).
 - `date` parseable as a date.
-- Missing dates are rejected; mixed timezone offsets are normalised safely at
-  validation and converted to Asia/Kolkata by the API facade.
+- Missing dates are rejected.
+- Timezones: a date **without** an offset is local time (Asia/Kolkata) and is kept
+  exactly as written. A date **with** an offset (`Z`, `+05:30`, mixed offsets in one
+  file) is converted to Asia/Kolkata local time. Downstream code only ever sees
+  naive local datetimes, so a review is counted in the month the guest stayed.
 - `rating` numeric and within `[1, 5]`.
 - `text` non-empty after stripping whitespace.
 
@@ -53,6 +56,13 @@ reviews = load_source(
 The adapter still drops identity columns and runs the normal schema validation. For
 repeatable loading, pass the same file through `mapping_file="data/source_mapping.example.yaml"`
 instead of constructing the dictionary in application code.
-Conservative aliases are available when no mapping is supplied; ambiguous matches
-are rejected rather than guessed. Exact duplicate rows from overlapping files are
-removed by `load_dir`.
+Without a mapping, `load_source` uses conservative aliases (e.g. `hotel`,
+`review_text`, `stars`); a file already in the standard schema loads unchanged.
+Ambiguous matches - including two headers that only differ in case or spacing -
+are rejected rather than guessed, and a mapping (dict or YAML) may only name
+canonical columns and use each source column once. A `review_id` column is carried
+through when present (mappable too), so labels can be joined back.
+
+`load_dir` drops a review that repeats a row from an **earlier file** (overlapping
+exports) and warns with the count. Identical rows inside one file are kept: two
+guests can post the same short review on the same day.

@@ -263,6 +263,14 @@ def test_timezone_aware_dates_become_naive_local_time(tmp_path, fmt):
     assert not api.search_reviews(data, start="2025-01-01", end="2025-03-31").empty
 
 
+def test_naive_evening_reviews_stay_in_their_month(tmp_path):
+    # Naive dates are local time: 20:00 on the 30th must not move into the next month.
+    sample = generate(seed=2)
+    evening = sample.assign(date=pd.to_datetime(sample["date"]) + pd.Timedelta(hours=20))
+    data = api.load_cluster(_write(evening, tmp_path / "evening.csv"))
+    assert data.reviews["date"].tolist() == evening["date"].tolist()
+
+
 def test_raw_columns_named_like_clause_columns_do_not_break_search(tmp_path):
     sample = generate(seed=2).assign(sentiment="positive", aspect="misc", sentence="x")
     data = api.load_cluster(_write(sample, tmp_path / "collide.csv"))

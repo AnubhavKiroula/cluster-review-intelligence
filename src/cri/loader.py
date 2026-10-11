@@ -6,15 +6,16 @@ No scraping, no network access: this reads files the team places in data/raw/
 
 from __future__ import annotations
 
+import warnings
 from pathlib import Path
 
 import pandas as pd
 
-from .schema import SchemaError, drop_identity_columns, validate_reviews
+from .schema import REQUIRED_COLUMNS, SchemaError, drop_identity_columns, validate_reviews
 
 
-def load_reviews(path: str | Path) -> pd.DataFrame:
-    """Load one CSV or JSON file of reviews, drop PII, and validate.
+def read_frame(path: str | Path) -> pd.DataFrame:
+    """Read one CSV or JSON file as-is (no validation).
 
     JSON may be a list of records or a newline-delimited (``.jsonl``) file.
     """
@@ -24,18 +25,46 @@ def load_reviews(path: str | Path) -> pd.DataFrame:
 
     suffix = path.suffix.lower()
     if suffix == ".csv":
-        df = pd.read_csv(path)
-    elif suffix in {".json", ".jsonl"}:
-        df = pd.read_json(path, lines=(suffix == ".jsonl"))
-    else:
-        raise SchemaError(f"Unsupported file type '{suffix}'. Use .csv, .json, or .jsonl.")
+        return pd.read_csv(path)
+    if suffix in {".json", ".jsonl"}:
+        return pd.read_json(path, lines=(suffix == ".jsonl"))
+    raise SchemaError(f"Unsupported file type '{suffix}'. Use .csv, .json, or .jsonl.")
 
-    df = drop_identity_columns(df)
-    return validate_reviews(df)
+
+def load_reviews(path: str | Path) -> pd.DataFrame:
+    """Load one CSV or JSON file of reviews, drop PII, and validate."""
+    return validate_reviews(drop_identity_columns(read_frame(path)))
+
+
+def _drop_repeats_across_files(frames: list[pd.DataFrame]) -> pd.DataFrame:
+    """Drop rows that already appeared in an earlier file (overlapping exports).
+
+    Identical rows *within* one file are kept: two guests can post the same short
+    review on the same day, and both are real.
+    """
+    seen: set[int] = set()
+    kept, dropped = [], 0
+    for frame in frames:
+        key = [c for c in [*REQUIRED_COLUMNS, "review_id"] if c in frame.columns]
+        hashes = pd.util.hash_pandas_object(frame[key], index=False)
+        repeat = hashes.isin(seen).to_numpy()
+        dropped += int(repeat.sum())
+        seen.update(hashes.tolist())
+        kept.append(frame[~repeat])
+    if dropped:
+        warnings.warn(
+            f"Dropped {dropped} review(s) repeated across files (overlapping exports).",
+            stacklevel=3,
+        )
+    return pd.concat(kept, ignore_index=True)
 
 
 def load_dir(directory: str | Path) -> pd.DataFrame:
-    """Load and concatenate every CSV/JSON file in a directory."""
+    """Load and concatenate every CSV/JSON file in a directory.
+
+    A review repeated in a later file is dropped with a warning (see
+    ``_drop_repeats_across_files``).
+    """
     directory = Path(directory)
     files = sorted(
         p for p in directory.iterdir()
@@ -43,8 +72,4 @@ def load_dir(directory: str | Path) -> pd.DataFrame:
     )
     if not files:
         raise FileNotFoundError(f"No CSV/JSON review files in {directory}")
-    frames = [load_reviews(p) for p in files]
-    combined = pd.concat(frames, ignore_index=True)
-    # Exact duplicates are common when overlapping exports are supplied. Remove
-    # only byte-for-byte duplicate review rows; distinct reviews remain intact.
-    return combined.drop_duplicates(ignore_index=True)
+    return _drop_repeats_across_files([load_reviews(p) for p in files])

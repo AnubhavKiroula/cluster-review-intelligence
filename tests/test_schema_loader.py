@@ -62,11 +62,42 @@ def test_missing_text_raises():
         validate_reviews(df)
 
 
+def _dates(values):
+    df = _valid_frame().assign(date=values)
+    out = validate_reviews(df)["date"]
+    assert out.dt.tz is None  # always naive local time downstream
+    return [str(v) for v in out]
+
+
+def test_naive_dates_are_local_time_and_never_shifted():
+    # A naive evening review must stay on its day (and month) - not move +05:30.
+    assert _dates(["2025-06-30 20:00", "2025-06-30"]) == [
+        "2025-06-30 20:00:00", "2025-06-30 00:00:00",
+    ]
+
+
+@pytest.mark.parametrize(
+    "values",
+    [
+        ["2025-06-30T14:30:00Z", "2025-06-30T14:30:00Z"],  # one offset (UTC)
+        ["2025-06-30T20:00:00+05:30", "2025-06-30T20:00:00+05:30"],  # one offset (IST)
+        ["2025-06-30T14:30:00+00:00", "2025-06-30T20:00:00+05:30"],  # mixed offsets
+        ["2025-06-30 20:00", "2025-06-30T14:30:00Z"],  # naive mixed with aware
+    ],
+)
+def test_dates_with_offsets_become_local_wall_time(values):
+    assert _dates(values) == ["2025-06-30 20:00:00"] * 2
+
+
 def test_mixed_timezone_offsets_are_parseable():
-    df = _valid_frame()
-    df["date"] = ["2025-01-01T23:30:00+00:00", "2025-01-02T05:30:00+05:30"]
-    out = validate_reviews(df)
-    assert pd.api.types.is_datetime64_any_dtype(out["date"])
+    assert _dates(["2025-01-01T23:30:00+00:00", "2025-01-02T05:30:00+05:30"]) == [
+        "2025-01-02 05:00:00", "2025-01-02 05:30:00",
+    ]
+
+
+def test_unparseable_date_raises():
+    with pytest.raises(SchemaError, match="date"):
+        validate_reviews(_valid_frame().assign(date=["2025-06-30", "not a date"]))
 
 
 def test_missing_date_raises():
@@ -86,9 +117,21 @@ def test_loader_roundtrip_drops_pii(tmp_path):
     assert len(loaded) == 2
 
 
-def test_load_dir_deduplicates_overlapping_exports(tmp_path):
-    df = _valid_frame().iloc[[0]]
+def test_load_dir_drops_rows_repeated_across_files_with_a_warning(tmp_path):
+    df = _valid_frame()
     df.to_csv(tmp_path / "part_a.csv", index=False)
-    df.to_csv(tmp_path / "part_b.csv", index=False)
-    loaded = load_dir(tmp_path)
-    assert len(loaded) == 1
+    df.iloc[[1]].to_csv(tmp_path / "part_b.csv", index=False)  # overlapping export
+    with pytest.warns(UserWarning, match="Dropped 1 review"):
+        loaded = load_dir(tmp_path)
+    assert len(loaded) == 2
+
+
+def test_load_dir_keeps_identical_reviews_within_one_file(tmp_path):
+    # Two guests can post the same short review on the same day: both are real.
+    _valid_frame().iloc[[0, 0, 1]].to_csv(tmp_path / "only.csv", index=False)
+    assert len(load_dir(tmp_path)) == 3
+
+
+def test_load_dir_keeps_the_bundled_sample_whole():
+    # The SYNTHETIC sample has two genuinely identical review pairs.
+    assert len(load_dir("data/sample")) == len(load_reviews("data/sample/synthetic_reviews.csv"))
