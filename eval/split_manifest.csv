@@ -1,4 +1,4 @@
 annotator,slice_file,assignment,status
-A,eval/labelled/slice_A.csv,Disjoint deterministic hash partition of supplied review_id values,READY
-P,eval/labelled/slice_P.csv,Disjoint deterministic hash partition of supplied review_id values,READY
-R,eval/labelled/slice_R.csv,Disjoint deterministic hash partition of supplied review_id values,READY
+A,eval/labelled/slice_A.csv,Disjoint deterministic hash partition of supplied review_id values,PENDING
+P,eval/labelled/slice_P.csv,Disjoint deterministic hash partition of supplied review_id values,PENDING
+R,eval/labelled/slice_R.csv,Disjoint deterministic hash partition of supplied review_id values,PENDING

@@ -10,7 +10,9 @@ you receive; do not infer a label from the star rating or property.
 - Keep `review_id` unchanged and never add reviewer names, IDs, contact details, or
   unredacted platform exports.
 - Use the taxonomy in `src/cri/resources/aspects.yaml`; do not invent new aspects.
-- A review may have zero, one, or several aspects.
+- A review may have zero, one, or several aspects. Write `none` in `gold_aspects`
+  for a review you checked that mentions no aspect; leave cells blank only for rows
+  you have not labelled yet (the scorer skips those).
 
 ## 2. Aspect rules
 
