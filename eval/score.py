@@ -140,7 +140,10 @@ def evaluate(gold: pd.DataFrame, predicted: pd.DataFrame | None = None) -> dict[
     Aspect metrics are one-vs-rest per aspect (macro = unweighted mean). A labelled
     review with no prediction counts as "predicted nothing", never as neutral.
     Sentiment metrics (accuracy, per-class and macro F1 over -1/0/1) are computed on
-    aspects that both the human and the model found. Undefined metrics are ``None``.
+    aspects that both the human and the model found. A precision or recall with
+    nothing to count (0/0) is 0, as in scikit-learn's default, so an aspect only the
+    model predicts lowers macro recall; a metric with no data at all (no aspects, no
+    matched sentiment pairs) is ``None``.
     """
     gold_rows, unlabelled = _records(gold)
     if predicted is None:
