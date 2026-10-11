@@ -16,7 +16,7 @@ st.title("🗺️ Cluster heatmap")
 common.synthetic_banner(d)
 st.markdown("Mean sentiment per **property × aspect**. Red = negative, teal = positive.")
 
-matrix = api.cluster_matrix(d)
+matrix = common.cached(api.cluster_matrix, d)
 if matrix.empty:
     st.info("No labelled aspects to display yet.")
     st.stop()

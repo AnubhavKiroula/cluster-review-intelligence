@@ -20,7 +20,7 @@ st.markdown(
 common.synthetic_banner(d)
 
 st.markdown(
-    "A **4.1-star average** means different things for different hotels. One property's "
+    "The **same star average** means different things for different hotels. One property's "
     "weak spot is a competitive gap it owns; another's is a problem the *entire cluster* "
     "shares every winter. This dashboard separates the two — and tells you what to fix first."
 )

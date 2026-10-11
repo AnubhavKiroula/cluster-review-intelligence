@@ -10,69 +10,73 @@ Team: Anubhav (analytics core), Purvansh (dashboard), Archit (data, eval, ops):
 see `docs/HACKATHON_PLAN.md` for the plan and file-ownership map.
 
 ## Current objective
-Analytics core done; Archit's data/evaluation track now has a source-column
-adapter, label scoring CLI, and safer ingestion. The dashboard (Purvansh) builds
-against `src/cri/api.py`.
+Day-1 integration done on `feat/day1-integration`: the dashboard runs end to end on
+SYNTHETIC data on the pinned stack, the demo is scripted with true numbers, and the
+eval harness can score the shipped classifier. Next: deploy, real data, labelling.
 
 ## Architecture / state
-`src/cri/`: schema → loader (PII dropped) → normalize → classify (rules by default,
-optional transformer via `CRI_MODEL_BACKEND`) → pipeline (mentions with
-`review_id`) → benchmark (review-level bootstrap CIs; "is it me?" changepoints vs
-the leave-one-out market; "is it the market?" seasonal/step patterns across
-properties; scope) → insights (priority actions, destination view) → **api.py**
-(the facade the dashboard imports). Config: `aspects.yaml`, `lexicon.yaml`.
-`python -m cri.calibration` reproduces every detector number in the docs.
+`src/cri/`: schema (dates → naive Asia/Kolkata) → loader (PII dropped; cross-file
+repeats dropped with a warning) / sources (aliases or YAML mapping) → normalize
+(clauses split on punctuation, aur/or and contrastive conjunctions) → classify
+(rules by default, optional transformer via `CRI_MODEL_BACKEND`) → pipeline →
+benchmark (bootstrap CIs; "is it me?" vs the leave-one-out market; "is it the
+market?" across properties) → insights → **api.py** (the only module `app/`
+imports). `app/`: Streamlit, 5 pages. `eval/`: predict.py → score.py.
 
 ## Completed (implemented + verified)
-- MVP (Phases 0–3, 6–7): scaffold, synthetic generator, rule classifier, README.
-- Anubhav's Day-0/Day-1 track (branch `feat/anubhav-analytics-core`):
-  - `api.py` contract and `lexicon.yaml` extraction (byte-identical output);
-  - bootstrap CIs, significance-tested detectors, market-wide patterns,
-    `undetermined` scope for small clusters;
-  - `priority_actions`, `destination_summary`, calibration module;
-  - optional transformer backend (built and tested; see the known issues below).
-- Archit's data/evaluation slice: `src/cri/sources.py`, `eval/score.py`, annotation
-  schema, source-adapter tests, and dashboard dependency extras.
+- MVP; Anubhav's analytics core (PR #14); Purvansh's dashboard (PR #15); Archit's
+  eval/sources/schema (PR #16) and labelling pack (PR #17, brought to main here:
+  it had merged into its stacked base branch, not main).
+- Day-1 integration (this branch): ingestion date/duplicate/alias fixes; eval
+  predict + sentiment metrics; dashboard fixed on the pinned stack (pyarrow pin,
+  plotly datetime crash on Property F, invisible quadrant guides, honest labels,
+  caching); "Try your own review"; contrastive-clause splitting; demo pack;
+  CodeQL; CI runs the dashboard; Streamlit Cloud prep; screenshots.
 
 ## Verified
-- Tests: 148 pass, 2 skipped (opt-in real-model tests; they pass with the model
-  installed) on pandas 2.1.3/numpy 1.26 AND pandas 3.0.6/numpy 2.4.6 (warnings
-  as errors). Every commit on the branch passes on its own.
-- SYNTHETIC calibration (`--seeds 1-20`): food decline found 15/20, Room-December
-  market-wide 20/20, pattern-free seeds with any false alarm 1/20 (was 20/20).
-- Fresh null seeds 21–120: property changepoint false alarms 5/100 (nominal 5%);
-  market patterns 0/100. Lead/lag: 0.11 false flags per null cluster (was ~2.8).
-- A five-lens adversarial review (statistics, contract, edge cases, pandas 3,
-  quality) confirmed 10 problems; all fixed, each with a regression test.
-- Every `api` call < 300 ms on the 5,124-review sample; `load_cluster` ≈ 1.8 s.
+- Pinned stack + dashboard extra (= CI): 227 passed, 2 skipped (opt-in real-model
+  tests). pandas 3.0.6 / numpy 2.4.6, warnings as errors: 211 passed (all but the
+  dashboard tests, whose pinned streamlit needs pandas<3). ruff clean.
+- Every dashboard page runs headlessly (AppTest), Property page for all 12
+  properties; no zero-width chart lines.
+- Fresh clone, clean Python 3.12: `pip install -r requirements.txt` and `uv pip
+  install -r requirements.txt` both work; `streamlit run app/Home.py` health `ok`.
+- SYNTHETIC calibration (`--seeds 1-20`) reproduces the documented numbers exactly
+  after the classifier change (food decline 15/20, Room-December 20/20, null
+  seeds with any false alarm 1/20). Rules vs transformer probes unchanged
+  (4/12 vs 4/12; templates 33/36 vs 26/36).
 
 ## Next tasks
-1. Purvansh: build the dashboard on `api.py` (handle scope `undetermined`/`stable`,
-   `started`/`change_month` may be missing).
-2. Archit: obtain legitimately provided/open real data if available, then run the
-   eval CLI on hand-labelled rows; merge numpy 2 and pandas 3 Dependabot PRs together.
-3. Hackathon: tune on real data; re-run calibration if thresholds change.
+1. Deploy to Streamlit Community Cloud from `main` (docs/DEPLOYMENT.md; needs a
+   GitHub login), record the URL.
+2. Enable branch protection on `main` (repo admin; docs/hardening.md).
+3. Real data (legitimate sources only, §8 of the plan) and the labelling sprint;
+   run `eval/predict.py` + `eval/score.py`; replace `TBD`s with measured values.
+4. Demo rehearsal with `docs/DEMO.md`; record the backup video.
 
 ## Important decisions
 - Statistical unit = (review, aspect); FDR q = 0.05; effect floors 0.4 (property
   change) and 0.3 (market participation); market-wide needs ≥ 60% of properties.
-- Market reference = other properties' deviations from their own levels (robust
-  to hotels entering/leaving the data); lead/lag flags FDR-controlled.
-- Seasonality tested for all 12 months, within each year, must recur every year.
-- Ingestion normalised in `api.load_cluster`: ids → text, tz dates → Asia/Kolkata.
+- Dates: naive = local time, kept as written; offsets converted to Asia/Kolkata
+  (in the schema, once).
+- Clauses split on contrastive conjunctions (not on "par", which also means "on").
+- Eval scores only human-labelled rows (blank gold = not labelled; `none` = no
+  aspect); sentiment metrics on aspects both sides found.
+- Dependency stack kept at pandas 2.1.3 / numpy 1.26.2 / streamlit 1.41.1 /
+  pyarrow 25.0.1 through the hackathon; Dependabot groups them for later.
 - Transformer backend is opt-in, NOT default (measured weaker on Hinglish).
 - PELT not implemented (penalty cannot be calibrated without real data).
 
 ## Known issues / honest caveats
 - Validation is SYNTHETIC only; real-data accuracy is `TBD`.
-- Addressed in Archit's files: blank text / mixed-offset dates and exact duplicate
-  reviews across overlapping exports; numpy 2 + pandas 3 Dependabot PRs still need
-  to merge together.
+- Rule baseline misses Hindi post-negation ("accha nahi"), sarcasm and
+  out-of-lexicon words (see docs/DEMO.md "do not type these live").
 - Detector recall is limited by sample size (15/20); thresholds not loosened.
-- The pinned transformer model misreads Hinglish negatives and some English
-  out-of-lexicon words; it does not recover the injected decline end-to-end.
+- Streamlit Cloud acceptance of `.[dashboard]` in requirements.txt is unverified
+  until the first deploy (fallback documented).
 
 ## Commands
-`pip install -e ".[dev]"` · `pytest` · `ruff check .` · `python scripts/demo.py` ·
-`python scripts/make_figures.py` · `python -m cri.calibration --seeds 1-20` ·
-optional: `pip install -e ".[model]"` then `CRI_MODEL_BACKEND=transformer`.
+`pip install -e ".[dev,dashboard]"` · `pytest` · `ruff check .` ·
+`streamlit run app/Home.py` · `python scripts/demo.py` ·
+`python -m cri.calibration --seeds 1-20` · `python eval/predict.py …` ·
+`python eval/score.py …` · optional: `pip install -e ".[model]"`.

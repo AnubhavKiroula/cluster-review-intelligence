@@ -263,6 +263,14 @@ def test_timezone_aware_dates_become_naive_local_time(tmp_path, fmt):
     assert not api.search_reviews(data, start="2025-01-01", end="2025-03-31").empty
 
 
+def test_naive_evening_reviews_stay_in_their_month(tmp_path):
+    # Naive dates are local time: 20:00 on the 30th must not move into the next month.
+    sample = generate(seed=2)
+    evening = sample.assign(date=pd.to_datetime(sample["date"]) + pd.Timedelta(hours=20))
+    data = api.load_cluster(_write(evening, tmp_path / "evening.csv"))
+    assert data.reviews["date"].tolist() == evening["date"].tolist()
+
+
 def test_raw_columns_named_like_clause_columns_do_not_break_search(tmp_path):
     sample = generate(seed=2).assign(sentiment="positive", aspect="misc", sentence="x")
     data = api.load_cluster(_write(sample, tmp_path / "collide.csv"))
@@ -293,3 +301,28 @@ def test_empty_trend_has_typed_columns(tmp_path):
     assert pd.api.types.is_datetime64_any_dtype(tr["month"]) and tr["n"].dtype == "int64"
     unmatched = api.search_reviews(data, property_id="Property Z")
     assert len(unmatched) == 1 and unmatched["aspect"].isna().all()
+
+
+def test_thresholds_the_ui_draws_are_exposed():
+    assert 0 < api.MARKET_WIDE_FRACTION <= 1
+    assert api.MIN_REVIEWS_FOR_FLAG >= 1
+
+
+def test_classify_text_shows_each_aspect_with_its_clause():
+    # Demo step 4: a typed Hinglish review is classified live, clause by clause.
+    out = api.classify_text("Khana accha tha lekin kamra ganda tha.")
+    assert list(out.columns) == api.CLASSIFY_COLUMNS == ["aspect", "sentiment", "sentence"]
+    assert {("Food", 1), ("Room", -1)} <= set(zip(out["aspect"], out["sentiment"], strict=True))
+    assert out.loc[out["aspect"] == "Food", "sentence"].iloc[0] == "khana accha tha"
+    assert out["sentiment"].dtype == "int64"
+
+
+@pytest.mark.parametrize("blank", ["", "   ", None])
+def test_classify_text_blank_input_is_an_empty_frame(blank):
+    out = api.classify_text(blank)
+    assert out.empty and list(out.columns) == api.CLASSIFY_COLUMNS
+
+
+def test_classify_text_rejects_non_text():
+    with pytest.raises(ValueError, match="text"):
+        api.classify_text(42)

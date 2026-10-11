@@ -55,8 +55,11 @@ This project answers exactly that, from review text — including the
 | Stable **API facade** for the dashboard (contract in `docs/HACKATHON_PLAN.md` §3.2); normalises messy exports (numeric ids, timezone-stamped dates) | ✅ | `src/cri/api.py` |
 | **Reproducible calibration**: recall and false-alarm rates on SYNTHETIC data | ✅ | `python -m cri.calibration` |
 | Reproducible figures from synthetic data | ✅ | `scripts/make_figures.py` |
-| Tests: pattern recovery, null-data silence, API contract | ✅ | `tests/` |
-| Streamlit dashboard, real-data evaluation metrics | ⏳ Roadmap | see [Roadmap](#roadmap) |
+| **Streamlit dashboard**: property view, heatmap, market quadrant, destination view, review explorer with live *Try your own review*; SYNTHETIC banner, CSV export | ✅ | `app/` |
+| Partner exports with other column names (aliases or a YAML mapping) | ✅ | `src/cri/sources.py` |
+| **Evaluation harness**: export predictions, then aspect P/R/F1 + sentiment macro-F1, confusion matrix, error analysis | ✅ | `eval/predict.py`, `eval/score.py` |
+| Tests: pattern recovery, null-data silence, API contract, every dashboard page run headlessly, demo claims | ✅ | `tests/` |
+| Accuracy on **real** hand-labelled reviews | ⏳ `TBD` | needs the labelled set |
 
 The aspect taxonomy is **Food, Room, Housekeeping, Staff, Location, Value for
 Money, Cleanliness, Booking Experience**.
@@ -77,16 +80,14 @@ flowchart LR
     ME --> IN
     MK --> IN
     IN --> API["api.py facade"]
-    API --> OUT["Figures · Demo · Dashboard*"]
+    API --> OUT["Streamlit dashboard · Figures · CLI demo"]
 ```
-
-<sub>* Dashboard is a Roadmap item; the MVP ships static figures and a CLI demo.</sub>
 
 ### Data flow
 
 ```mermaid
 flowchart TD
-    A["Review row<br/>property_id · date · rating · text · language_hint"] --> B["Clauses<br/>(split on . ! ? , aur/or)"]
+    A["Review row<br/>property_id · date · rating · text · language_hint"] --> B["Clauses<br/>(split on . ! ? , aur/or<br/>and but/lekin/magar…)"]
     B --> C["Aspect match<br/>(cue terms from aspects.yaml)"]
     B --> D["Sentiment score<br/>(lexicon.yaml + negation) → -1 / 0 / +1"]
     C --> E["(aspect, sentiment) mentions"]
@@ -118,21 +119,33 @@ sequenceDiagram
 ```bash
 git clone https://github.com/AnubhavKiroula/cluster-review-intelligence.git
 cd cluster-review-intelligence
-python -m pip install -e ".[dev]"
+python -m pip install -e ".[dev,dashboard]"   # Python 3.11 or 3.12
 
 python -m pytest                       # 1) tests recover the injected patterns
-python scripts/demo.py                 # 2) headline findings on the SYNTHETIC sample
-python scripts/make_figures.py         # 3) regenerate the figures below (docs/img/)
-python -m cri.calibration --seeds 1-20 # 4) recall / false-alarm rates (about a minute)
+streamlit run app/Home.py              # 2) the dashboard (SYNTHETIC sample by default)
+python scripts/demo.py                 # 3) every number the demo script quotes
+python scripts/make_figures.py         # 4) regenerate the figures below (docs/img/)
+python -m cri.calibration --seeds 1-20 # 5) recall / false-alarm rates (about a minute)
 ```
 
-`scripts/demo.py` prints, from the bundled SYNTHETIC data, which issues are
-market-wide vs property-specific and the detected changepoints — including
-`Property F` food declining at `2025-06` and cluster-wide December room
-complaints.
+`scripts/demo.py` prints, from the SYNTHETIC sample, the facts the judge demo
+([`docs/DEMO.md`](docs/DEMO.md)) relies on, including `Property F` food declining
+from `2025-06` (property-specific) and cluster-wide December room complaints
+(market-wide). Deploying the dashboard: [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md).
 
 > Windows without `make`: run the commands above directly (the `Makefile` just
 > wraps them).
+
+## Dashboard (SYNTHETIC data)
+
+![Property view for Property F: fix-this-first, scorecard with 95% intervals, trend with the detected June 2025 changepoint (SYNTHETIC data)](docs/screenshots/property_view_SYNTHETIC.png)
+
+More pages, all on the SYNTHETIC sample:
+[market quadrant](docs/screenshots/market_quadrant_SYNTHETIC.png) ·
+[cluster heatmap](docs/screenshots/cluster_heatmap_SYNTHETIC.png) ·
+[destination view](docs/screenshots/destination_view_SYNTHETIC.png) ·
+[review explorer](docs/screenshots/review_explorer_SYNTHETIC.png).
+Open a property directly with `/Property?property=Property F`.
 
 ## Figures (SYNTHETIC data)
 
@@ -201,8 +214,15 @@ and limitations: [`docs/methodology.md` §10–11](docs/methodology.md).
 | Confusion matrix / error analysis | `TBD` | `TBD` |
 
 To produce real numbers, hand-label reviews with
-[`docs/labelling_template.csv`](docs/labelling_template.csv); every `TBD` is
-tracked in [`docs/TODO_RESULTS.md`](docs/TODO_RESULTS.md).
+[`docs/labelling_template.csv`](docs/labelling_template.csv) (guide:
+[`eval/labeling_guidelines.md`](eval/labeling_guidelines.md)), then:
+
+```bash
+python eval/predict.py eval/labelled/gold.csv --out eval/labelled/predictions.csv
+python eval/score.py eval/labelled/gold.csv --predictions eval/labelled/predictions.csv
+```
+
+Every `TBD` is tracked in [`docs/TODO_RESULTS.md`](docs/TODO_RESULTS.md).
 
 ## Limitations & failure modes
 
@@ -243,37 +263,39 @@ the manual GitHub settings still to enable) is tracked in
 ## Project layout
 
 ```
+app/                # Streamlit dashboard: Home.py + pages/ (imports only cri.api)
 src/cri/api.py      # the facade the dashboard imports (stable contract)
-src/cri/            # schema, loader, generate, normalize, classify, pipeline,
+src/cri/            # schema, loader, sources, generate, normalize, classify, pipeline,
                     # benchmark, changepoint, insights, calibration, transformer_backend
 src/cri/resources/  # aspects.yaml (aspect taxonomy), lexicon.yaml (sentiment words)
-scripts/            # make_figures.py, demo.py
-tests/              # pattern-recovery + unit tests
+eval/               # predict.py, score.py, labelling guide, split_labels.py
+scripts/            # make_figures.py, demo.py, capture_screenshots.py
+tests/              # pattern-recovery, unit, dashboard (AppTest) and demo-claim tests
 data/sample/        # SYNTHETIC reviews (committed); data/raw/ is gitignored
-docs/               # data_schema, methodology, CREDITS, TODO_RESULTS, img/, screenshots/
-.github/workflows/  # ci.yml, scorecard.yml (actions pinned by commit SHA)
+docs/               # DEMO, DEPLOYMENT, data_schema, methodology, CREDITS, TODO_RESULTS,
+                    # img/, screenshots/
+requirements.txt    # Streamlit Community Cloud entry point (installs .[dashboard])
+.github/workflows/  # ci.yml, codeql.yml, scorecard.yml (actions pinned by commit SHA)
 ```
 
 ## Roadmap
 
-Planned / to be built during the hackathon (not in this MVP):
+Planned / to be built during the hackathon:
 
-- **Streamlit + Plotly dashboard** — property view, cluster heatmap, market-wide
-  quadrant, destination view, filterable review explorer, SYNTHETIC banner.
-- **Evaluation harness** — per-aspect & macro precision/recall/F1, confusion
-  matrix, error analysis (sarcasm, mixed aspects, very short reviews) on real
-  hand-labelled data.
+- **Real labelled evaluation** — run `eval/predict.py` + `eval/score.py` on
+  hand-labelled real reviews and replace the `TBD`s with measured values.
+- **Public deployment** on Streamlit Community Cloud (steps in
+  [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md); URL `TBD`).
 - **Evaluate the transformer backend** against the rule baseline on the real
   labelled set, and make it the default only if it wins.
 - **Multiple changepoints per series** (e.g. PELT) once real data allows the
   penalty to be calibrated.
-- **CodeQL** code scanning workflow.
 
 ## Development
 
 ```bash
-python -m pip install -e ".[dev]"
-python -m pytest            # tests
+python -m pip install -e ".[dev,dashboard]"
+python -m pytest            # tests (dashboard pages run headlessly via AppTest)
 python -m ruff check .      # lint
 python -m ruff format .     # format
 python -m cri.generate --out data/sample/synthetic_reviews.csv  # regenerate sample

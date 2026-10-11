@@ -1,0 +1,9 @@
+# Copy this file outside gitignored data/raw/ and edit source column names.
+# Values are source headers; keys are the canonical CRI schema names.
+columns:
+  property_id: hotel_code
+  platform: channel
+  date: review_date
+  rating: stars
+  text: review_body
+  language_hint: language

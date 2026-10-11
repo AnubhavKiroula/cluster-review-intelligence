@@ -32,8 +32,9 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Install (dev extras)
-        run: python -m pip install -e ".[dev]"
+      # The dashboard extra lets tests/test_app_smoke.py run every page (AppTest).
+      - name: Install (dev + dashboard extras)
+        run: python -m pip install -e ".[dev,dashboard]"
 
       - name: Lint (ruff)
         run: python -m ruff check .

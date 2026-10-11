@@ -11,13 +11,19 @@ signature and documented columns. Additive extensions (Day 0, agreed in the PR):
   -> ``current_mean, reference_mean, basis, n``.
 * Scope values: ``market_scope`` may return ``undetermined`` (fewer than 3
   properties review the aspect); ``destination_summary`` also uses ``stable``.
+* ``classify_text(text)`` -> ``aspect, sentiment, sentence``: classify one typed
+  review (demo step 4: "type a Hinglish review in the explorer").
+* Thresholds the UI may draw (constants): ``MARKET_WIDE_FRACTION`` (share of the
+  properties reviewing an aspect that must share a market pattern) and
+  ``MIN_REVIEWS_FOR_FLAG`` (fewer reviews: no CI, no lead/lag flag).
 * Missing optional values: ``priority_actions.started`` and
   ``changepoints.market_delta`` can be missing (``None`` / NaN); test with
   ``pd.isna``. ``ci_low``/``ci_high`` are NaN below 10 reviews.
 
-Ingestion is normalised here, once: ``property_id`` becomes text (so numeric ids
-like 101 work everywhere) and timezone-aware dates become naive local time in
-``LOCAL_TZ`` (so months are the calendar months the guests experienced).
+Ingestion is normalised once: ``property_id`` becomes text here (so numeric ids
+like 101 work everywhere), and the schema turns dates with a UTC offset into naive
+local time in ``LOCAL_TZ`` while naive dates stay as they are (so months are the
+calendar months the guests experienced).
 
 All functions are pure: they never mutate ``ClusterData``. In Streamlit, cache
 ``load_cluster`` and the heavier calls with ``st.cache_data``.
@@ -41,19 +47,25 @@ from .classify import get_classifier, load_aspects
 from .generate import generate
 from .loader import load_dir, load_reviews
 from .pipeline import label_reviews
-from .schema import validate_reviews
+from .schema import (
+    LOCAL_TZ,  # noqa: F401  (re-exported: date policy of the facade)
+    validate_reviews,
+)
+
+MARKET_WIDE_FRACTION = _benchmark.MARKET_WIDE_FRACTION
+MIN_REVIEWS_FOR_FLAG = _benchmark.MIN_REVIEWS_FOR_FLAG
 
 SCORECARD_COLUMNS = [
     "aspect", "mean", "ci_low", "ci_high", "n", "cluster_mean", "diff", "flag",
     "n_reviews", "q_value",
 ]
 TREND_COLUMNS = ["month", "mean", "n"]
-LOCAL_TZ = "Asia/Kolkata"  # Uttarakhand clusters: tz-aware review dates are converted here
 REVIEW_COLUMNS = ["review_id", "property_id", "date", "platform", "rating", "language_hint", "text"]
 SEARCH_COLUMNS = [
     "review_id", "property_id", "date", "platform", "rating", "language_hint",
     "aspect", "sentiment", "sentence", "text",
 ]
+CLASSIFY_COLUMNS = ["aspect", "sentiment", "sentence"]
 
 
 @dataclass(frozen=True)
@@ -87,15 +99,8 @@ def _mentions_synthetic(*names: str) -> bool:
 
 
 def _normalise(reviews: pd.DataFrame) -> pd.DataFrame:
-    """One dtype per column for everything downstream (see module docstring)."""
-    reviews = reviews.assign(property_id=reviews["property_id"].astype(str).str.strip())
-    dates = reviews["date"]
-    if isinstance(dates.dtype, pd.DatetimeTZDtype):
-        dates = dates.dt.tz_convert(LOCAL_TZ).dt.tz_localize(None)
-    elif not pd.api.types.is_datetime64_any_dtype(dates):
-        # Mixed UTC offsets arrive as objects: align them on UTC, then local time.
-        dates = pd.to_datetime(dates, utc=True).dt.tz_convert(LOCAL_TZ).dt.tz_localize(None)
-    return reviews.assign(date=dates)
+    """Text property ids everywhere (dates are already local time: see schema)."""
+    return reviews.assign(property_id=reviews["property_id"].astype(str).str.strip())
 
 
 def _files_in(directory: Path) -> list[str]:
@@ -293,3 +298,17 @@ def search_reviews(
     out = out.assign(sentiment=out["sentiment"].astype("Int64"))
     out = out.sort_values(["date", "review_id"], ascending=[False, True])
     return out[SEARCH_COLUMNS].reset_index(drop=True)
+
+
+def classify_text(text: str | None) -> pd.DataFrame:
+    """Classify one typed review (the explorer's "try your own review" box).
+
+    One row per detected aspect mention, with the normalised clause it came from,
+    using the same classifier as ``load_cluster`` (``CRI_MODEL_BACKEND``). Blank
+    input gives an empty frame with the columns.
+    """
+    if text is not None and not isinstance(text, str):
+        raise ValueError(f"text must be a string, got {type(text).__name__}")
+    mentions = get_classifier().classify_reviews([text or ""])[0]
+    rows = [(m.aspect, m.sentiment, m.sentence) for m in mentions]
+    return pd.DataFrame(rows, columns=CLASSIFY_COLUMNS).astype({"sentiment": "int64"})

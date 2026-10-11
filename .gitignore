@@ -24,6 +24,9 @@ htmlcov/
 # Team-provided raw data is never committed (see CLAUDE.md rule 3 & 4)
 data/raw/*
 !data/raw/.gitkeep
+# Labelled slices contain review text: shared inside the team, never committed.
+eval/labelled/*
+!eval/labelled/.gitkeep
 
 # OS / editor
 .DS_Store
