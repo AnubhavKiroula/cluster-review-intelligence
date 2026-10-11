@@ -33,6 +33,7 @@ the valid options; empty results are empty frames with the documented columns.
 
 from __future__ import annotations
 
+import functools
 import numbers
 import os
 import re
@@ -77,6 +78,17 @@ class ClusterData:
 
 
 # --- Loading ------------------------------------------------------------------------
+
+
+@functools.lru_cache(maxsize=4)
+def _classifier(backend: str | None, aspects_path: str | None):
+    # Keyed by everything a classifier is built from: the transformer backend loads
+    # a ~541 MB model, so it must not be rebuilt for every load or typed review.
+    return get_classifier(backend)
+
+
+def _configured_classifier():
+    return _classifier(os.environ.get("CRI_MODEL_BACKEND"), os.environ.get("CRI_ASPECTS_PATH"))
 
 
 def _with_review_ids(reviews: pd.DataFrame) -> pd.DataFrame:
@@ -138,7 +150,7 @@ def load_cluster(path=None, *, synthetic=True, seed=42) -> ClusterData:
         source = str(raw)
 
     reviews = _normalise(_with_review_ids(reviews))
-    labelled = label_reviews(reviews, classifier=get_classifier())
+    labelled = label_reviews(reviews, classifier=_configured_classifier())
     return ClusterData(reviews, labelled, is_synthetic, source)
 
 
@@ -309,6 +321,6 @@ def classify_text(text: str | None) -> pd.DataFrame:
     """
     if text is not None and not isinstance(text, str):
         raise ValueError(f"text must be a string, got {type(text).__name__}")
-    mentions = get_classifier().classify_reviews([text or ""])[0]
+    mentions = _configured_classifier().classify_reviews([text or ""])[0]
     rows = [(m.aspect, m.sentiment, m.sentence) for m in mentions]
     return pd.DataFrame(rows, columns=CLASSIFY_COLUMNS).astype({"sentiment": "int64"})

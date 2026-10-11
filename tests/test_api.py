@@ -326,3 +326,17 @@ def test_classify_text_blank_input_is_an_empty_frame(blank):
 def test_classify_text_rejects_non_text():
     with pytest.raises(ValueError, match="text"):
         api.classify_text(42)
+
+
+def test_the_classifier_is_built_once_per_configuration(monkeypatch):
+    # The transformer backend loads a ~541 MB model: never once per typed review.
+    calls = []
+    real = api.get_classifier
+    monkeypatch.setattr(api, "get_classifier", lambda name=None: calls.append(name) or real(name))
+    api._classifier.cache_clear()
+    try:
+        api.classify_text("The food was good.")
+        api.classify_text("The room was dirty.")
+        assert len(calls) == 1
+    finally:
+        api._classifier.cache_clear()
