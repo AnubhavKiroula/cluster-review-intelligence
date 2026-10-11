@@ -334,22 +334,25 @@ Whatever the source: drop reviewer identity at ingestion, anonymise property nam
 
 ## 10. Demo script (judge-facing, ~3 min)
 
-Rehearse until this is muscle memory.
+Rehearse until this is muscle memory. **The rehearsal copy, with the real SYNTHETIC
+numbers, the commands that produce them and five pre-tested live inputs, is
+[`docs/DEMO.md`](DEMO.md)** (pinned by `tests/test_demo.py`).
 
-1. **Hook (20 s)** — "This property averages 4.1 stars. So does this one. One of
-   them has a serious problem. A star average can't tell you which."
+1. **Hook (20 s)** — "Property F averages 3.28 stars. Property I averages 3.33. One
+   of them has a serious problem. A star average can't tell you which."
 2. **Property view (40 s)** — open Property F. Priority actions say *fix Food
    first*. The trend shows it fell off a cliff in June.
 3. **The differentiator (40 s)** — "But is that *them*, or the whole market?"
    Open the quadrant. Food = property-specific → a competitive gap they own.
    Room = market-wide → every property gets cold-room complaints each December.
    **"Same chart, two completely different actions."**
-4. **Hinglish (20 s)** — type a mixed Hinglish/Devanagari review in the explorer;
-   show the aspect + sentiment picked up correctly.
+4. **Hinglish (20 s)** — type a rehearsed Hinglish/Devanagari review into the
+   explorer's *Try your own review* box; show each aspect, its sentiment and the clause.
 5. **Destination view (20 s)** — "And for a tourism board, this is the cluster-wide
    view: heating is a destination problem, not a hotel problem."
 6. **Honesty (20 s)** — show the evaluation table and the limitations section.
-   "Here's our measured F1, and here's exactly where we fail."
+   "Here's what we measured, and here's exactly where we fail." (Quote an F1 only
+   if it was actually measured on labelled data; otherwise say it is `TBD`.)
 7. **Close (10 s)** — one line on what we'd build next.
 
 ---
