@@ -48,7 +48,8 @@ The JSON output includes:
   and macro F1 over `-1/0/1`, and the confusion matrix;
 - error counts for sarcasm, mixed aspects, and very short reviews.
 
-Undefined metrics are `null`. It contains only metrics calculated from the
+A precision or recall with nothing to count (0/0) is 0, as in
+scikit-learn's default; a metric with no data at all is `null`. It contains only metrics calculated from the
 provided files; unknown benchmark results remain `TBD` until labels exist.
 
 `eval/labelled/*.csv` is gitignored: labelled files contain review text, so they

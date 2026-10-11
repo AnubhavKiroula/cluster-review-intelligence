@@ -135,3 +135,35 @@ def test_load_dir_keeps_identical_reviews_within_one_file(tmp_path):
 def test_load_dir_keeps_the_bundled_sample_whole():
     # The SYNTHETIC sample has two genuinely identical review pairs.
     assert len(load_dir("data/sample")) == len(load_reviews("data/sample/synthetic_reviews.csv"))
+
+
+def test_inconsistent_day_month_order_is_an_error_not_a_guess():
+    # 13/01 only parses day-first; guessing per value would swap 05/01 -> 1 May.
+    with pytest.raises(SchemaError, match="date"):
+        validate_reviews(_valid_frame().iloc[[0, 1, 1]].assign(
+            date=["05/01/2024", "13/01/2024", "02/03/2024"]))
+
+
+@pytest.mark.parametrize("unit, value", [("s", 1706731200), ("ms", 1706731200000)])
+def test_epoch_numbers_are_utc_instants(unit, value):
+    # 2024-01-31 20:00 UTC = 2024-02-01 01:30 in Asia/Kolkata.
+    assert _dates([value, value]) == ["2024-02-01 01:30:00"] * 2
+
+
+def test_json_epoch_dates_are_utc_instants(tmp_path):
+    df = _valid_frame().assign(date=[1706731200000, 1706731200000])
+    path = tmp_path / "export.json"
+    df.to_json(path, orient="records")
+    assert str(load_reviews(path).loc[0, "date"]) == "2024-02-01 01:30:00"
+
+
+def test_load_dir_drops_repeats_even_when_column_types_differ(tmp_path):
+    rows = _valid_frame().assign(language_hint=["en", None])
+    rows.to_csv(tmp_path / "part_a.csv", index=False)  # rating int, hint text/NaN
+    # part_b repeats part_a's second row, but a half-star makes its ratings float
+    # and its hints are all empty (a float column): per-file hashes used to differ.
+    newer = rows.iloc[[1]].assign(property_id="Property C", rating=4.5)
+    pd.concat([rows.iloc[[1]], newer]).to_csv(tmp_path / "part_b.csv", index=False)
+    with pytest.warns(UserWarning, match="Dropped 1 review"):
+        loaded = load_dir(tmp_path)
+    assert len(loaded) == 3

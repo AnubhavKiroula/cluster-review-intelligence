@@ -41,7 +41,7 @@ def test_explicit_mapping_adapts_and_drops_identity():
 
 
 def test_ambiguous_alias_requires_mapping():
-    frame = _export().rename(columns={"review_body": "text"})
+    frame = _export().rename(columns={"review_body": "review_text"})
     frame["comment"] = "also text"
     with pytest.raises(SchemaError, match="Ambiguous"):
         map_columns(frame)
@@ -155,3 +155,32 @@ def test_review_ids_survive_mapping():
         "review_id": "ReviewID",
     })
     assert out.loc[0, "review_id"] == "r-1"
+
+
+STANDARD = {
+    "property_id": ["Property A"], "platform": ["partner"], "date": ["2025-01-01"],
+    "rating": [4], "text": ["Clean room"], "language_hint": ["en"],
+}
+
+
+def test_a_partial_mapping_still_prefers_exact_canonical_columns():
+    frame = pd.DataFrame(STANDARD).rename(columns={"text": "review_body"}).assign(hotel="x")
+    out = map_columns(frame, {"text": "review_body"})  # 'hotel' must not compete
+    assert out.loc[0, "property_id"] == "Property A"
+
+
+def test_aliases_never_reuse_a_column_the_mapping_already_took():
+    frame = pd.DataFrame(STANDARD).drop(columns="property_id").assign(hotel="H1")
+    with pytest.raises(SchemaError, match="Could not map.*property_id"):
+        map_columns(frame.drop(columns="platform"), {"platform": "hotel"})
+
+
+def test_canonical_headers_differing_only_in_case_are_ambiguous():
+    frame = pd.DataFrame(STANDARD).assign(Text=["other"])
+    with pytest.raises(SchemaError, match="Ambiguous.*text"):
+        map_columns(frame)
+
+
+def test_a_canonical_header_in_other_case_maps():
+    assert map_columns(pd.DataFrame(STANDARD).rename(columns={"text": "Text"})).loc[
+        0, "text"] == "Clean room"

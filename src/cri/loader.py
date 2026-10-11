@@ -27,7 +27,10 @@ def read_frame(path: str | Path) -> pd.DataFrame:
     if suffix == ".csv":
         return pd.read_csv(path)
     if suffix in {".json", ".jsonl"}:
-        return pd.read_json(path, lines=(suffix == ".jsonl"))
+        # Leave dates raw: the schema owns date parsing (epochs, offsets, local time).
+        return pd.read_json(
+            path, lines=(suffix == ".jsonl"), convert_dates=False, keep_default_dates=False
+        )
     raise SchemaError(f"Unsupported file type '{suffix}'. Use .csv, .json, or .jsonl.")
 
 
@@ -40,23 +43,22 @@ def _drop_repeats_across_files(frames: list[pd.DataFrame]) -> pd.DataFrame:
     """Drop rows that already appeared in an earlier file (overlapping exports).
 
     Identical rows *within* one file are kept: two guests can post the same short
-    review on the same day, and both are real.
+    review on the same day, and both are real. Rows are compared after
+    concatenation, so one file storing ratings as 4 and another as 4.0 still match.
     """
-    seen: set[int] = set()
-    kept, dropped = [], 0
-    for frame in frames:
-        key = [c for c in [*REQUIRED_COLUMNS, "review_id"] if c in frame.columns]
-        hashes = pd.util.hash_pandas_object(frame[key], index=False)
-        repeat = hashes.isin(seen).to_numpy()
-        dropped += int(repeat.sum())
-        seen.update(hashes.tolist())
-        kept.append(frame[~repeat])
-    if dropped:
+    combined = pd.concat(frames, keys=range(len(frames)), names=["_file", None])
+    combined = combined.reset_index(level="_file").reset_index(drop=True)
+    key = [c for c in [*REQUIRED_COLUMNS, "review_id"] if c in combined.columns]
+    hashes = pd.util.hash_pandas_object(combined[key], index=False).to_numpy()
+    first_file = combined["_file"].groupby(hashes).transform("min")
+    repeat = (combined["_file"] > first_file).to_numpy()
+    if repeat.any():
         warnings.warn(
-            f"Dropped {dropped} review(s) repeated across files (overlapping exports).",
+            f"Dropped {int(repeat.sum())} review(s) repeated across files "
+            "(overlapping exports).",
             stacklevel=3,
         )
-    return pd.concat(kept, ignore_index=True)
+    return combined.loc[~repeat].drop(columns="_file").reset_index(drop=True)
 
 
 def load_dir(directory: str | Path) -> pd.DataFrame:

@@ -49,9 +49,9 @@ _CONTRAST = (
     "लेकिन", "मगर", "जबकि", "किंतु", "परंतु",
 )
 _LETTER = "a-zऀ-ॿ'"
-_SENTENCE_SPLIT = re.compile(
+_SENTENCE_SPLIT = re.compile(  # the group captures a contrast word (None otherwise)
     r"[.!?;\n]+|\bor\b|\baur\b|,"
-    rf"|(?<![{_LETTER}])(?:{'|'.join(_CONTRAST)})(?![{_LETTER}])"
+    rf"|(?<![{_LETTER}])({'|'.join(_CONTRAST)})(?![{_LETTER}])"
 )
 _WHITESPACE = re.compile(r"\s+")
 _WORD = re.compile(r"[a-zऀ-ॿ']+")
@@ -91,10 +91,25 @@ def normalize(text: str) -> str:
     return _WHITESPACE.sub(" ", text).strip()
 
 
+def split_clauses(text: str) -> list[tuple[str, bool]]:
+    """Clause-like units, each flagged True if it follows a contrastive conjunction.
+
+    The flag lets the classifier keep "staff was friendly but slow" about Staff.
+    """
+    parts = _SENTENCE_SPLIT.split(text)  # clause, separator, clause, separator, ...
+    clauses, after_contrast = [], False
+    for i, part in enumerate(parts):
+        if i % 2:
+            after_contrast = after_contrast or part is not None
+        elif part and part.strip():
+            clauses.append((part.strip(), after_contrast))
+            after_contrast = False
+    return clauses
+
+
 def split_sentences(text: str) -> list[str]:
     """Split a review into clause-like units (reviews mix aspects per clause)."""
-    parts = _SENTENCE_SPLIT.split(text)
-    return [p.strip() for p in parts if p and p.strip()]
+    return [clause for clause, _ in split_clauses(text)]
 
 
 def tokenize(text: str) -> list[str]:
