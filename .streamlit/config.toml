@@ -1,0 +1,15 @@
+# Streamlit theme + server config for the dashboard.
+# Palette mirrors app/theme.py (docs/HACKATHON_PLAN.md section 4).
+
+[theme]
+primaryColor = "#F4A259"
+backgroundColor = "#FFFFFF"
+secondaryBackgroundColor = "#F2F5F8"
+textColor = "#13293D"
+font = "sans serif"
+
+[server]
+headless = true
+
+[browser]
+gatherUsageStats = false
