@@ -147,6 +147,9 @@ def search_reviews(d: ClusterData, property_id=None, aspect=None, sentiment=None
 >   review the aspect); `destination_summary` also uses `stable`.
 > - May be missing: `priority_actions.started` (`None`), `changepoints.market_delta`,
 >   `ci_low`/`ci_high` (NaN below 10 reviews) — test with `pd.isna`.
+> - Day-1 integration: `classify_text(text) -> aspect, sentiment, sentence` (the
+>   explorer's *Try your own review*), and the constants `MARKET_WIDE_FRACTION`,
+>   `MIN_REVIEWS_FOR_FLAG` that charts draw instead of hard-coding thresholds.
 
 **Day-0 unblock rule:** `[A]` pushes `api.py` with *working or stubbed* returns
 (correct columns, plausible shapes) **within the first 2 hours**. From that moment
@@ -194,15 +197,15 @@ makes Day 1 parallel.
 - [x] Extract the sentiment lexicon from `classify.py` → `src/cri/resources/lexicon.yaml`;
       `classify.py` loads it. Hand ownership of the YAML to `[R]`.
 - [x] Add `tests/test_api.py` asserting every function returns the documented columns.
-- [ ] Tell `[P]` and `[R]` the moment `api.py` is on `main`.
+- [x] Tell `[P]` and `[R]` the moment `api.py` is on `main` (merged in #14; #15 builds on it).
 
 ### `[P]` Purvansh — app skeleton
-- [ ] `app/Home.py` + `app/pages/1_Property.py … 5_Explorer.py` (empty shells that run).
-- [ ] `app/theme.py` — navy `#0B2545`, amber `#F4A259`, teal `#2A9D8F`; `.streamlit/config.toml`.
-- [ ] Sidebar shell: data-source selector, property selector, date range.
-- [ ] Prominent **SYNTHETIC** banner component (shows when `d.is_synthetic`).
-- [ ] Confirm `streamlit run app/Home.py` launches with placeholder content.
-- [ ] *(Use stubs/hardcoded frames until `api.py` lands — do not wait.)*
+- [x] `app/Home.py` + `app/pages/1_Property.py … 5_Explorer.py` (empty shells that run).
+- [x] `app/theme.py` — navy `#0B2545`, amber `#F4A259`, teal `#2A9D8F`; `.streamlit/config.toml`.
+- [x] Sidebar shell: data-source selector, property selector, date range.
+- [x] Prominent **SYNTHETIC** banner component (shows when `d.is_synthetic`).
+- [x] Confirm `streamlit run app/Home.py` launches with placeholder content.
+- [x] *(Use stubs/hardcoded frames until `api.py` lands — do not wait.)*
 
 ### `[R]` Archit — data + eval scaffold
 - [x] Merge the Scorecard CI fix (PR #11) — **done**, `main` is green-ready.
@@ -233,19 +236,20 @@ Three tracks, zero file overlap. This is the big push.
 - [ ] *Stretch:* PELT via `ruptures` — deliberately not done: its penalty cannot be calibrated without real data (see `docs/methodology.md` §11).
 
 ### `[P]` Purvansh — the dashboard (biggest single chunk)
-- [ ] **Property view** — aspect bars vs cluster (with CI error bars), trend line
+- [x] **Property view** — aspect bars vs cluster (with CI error bars), trend line
       with changepoint marker, and the **priority-actions table** up top. This page
       *is* the demo; make it the best one.
-- [ ] **Cluster heatmap** — property × aspect, diverging colour scale, hover detail.
-- [ ] **Market-wide vs property-specific quadrant** — the money chart for §2.1.
+- [x] **Cluster heatmap** — property × aspect, diverging colour scale, hover detail.
+- [x] **Market-wide vs property-specific quadrant** — the money chart for §2.1.
       Make the two regions visually unmistakable and annotated.
-- [ ] **Destination view** — tourism-board aggregate, "top cluster-wide issues".
-- [ ] **Review explorer** — filters (property/aspect/sentiment/date) + text search,
+- [x] **Destination view** — tourism-board aggregate, "top cluster-wide issues".
+- [x] **Review explorer** — filters (property/aspect/sentiment/date) + text search,
       showing the matched clause so the classification is auditable.
-- [ ] Empty states, error states, spinners for slow calls.
-- [ ] `@st.cache_data` on `load_cluster` and the heavy aggregations.
-- [ ] "Download CSV" on each table.
-- [ ] `tests/test_app_smoke.py` — imports every page module (catches syntax/import breaks in CI).
+- [x] Empty states, error states, spinners for slow calls.
+- [x] `@st.cache_data` on `load_cluster` and the heavy aggregations (`cache_resource` for the immutable load).
+- [x] "Download CSV" on each table.
+- [x] `tests/test_app_smoke.py` — imports every page module (catches syntax/import breaks in CI);
+      now also *runs* every page with Streamlit's `AppTest`.
 
 ### `[R]` Archit — data, evaluation, ops
 - [x] Finish `sources.py` + a column-mapping config so a new CSV loads without code changes.
@@ -254,12 +258,13 @@ Three tracks, zero file overlap. This is the big push.
 - [x] Labelling pack: template, a written 1-page guideline, and a deterministic split
       so three people can label disjoint slices without overlap.
 - [ ] **Deploy to Streamlit Community Cloud** from `main`; share the public URL.
-- [ ] Add the app smoke test + (stretch) CodeQL to CI.
-- [ ] Keep `docs/TODO_RESULTS.md` current — every `TBD` tracked.
+      *(Prepared: `requirements.txt` + `docs/DEPLOYMENT.md`; the deploy itself needs a GitHub login.)*
+- [x] Add the app smoke test + (stretch) CodeQL to CI.
+- [x] Keep `docs/TODO_RESULTS.md` current — every `TBD` tracked.
 
 ### `[ALL]` End of Day 1
-- [ ] Integration window: merge everything, `streamlit run app/Home.py` works from a
-      fresh clone of `main`.
+- [x] Integration window: merge everything, `streamlit run app/Home.py` works from a
+      fresh clone of `main` (verified on a fresh clone of `feat/day1-integration`).
 - [ ] 10-minute dry run of the demo. Note what's confusing.
 
 ---

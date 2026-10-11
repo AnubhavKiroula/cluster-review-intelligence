@@ -45,8 +45,10 @@ Reproduce with `python -m cri.calibration --seeds 1-20` (details: methodology §
 
 ## Dashboard
 
-- Streamlit dashboard: **not built in this MVP** (Roadmap). Real screenshots for
-  `docs/screenshots/` are `TBD`.
+- Streamlit dashboard: **built** (`app/`), every page tested headlessly in CI.
+  Real screenshots on SYNTHETIC data: `docs/screenshots/*_SYNTHETIC.png`.
+- Public deployment URL (Streamlit Community Cloud): `TBD` (steps in
+  `docs/DEPLOYMENT.md`).
 
 ## Deployment / OpenSSF Scorecard
 
