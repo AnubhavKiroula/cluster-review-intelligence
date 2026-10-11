@@ -248,11 +248,11 @@ Three tracks, zero file overlap. This is the big push.
 - [ ] `tests/test_app_smoke.py` — imports every page module (catches syntax/import breaks in CI).
 
 ### `[R]` Archit — data, evaluation, ops
-- [ ] Finish `sources.py` + a column-mapping UI/config so a new CSV loads without code changes.
-- [ ] **`eval/score.py`** — macro + per-aspect precision/recall/F1, confusion
-      matrix, and an error-analysis table (sarcasm / mixed aspects / very short reviews).
-- [ ] Labelling pack: template, a written 1-page guideline, and a split so three
-      people can label disjoint slices without overlap.
+- [x] Finish `sources.py` + a column-mapping config so a new CSV loads without code changes.
+- [x] **`eval/score.py`** — macro + per-aspect precision/recall/F1, confusion
+       matrix, and an error-analysis table (sarcasm / mixed aspects / very short reviews).
+- [x] Labelling pack: template, a written 1-page guideline, and a deterministic split
+      so three people can label disjoint slices without overlap.
 - [ ] **Deploy to Streamlit Community Cloud** from `main`; share the public URL.
 - [ ] Add the app smoke test + (stretch) CodeQL to CI.
 - [ ] Keep `docs/TODO_RESULTS.md` current — every `TBD` tracked.

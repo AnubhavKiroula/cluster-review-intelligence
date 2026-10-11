@@ -4,7 +4,7 @@ import pandas as pd
 import pytest
 
 from cri.schema import SchemaError
-from cri.sources import adapt_frame, load_source, map_columns
+from cri.sources import adapt_frame, load_mapping, load_source, map_columns
 
 
 def _export() -> pd.DataFrame:
@@ -82,4 +82,23 @@ def test_load_source_roundtrip(tmp_path):
             "language_hint": "lang",
         },
     )
+    assert len(out) == 1
+
+
+def test_load_source_from_yaml_mapping(tmp_path):
+    csv_path = tmp_path / "export.csv"
+    config_path = tmp_path / "mapping.yaml"
+    _export().to_csv(csv_path, index=False)
+    config_path.write_text(
+        "columns:\n"
+        "  property_id: hotel_code\n"
+        "  platform: channel\n"
+        "  date: review_date\n"
+        "  rating: stars\n"
+        "  text: review_body\n"
+        "  language_hint: lang\n",
+        encoding="utf-8",
+    )
+    assert load_mapping(config_path)["text"] == "review_body"
+    out = load_source(csv_path, mapping_file=config_path)
     assert len(out) == 1
