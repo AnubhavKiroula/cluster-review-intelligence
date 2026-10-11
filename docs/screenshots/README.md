@@ -1,12 +1,20 @@
-# Dashboard screenshots (placeholder)
+# Dashboard screenshots (SYNTHETIC data)
 
-The Streamlit dashboard is a **Roadmap** item, not built in this MVP. When it
-exists, capture real screenshots here and reference them from the main README:
+Real screenshots of the Streamlit dashboard running on the **SYNTHETIC** sample
+(seed 42); the SYNTHETIC banner is visible on every page.
 
-- `property_view.png` — aspect bars vs cluster + trend with changepoint marker
-- `cluster_heatmap.png` — property × aspect heatmap
-- `market_quadrant.png` — market-wide vs property-specific quadrant
-- `destination_view.png` — tourism-board aggregate view
-- `review_explorer.png` — filterable review table with the SYNTHETIC banner
+| File | Page |
+|---|---|
+| `property_view_SYNTHETIC.png` | Property F: fix-this-first, scorecard vs cluster with 95% intervals, trend with the detected changepoint |
+| `market_quadrant_SYNTHETIC.png` | Market-wide vs property-specific quadrant |
+| `cluster_heatmap_SYNTHETIC.png` | Property × aspect heatmap |
+| `destination_view_SYNTHETIC.png` | Tourism-board view |
+| `review_explorer_SYNTHETIC.png` | "Try your own review" on a Hinglish example + review search |
 
-Until then, see the generated static figures in [`../img/`](../img/).
+Re-capture after UI changes (needs `pip install playwright==1.58.0`, not a project
+dependency, and an installed Edge or Chrome):
+
+```bash
+streamlit run app/Home.py --server.port 8600 --server.headless true
+python scripts/capture_screenshots.py
+```
