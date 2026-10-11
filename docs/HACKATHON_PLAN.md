@@ -207,10 +207,10 @@ makes Day 1 parallel.
 ### `[R]` Archit — data + eval scaffold
 - [x] Merge the Scorecard CI fix (PR #11) — **done**, `main` is green-ready.
 - [ ] Enable branch protection on `main` (require PR + CI) — see `docs/hardening.md`.
-- [ ] `eval/` scaffold: `eval/labels_schema.md`, `eval/score.py` (empty CLI), `eval/labelled/.gitkeep`.
-- [ ] `src/cri/sources.py` — adapter that maps an arbitrary team CSV's columns onto our schema.
+- [x] `eval/` scaffold: `eval/labels_schema.md`, `eval/score.py` (metrics CLI), `eval/labelled/.gitkeep`.
+- [x] `src/cri/sources.py` — adapter that maps an arbitrary team CSV's columns onto our schema.
 - [ ] **Start the real-data hunt** (§8). This has the longest lead time — begin today.
-- [ ] Add `matplotlib`/`plotly`/`streamlit` deps to `pyproject.toml` (you're sole editor).
+- [x] Add `matplotlib`/`plotly`/`streamlit` deps to `pyproject.toml` (you're sole editor).
 
 ---
 

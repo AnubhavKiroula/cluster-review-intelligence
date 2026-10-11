@@ -44,4 +44,7 @@ def load_dir(directory: str | Path) -> pd.DataFrame:
     if not files:
         raise FileNotFoundError(f"No CSV/JSON review files in {directory}")
     frames = [load_reviews(p) for p in files]
-    return pd.concat(frames, ignore_index=True)
+    combined = pd.concat(frames, ignore_index=True)
+    # Exact duplicates are common when overlapping exports are supplied. Remove
+    # only byte-for-byte duplicate review rows; distinct reviews remain intact.
+    return combined.drop_duplicates(ignore_index=True)

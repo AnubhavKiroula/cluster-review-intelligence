@@ -45,9 +45,14 @@ def validate_reviews(df: pd.DataFrame) -> pd.DataFrame:
     df = df.copy()
 
     try:
-        df["date"] = pd.to_datetime(df["date"], errors="raise")
+        # ``utc=True`` also handles exports containing mixed UTC offsets. The API
+        # converts aware timestamps to the Uttarakhand local calendar later.
+        df["date"] = pd.to_datetime(df["date"], errors="raise", utc=True)
     except (ValueError, TypeError) as exc:
         raise SchemaError(f"Column 'date' is not parseable as a date: {exc}") from exc
+
+    if df["date"].isna().any():
+        raise SchemaError("Column 'date' contains missing values.")
 
     df["rating"] = pd.to_numeric(df["rating"], errors="coerce")
     if df["rating"].isna().any():
@@ -59,9 +64,11 @@ def validate_reviews(df: pd.DataFrame) -> pd.DataFrame:
             f"'rating' must be within [{RATING_MIN}, {RATING_MAX}]; found {bad}."
         )
 
-    df["text"] = df["text"].astype(str)
-    empty = df["text"].str.strip() == ""
+    missing_text = df["text"].isna()
+    text = df["text"].astype("string")
+    empty = missing_text | text.str.strip().eq("")
     if empty.any():
         raise SchemaError(f"{int(empty.sum())} review(s) have empty 'text'.")
+    df["text"] = text.astype(str)
 
     return df
