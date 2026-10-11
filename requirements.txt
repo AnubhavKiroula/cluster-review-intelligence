@@ -1,0 +1,3 @@
+# Streamlit Community Cloud installs this file (repo root). It installs this repo's
+# package with the pinned dashboard extra, so every version lives in pyproject.toml.
+.[dashboard]
