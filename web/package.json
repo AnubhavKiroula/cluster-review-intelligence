@@ -1,0 +1,26 @@
+{
+  "name": "cluster-review-intelligence-web",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Next.js frontend for Cluster Review Intelligence (reads a static snapshot exported from the Python cri.api core).",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "export:data": "python scripts/export_snapshot.py"
+  },
+  "dependencies": {
+    "next": "14.2.15",
+    "plotly.js-dist-min": "2.35.2",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "react-plotly.js": "2.6.0"
+  },
+  "devDependencies": {
+    "@types/node": "20.17.6",
+    "@types/react": "18.3.12",
+    "@types/react-dom": "18.3.1",
+    "@types/react-plotly.js": "2.6.3",
+    "typescript": "5.6.3"
+  }
+}
