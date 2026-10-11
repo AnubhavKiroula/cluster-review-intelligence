@@ -10,7 +10,7 @@ Team: Anubhav (analytics core), Purvansh (dashboard), Archit (data, eval, ops):
 see `docs/HACKATHON_PLAN.md` for the plan and file-ownership map.
 
 ## Current objective
-Day-1 integration merged (#18, review follow-ups #19): the dashboard runs end to end on
+Day-1 integration merged (#18, review follow-ups #24): the dashboard runs end to end on
 SYNTHETIC data on the pinned stack, the demo is scripted with true numbers, and the
 eval harness can score the shipped classifier. Next: deploy, real data, labelling.
 
@@ -38,7 +38,7 @@ imports). `app/`: Streamlit, 5 pages. `eval/`: predict.py → score.py.
   tests). pandas 3.0.6 / numpy 2.4.6, warnings as errors: 225 passed (all but the
   dashboard tests, whose pinned streamlit needs pandas<3). ruff clean.
 - Independent review of #18 found 2 regressions (day/month guessing, missed
-  cross-file repeats) and 4 risks; all fixed with regression tests (#19).
+  cross-file repeats) and 4 risks; all fixed with regression tests (#24).
 - Every dashboard page runs headlessly (AppTest), Property page for all 12
   properties; no zero-width chart lines.
 - Fresh clone, clean Python 3.12: `pip install -r requirements.txt` and `uv pip
