@@ -39,7 +39,20 @@ _SPELLING = {
     "saaf-safai": "saaf safai",
 }
 
-_SENTENCE_SPLIT = re.compile(r"[.!?;\n]+|\bor\b|\baur\b|,")
+# Contrastive conjunctions start a new claim ("the food was good but the room was
+# cold"), so they split clauses too; otherwise opposite polarities cancel out and
+# every aspect in the sentence scores 0. Not "par"/"पर": it also means "on".
+# Matched between non-letters, because Devanagari vowel signs are not \w (\b misfires).
+_CONTRAST = (
+    "but", "however", "although", "though", "whereas",
+    "lekin", "magar", "jabki", "kintu", "parantu",
+    "लेकिन", "मगर", "जबकि", "किंतु", "परंतु",
+)
+_LETTER = "a-zऀ-ॿ'"
+_SENTENCE_SPLIT = re.compile(
+    r"[.!?;\n]+|\bor\b|\baur\b|,"
+    rf"|(?<![{_LETTER}])(?:{'|'.join(_CONTRAST)})(?![{_LETTER}])"
+)
 _WHITESPACE = re.compile(r"\s+")
 _WORD = re.compile(r"[a-zऀ-ॿ']+")
 

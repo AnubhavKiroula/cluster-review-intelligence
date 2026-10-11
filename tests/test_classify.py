@@ -1,6 +1,8 @@
 """The rule classifier should recover aspect + sentiment on known clauses, and its
 word lists (aspects.yaml, lexicon.yaml) must load and validate correctly."""
 
+import unicodedata
+
 import pytest
 
 from cri import classify
@@ -165,3 +167,48 @@ def test_aspect_cues_get_the_same_normalisation_as_text():
     # aspects.yaml lists "saaf-safai"; normalize() rewrites the text to "saaf safai".
     res = RuleClassifier().classify_review("Saaf-safai bahut badhiya thi")
     assert [(r.aspect, r.sentiment) for r in res] == [("Cleanliness", 1)]
+
+
+# --- contrastive clauses and missing words (found by probing demo strings) ----------
+
+
+def _pairs(text):
+    return {(r.aspect, r.sentiment) for r in RuleClassifier().classify_review(text)}
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "Khana accha tha lekin kamra ganda tha.",
+        "The food was delicious but the room was dirty.",
+        "Khaana tasty tha magar room ganda tha.",
+        "खाना अच्छा था "
+        "लेकिन कमरा "
+        "गंदा था",  # khana accha tha lekin kamra ganda tha
+    ],
+)
+def test_contrastive_conjunctions_separate_opposite_claims(text):
+    # Before: one clause, so +1 and -1 cancelled and every aspect scored 0.
+    assert {("Food", 1), ("Room", -1)} <= _pairs(text)
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "the butter chicken was fresh",  # "but" inside a word
+        "mall road par hai",  # "par" also means "on": never a split
+        "मगरमच्छ",  # Devanagari word containing "magar"
+    ],
+)
+def test_conjunctions_inside_words_or_ambiguous_ones_do_not_split(text):
+    from cri.normalize import split_sentences
+
+    assert split_sentences(text) == [text]
+
+
+@pytest.mark.parametrize(
+    "word",
+    ["swadisht", "zabardast", "साफ़"],  # last: saaf with a nukta
+)
+def test_common_hinglish_and_devanagari_praise_is_positive(word):
+    assert word in classify.POSITIVE or unicodedata.normalize("NFC", word) in classify.POSITIVE
