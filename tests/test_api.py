@@ -306,3 +306,23 @@ def test_empty_trend_has_typed_columns(tmp_path):
 def test_thresholds_the_ui_draws_are_exposed():
     assert 0 < api.MARKET_WIDE_FRACTION <= 1
     assert api.MIN_REVIEWS_FOR_FLAG >= 1
+
+
+def test_classify_text_shows_each_aspect_with_its_clause():
+    # Demo step 4: a typed Hinglish review is classified live, clause by clause.
+    out = api.classify_text("Khana accha tha lekin kamra ganda tha.")
+    assert list(out.columns) == api.CLASSIFY_COLUMNS == ["aspect", "sentiment", "sentence"]
+    assert {("Food", 1), ("Room", -1)} <= set(zip(out["aspect"], out["sentiment"], strict=True))
+    assert out.loc[out["aspect"] == "Food", "sentence"].iloc[0] == "khana accha tha"
+    assert out["sentiment"].dtype == "int64"
+
+
+@pytest.mark.parametrize("blank", ["", "   ", None])
+def test_classify_text_blank_input_is_an_empty_frame(blank):
+    out = api.classify_text(blank)
+    assert out.empty and list(out.columns) == api.CLASSIFY_COLUMNS
+
+
+def test_classify_text_rejects_non_text():
+    with pytest.raises(ValueError, match="text"):
+        api.classify_text(42)

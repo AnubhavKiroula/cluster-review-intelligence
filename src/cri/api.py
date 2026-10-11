@@ -11,6 +11,8 @@ signature and documented columns. Additive extensions (Day 0, agreed in the PR):
   -> ``current_mean, reference_mean, basis, n``.
 * Scope values: ``market_scope`` may return ``undetermined`` (fewer than 3
   properties review the aspect); ``destination_summary`` also uses ``stable``.
+* ``classify_text(text)`` -> ``aspect, sentiment, sentence``: classify one typed
+  review (demo step 4: "type a Hinglish review in the explorer").
 * Thresholds the UI may draw (constants): ``MARKET_WIDE_FRACTION`` (share of the
   properties reviewing an aspect that must share a market pattern) and
   ``MIN_REVIEWS_FOR_FLAG`` (fewer reviews: no CI, no lead/lag flag).
@@ -63,6 +65,7 @@ SEARCH_COLUMNS = [
     "review_id", "property_id", "date", "platform", "rating", "language_hint",
     "aspect", "sentiment", "sentence", "text",
 ]
+CLASSIFY_COLUMNS = ["aspect", "sentiment", "sentence"]
 
 
 @dataclass(frozen=True)
@@ -295,3 +298,17 @@ def search_reviews(
     out = out.assign(sentiment=out["sentiment"].astype("Int64"))
     out = out.sort_values(["date", "review_id"], ascending=[False, True])
     return out[SEARCH_COLUMNS].reset_index(drop=True)
+
+
+def classify_text(text: str | None) -> pd.DataFrame:
+    """Classify one typed review (the explorer's "try your own review" box).
+
+    One row per detected aspect mention, with the normalised clause it came from,
+    using the same classifier as ``load_cluster`` (``CRI_MODEL_BACKEND``). Blank
+    input gives an empty frame with the columns.
+    """
+    if text is not None and not isinstance(text, str):
+        raise ValueError(f"text must be a string, got {type(text).__name__}")
+    mentions = get_classifier().classify_reviews([text or ""])[0]
+    rows = [(m.aspect, m.sentiment, m.sentence) for m in mentions]
+    return pd.DataFrame(rows, columns=CLASSIFY_COLUMNS).astype({"sentiment": "int64"})

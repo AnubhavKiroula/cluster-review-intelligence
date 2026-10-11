@@ -63,3 +63,11 @@ def test_property_page_runs_for_every_property(app_test):
     for prop in properties:
         at.sidebar.selectbox(key="property").set_value(prop).run()
         assert _errors(at) == [], prop
+
+
+def test_explorer_classifies_a_typed_review(app_test):
+    at = app_test(APP / "pages" / "5_Explorer.py")
+    at.text_area(key="ex_try").input("Khana accha tha lekin kamra ganda tha.").run()
+    assert _errors(at) == []
+    shown = at.dataframe[0].value
+    assert {"Food", "Room"} <= set(shown["aspect"])

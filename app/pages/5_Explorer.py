@@ -14,8 +14,34 @@ st.title("🔍 Review explorer")
 common.synthetic_banner(d)
 st.markdown(
     "Every classification is auditable: the **matched clause** shows exactly which words "
-    "drove the aspect and sentiment. Try a mixed Hinglish/Devanagari phrase in the search box."
+    "drove the aspect and sentiment."
 )
+
+# --- Try your own review (demo step 4) ----------------------------------------------
+st.subheader("✍️ Try your own review")
+typed = st.text_area(
+    "Type a review in English, Hinglish or Devanagari (press Ctrl+Enter to classify)",
+    placeholder="Khana accha tha lekin kamra ganda tha.",
+    key="ex_try",
+)
+if typed.strip():
+    found = api.classify_text(typed)
+    if found.empty:
+        st.info("No aspect detected in this text (the rule baseline only knows its word lists).")
+    else:
+        st.dataframe(
+            found.assign(sentiment=found["sentiment"].map(common.sentiment_label)),
+            use_container_width=True,
+            hide_index=True,
+            column_config={"sentence": st.column_config.TextColumn("clause it came from")},
+        )
+st.caption(
+    "Classified live by the same rule baseline as the dashboard: aspects from "
+    "`aspects.yaml`, polarity from `lexicon.yaml`. A demo aid, not an accuracy claim."
+)
+
+st.divider()
+st.subheader("🔎 Search the reviews")
 
 ANY = "— any —"
 SENTIMENTS = {"— any —": None, "👍 positive": 1, "😐 neutral": 0, "👎 negative": -1}
