@@ -21,7 +21,7 @@ from pathlib import Path
 
 import yaml
 
-from .normalize import normalize, split_sentences, tokenize
+from .normalize import normalize, split_clauses, split_sentences, tokenize
 
 BACKENDS = ("rule", "transformer")
 
@@ -198,14 +198,20 @@ class RuleClassifier(Classifier):
         return found
 
     def aspect_clauses(self, text: str) -> list[tuple[str, list[str]]]:
-        """(clause, aspects) for every normalised clause that mentions an aspect."""
+        """(clause, aspects) for every normalised clause that mentions an aspect.
+
+        A clause right after a contrastive conjunction that names no aspect of its
+        own is about the previous clause's aspects ("friendly but slow").
+        """
         if not isinstance(text, str):
             return []
-        out = []
-        for sentence in split_sentences(normalize(text)):
-            aspects = self.sentence_aspects(sentence)
+        out: list[tuple[str, list[str]]] = []
+        previous: list[str] = []
+        for sentence, after_contrast in split_clauses(normalize(text)):
+            aspects = self.sentence_aspects(sentence) or (previous if after_contrast else [])
             if aspects:
                 out.append((sentence, aspects))
+            previous = aspects
         return out
 
     # -- public API -------------------------------------------------------------

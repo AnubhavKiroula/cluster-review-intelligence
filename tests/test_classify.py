@@ -212,3 +212,26 @@ def test_conjunctions_inside_words_or_ambiguous_ones_do_not_split(text):
 )
 def test_common_hinglish_and_devanagari_praise_is_positive(word):
     assert word in classify.POSITIVE or unicodedata.normalize("NFC", word) in classify.POSITIVE
+
+
+def _mentions(text):
+    return [(r.aspect, r.sentiment) for r in RuleClassifier().classify_review(text)]
+
+
+@pytest.mark.parametrize(
+    ("text", "expected"),
+    [
+        ("Staff was friendly but slow.", [("Staff", 1), ("Staff", -1)]),
+        ("Food was tasty but cold.", [("Food", 1), ("Food", -1)]),
+        ("Khana accha tha lekin thanda.", [("Food", 1), ("Food", -1)]),
+    ],
+)
+def test_a_contrast_clause_without_its_own_aspect_keeps_the_previous_one(text, expected):
+    # The complaint after "but" belongs to the aspect named before it; dropping it
+    # would turn a mixed review into a purely positive one.
+    assert _mentions(text) == expected
+
+
+def test_only_contrast_clauses_inherit_an_aspect():
+    # An aspect-less sentence after a full stop is not attached to anything.
+    assert _mentions("The room was clean. Terrible trip!") == _mentions("The room was clean.")
