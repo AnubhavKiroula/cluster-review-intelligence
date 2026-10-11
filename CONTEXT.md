@@ -10,7 +10,9 @@ Team: Anubhav (analytics core), Purvansh (dashboard), Archit (data, eval, ops):
 see `docs/HACKATHON_PLAN.md` for the plan and file-ownership map.
 
 ## Current objective
-Analytics core done; the dashboard (Purvansh) builds against `src/cri/api.py`.
+Analytics core done; Archit's data/evaluation track now has a source-column
+adapter, label scoring CLI, and safer ingestion. The dashboard (Purvansh) builds
+against `src/cri/api.py`.
 
 ## Architecture / state
 `src/cri/`: schema → loader (PII dropped) → normalize → classify (rules by default,
@@ -29,6 +31,8 @@ properties; scope) → insights (priority actions, destination view) → **api.p
     `undetermined` scope for small clusters;
   - `priority_actions`, `destination_summary`, calibration module;
   - optional transformer backend (built and tested; see the known issues below).
+- Archit's data/evaluation slice: `src/cri/sources.py`, `eval/score.py`, annotation
+  schema, source-adapter tests, and dashboard dependency extras.
 
 ## Verified
 - Tests: 148 pass, 2 skipped (opt-in real-model tests; they pass with the model
@@ -45,8 +49,8 @@ properties; scope) → insights (priority actions, destination view) → **api.p
 ## Next tasks
 1. Purvansh: build the dashboard on `api.py` (handle scope `undetermined`/`stable`,
    `started`/`change_month` may be missing).
-2. Archit: real-data sourcing + eval harness; act on the flagged items in the PR
-   (schema blank-text bug, merge numpy 2 and pandas 3 Dependabot PRs together).
+2. Archit: obtain legitimately provided/open real data if available, then run the
+   eval CLI on hand-labelled rows; merge numpy 2 and pandas 3 Dependabot PRs together.
 3. Hackathon: tune on real data; re-run calibration if thresholds change.
 
 ## Important decisions
@@ -61,9 +65,9 @@ properties; scope) → insights (priority actions, destination view) → **api.p
 
 ## Known issues / honest caveats
 - Validation is SYNTHETIC only; real-data accuracy is `TBD`.
-- Flagged to Archit (his files): `schema.py` blank text / mixed-offset dates on
-  pandas 3, duplicate reviews across overlapping exports, numpy 2 + pandas 3
-  Dependabot PRs must merge together.
+- Addressed in Archit's files: blank text / mixed-offset dates and exact duplicate
+  reviews across overlapping exports; numpy 2 + pandas 3 Dependabot PRs still need
+  to merge together.
 - Detector recall is limited by sample size (15/20); thresholds not loosened.
 - The pinned transformer model misreads Hinglish negatives and some English
   out-of-lexicon words; it does not recover the injected decline end-to-end.

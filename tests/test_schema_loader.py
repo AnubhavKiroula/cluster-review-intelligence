@@ -3,7 +3,7 @@
 import pandas as pd
 import pytest
 
-from cri.loader import load_reviews
+from cri.loader import load_dir, load_reviews
 from cri.schema import REQUIRED_COLUMNS, SchemaError, drop_identity_columns, validate_reviews
 
 
@@ -55,6 +55,27 @@ def test_empty_text_raises():
         validate_reviews(df)
 
 
+def test_missing_text_raises():
+    df = _valid_frame()
+    df.loc[1, "text"] = None
+    with pytest.raises(SchemaError, match="empty"):
+        validate_reviews(df)
+
+
+def test_mixed_timezone_offsets_are_parseable():
+    df = _valid_frame()
+    df["date"] = ["2025-01-01T23:30:00+00:00", "2025-01-02T05:30:00+05:30"]
+    out = validate_reviews(df)
+    assert pd.api.types.is_datetime64_any_dtype(out["date"])
+
+
+def test_missing_date_raises():
+    df = _valid_frame()
+    df.loc[0, "date"] = None
+    with pytest.raises(SchemaError, match="date.*missing"):
+        validate_reviews(df)
+
+
 def test_loader_roundtrip_drops_pii(tmp_path):
     df = _valid_frame()
     df["reviewer_id"] = [101, 102]
@@ -63,3 +84,11 @@ def test_loader_roundtrip_drops_pii(tmp_path):
     loaded = load_reviews(path)
     assert "reviewer_id" not in loaded.columns
     assert len(loaded) == 2
+
+
+def test_load_dir_deduplicates_overlapping_exports(tmp_path):
+    df = _valid_frame().iloc[[0]]
+    df.to_csv(tmp_path / "part_a.csv", index=False)
+    df.to_csv(tmp_path / "part_b.csv", index=False)
+    loaded = load_dir(tmp_path)
+    assert len(loaded) == 1

@@ -32,6 +32,10 @@ dev = [
     "ruff==0.16.10",
     "matplotlib==3.10.8",
 ]
+dashboard = [
+    "plotly==5.24.1",
+    "streamlit==1.41.1",
+]
 
 [project.scripts]
 cri-generate = "cri.generate:main"
