@@ -27,9 +27,10 @@ def configure(title: str, icon: str = "📊") -> None:
     )
 
 
-@st.cache_data(show_spinner="Loading and labelling reviews…")
+@st.cache_resource(show_spinner="Loading and labelling reviews…")
 def _load(source: str) -> api.ClusterData:
-    # Cached on the source string so switching data sources is instant on re-select.
+    # One shared, immutable ClusterData per source (the api never mutates it), so
+    # cache_resource avoids copying ~5k labelled rows on every rerun.
     if source == RAW:
         return api.load_cluster(synthetic=False)
     return api.load_cluster(synthetic=True)
@@ -48,6 +49,20 @@ def load_data() -> api.ClusterData:
             "`data/raw/` (see `docs/data_schema.md`), or switch back to the SYNTHETIC sample."
         )
         st.stop()
+
+
+@st.cache_data(show_spinner=False, max_entries=512)
+def _call(name: str, source: str, _fn, _d: api.ClusterData, *args):
+    return _fn(_d, *args)
+
+
+def cached(fn, d: api.ClusterData, *args):
+    """Memoise a heavy, pure ``api`` call per data source and arguments.
+
+    ``ClusterData`` itself is not hashed (leading underscore); its source name
+    identifies it, so a widget change no longer re-runs the bootstrap/changepoints.
+    """
+    return _call(fn.__name__, d.source_name, fn, d, *args)
 
 
 def synthetic_banner(d: api.ClusterData) -> None:

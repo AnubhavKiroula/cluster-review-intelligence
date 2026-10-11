@@ -20,13 +20,13 @@ st.markdown(
     "destination problem, not a hotel one. *Same chart, two completely different actions.*"
 )
 
-scope = api.market_scope(d)
+scope = common.cached(api.market_scope, d)
 if scope.empty:
     st.info("No aspects show a negative shift to classify yet.")
     st.stop()
 
 # Severity (how negative) comes from the destination aggregate; breadth from market_scope.
-dest = api.destination_summary(d)[["aspect", "pct_negative"]]
+dest = common.cached(api.destination_summary, d)[["aspect", "pct_negative"]]
 plot = scope.merge(dest, on="aspect", how="left")
 plot["pct_negative"] = plot["pct_negative"].fillna(0.0)
 
@@ -49,13 +49,14 @@ for scope_name, group in plot.groupby("scope"):
         customdata=group[["n_properties", "scope"]],
         hovertemplate=(
             "%{text}<br>share of properties affected %{x:.0%}"
-            "<br>reviews negative %{y:.0%}"
+            "<br>mentions negative %{y:.0%}"
             "<br>%{customdata[1]} · n_properties=%{customdata[0]}<extra></extra>"
         ),
     )
 
-# Reference guides (both derived from the data, not invented thresholds).
-fig.add_vline(x=0.5, line_dash="dot", line_color=theme.MUTED)
+# Guides: the API's market-wide threshold (vertical) and the average negative share
+# of the aspects shown (horizontal).
+fig.add_vline(x=api.MARKET_WIDE_FRACTION, line_dash="dot", line_color=theme.MUTED)
 fig.add_hline(y=avg_neg, line_dash="dot", line_color=theme.MUTED)
 fig.add_annotation(
     x=0.98, y=1.0, xref="x", yref="paper", showarrow=False,
@@ -65,13 +66,15 @@ common.style(
     fig,
     height=520,
     xaxis={"title": "share of properties affected", "tickformat": ".0%", "range": [-0.05, 1.05]},
-    yaxis={"title": "share of reviews negative", "tickformat": ".0%"},
+    yaxis={"title": "share of mentions negative", "tickformat": ".0%"},
 )
 st.plotly_chart(fig, use_container_width=True)
 st.caption(
-    "Dotted lines: half the cluster (vertical) and the cluster's average negative rate "
-    "(horizontal). Top-right = broad and severe (market-wide); left = property-specific. "
-    "`undetermined` = too few properties review the aspect to tell."
+    "Colour = scope, decided by statistical tests across properties (see the table), not by "
+    f"position. Vertical dotted line: the market-wide threshold ({api.MARKET_WIDE_FRACTION:.0%} "
+    "of the properties reviewing the aspect share the pattern). Horizontal: the average "
+    "negative share of the aspects shown. `undetermined` = too few properties review the "
+    "aspect to tell."
 )
 
 st.subheader("Scope by aspect")

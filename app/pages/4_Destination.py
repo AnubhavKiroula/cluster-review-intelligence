@@ -19,7 +19,7 @@ st.markdown(
     "Issues flagged **market-wide** are destination problems — worth coordinated action."
 )
 
-dest = api.destination_summary(d)
+dest = common.cached(api.destination_summary, d)
 if dest.empty:
     st.info("No aspects to aggregate yet.")
     st.stop()
@@ -39,11 +39,11 @@ else:
         f"{worst['pct_negative']:.0%} of its mentions are negative across "
         f"{int(worst['n_properties_reviewed'])} properties."
     )
-    st.dataframe(
-        market_wide[["aspect", "pct_negative", "cluster_mean", "n", "n_properties_reviewed"]],
-        use_container_width=True,
-        hide_index=True,
-    )
+    top_issues = market_wide[
+        ["aspect", "pct_negative", "cluster_mean", "n", "n_properties_reviewed", "pattern"]
+    ]
+    st.dataframe(top_issues, use_container_width=True, hide_index=True)
+    common.download_button(top_issues, "top_cluster_issues.csv", key="dl_top_issues")
 
 st.divider()
 

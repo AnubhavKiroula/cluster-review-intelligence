@@ -301,3 +301,8 @@ def test_empty_trend_has_typed_columns(tmp_path):
     assert pd.api.types.is_datetime64_any_dtype(tr["month"]) and tr["n"].dtype == "int64"
     unmatched = api.search_reviews(data, property_id="Property Z")
     assert len(unmatched) == 1 and unmatched["aspect"].isna().all()
+
+
+def test_thresholds_the_ui_draws_are_exposed():
+    assert 0 < api.MARKET_WIDE_FRACTION <= 1
+    assert api.MIN_REVIEWS_FOR_FLAG >= 1

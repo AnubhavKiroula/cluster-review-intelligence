@@ -28,6 +28,8 @@ LEAD = TEAL
 LAG = NEGATIVE
 ON_PAR = MUTED
 
+UNTESTED = "#C9D1D9"  # fewer reviews than the API needs to test lead/lag
+
 FLAG_COLOURS = {"lead": LEAD, "lag": LAG, "on_par": ON_PAR}
 
 # Market-scope categories.

@@ -11,6 +11,9 @@ signature and documented columns. Additive extensions (Day 0, agreed in the PR):
   -> ``current_mean, reference_mean, basis, n``.
 * Scope values: ``market_scope`` may return ``undetermined`` (fewer than 3
   properties review the aspect); ``destination_summary`` also uses ``stable``.
+* Thresholds the UI may draw (constants): ``MARKET_WIDE_FRACTION`` (share of the
+  properties reviewing an aspect that must share a market pattern) and
+  ``MIN_REVIEWS_FOR_FLAG`` (fewer reviews: no CI, no lead/lag flag).
 * Missing optional values: ``priority_actions.started`` and
   ``changepoints.market_delta`` can be missing (``None`` / NaN); test with
   ``pd.isna``. ``ci_low``/``ci_high`` are NaN below 10 reviews.
@@ -46,6 +49,9 @@ from .schema import (
     LOCAL_TZ,  # noqa: F401  (re-exported: date policy of the facade)
     validate_reviews,
 )
+
+MARKET_WIDE_FRACTION = _benchmark.MARKET_WIDE_FRACTION
+MIN_REVIEWS_FOR_FLAG = _benchmark.MIN_REVIEWS_FOR_FLAG
 
 SCORECARD_COLUMNS = [
     "aspect", "mean", "ci_low", "ci_high", "n", "cluster_mean", "diff", "flag",
