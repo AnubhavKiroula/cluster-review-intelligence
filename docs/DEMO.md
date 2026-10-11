@@ -23,7 +23,8 @@ Say "synthetic" out loud: the banner is on every page.
 1. **Hook (20 s)** - "Property F averages **3.28** stars. Property I averages
    **3.33**. One of them has a serious, recent problem. A star average can't tell you
    which."
-2. **Property view (40 s)** - open **🏨 Property → Property F**. *Fix this first* says
+2. **Property view (40 s)** - open **🏨 Property → Property F** (deep link:
+   `<app-url>/Property?property=Property F`). *Fix this first* says
    **Food**, 1.05 below the cluster **since 2025-06**, a significant decline relative
    to the market. The trend line drops at the dashed June marker. (Property I:
    nothing flagged.)

@@ -78,8 +78,14 @@ def synthetic_banner(d: api.ClusterData) -> None:
 
 
 def property_selector(d: api.ClusterData, *, key: str = "property") -> str:
-    """Sidebar property picker. Returns the selected ``property_id``."""
-    return st.sidebar.selectbox("Property", api.list_properties(d), key=key)
+    """Sidebar property picker. Returns the selected ``property_id``.
+
+    ``?property=Property F`` in the URL preselects a property (a demo deep link).
+    """
+    options = api.list_properties(d)
+    wanted = st.query_params.get("property")
+    index = options.index(wanted) if wanted in options else 0
+    return st.sidebar.selectbox("Property", options, index=index, key=key)
 
 
 def date_bounds(d: api.ClusterData, *, key: str = "dates") -> tuple[pd.Timestamp, pd.Timestamp]:

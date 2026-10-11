@@ -71,3 +71,13 @@ def test_explorer_classifies_a_typed_review(app_test):
     assert _errors(at) == []
     shown = at.dataframe[0].value
     assert {"Food", "Room"} <= set(shown["aspect"])
+
+
+def test_property_deep_link_preselects_a_property():
+    from streamlit.testing.v1 import AppTest
+
+    at = AppTest.from_file(str(APP / "pages" / "1_Property.py"), default_timeout=180)
+    at.query_params["property"] = "Property F"
+    at.run()
+    assert _errors(at) == []
+    assert at.sidebar.selectbox(key="property").value == "Property F"
