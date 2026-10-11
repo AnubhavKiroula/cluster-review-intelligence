@@ -53,48 +53,44 @@ def map_columns(
     """Return a schema-shaped frame from an arbitrary export.
 
     ``mapping`` uses canonical CRI names as keys and source column names as values,
-    for example ``{"text": "review_body", "property_id": "hotel_code"}``.
-    Without a mapping, a file that already has every canonical column is used as
-    is; otherwise conservative aliases are used. Ambiguous aliases (including two
-    headers that only differ in case/spacing) are rejected instead of silently
-    selecting a column. A ``review_id`` column is carried through when present.
+    for example ``{"text": "review_body", "property_id": "hotel_code"}``. Every other
+    field resolves, in order, to: the canonical header itself (any case/spacing),
+    then a conservative alias. A source column is used at most once, and two
+    candidates for one field are rejected instead of silently picking one. A
+    ``review_id`` column is carried through when present.
     """
     explicit = check_mapping(mapping or {})
+    missing_source = [v for v in explicit.values() if v not in frame.columns]
+    if missing_source:
+        raise SchemaError(f"Mapping refers to missing source column(s) {missing_source}.")
+    used = set(explicit.values())
     by_normalised: dict[str, list[str]] = {}
     for column in frame.columns:
         by_normalised.setdefault(_normalise_name(column), []).append(column)
-    exact = not explicit and all(c in frame.columns for c in REQUIRED_COLUMNS)
+
+    def free(names) -> list[str]:
+        found = [c for n in names for c in by_normalised.get(_normalise_name(n), [])]
+        return [c for c in dict.fromkeys(found) if c not in used]
 
     selected: dict[str, str] = {}
     missing: list[str] = []
     for canonical in REQUIRED_COLUMNS + OPTIONAL_COLUMNS:
         if canonical in explicit:
-            source = explicit[canonical]
-            if source not in frame.columns:
-                raise SchemaError(
-                    f"Mapping for '{canonical}' refers to missing source column {source!r}."
-                )
-            selected[canonical] = source
+            selected[canonical] = explicit[canonical]
             continue
-        if exact or canonical in OPTIONAL_COLUMNS:
-            if canonical in frame.columns:
-                selected[canonical] = canonical
-            continue
-
-        candidates = [
-            column
-            for alias in DEFAULT_ALIASES[canonical]
-            for column in by_normalised.get(_normalise_name(alias), [])
-        ]
+        candidates = free([canonical])
+        if not candidates and canonical in DEFAULT_ALIASES:
+            candidates = free(DEFAULT_ALIASES[canonical])
         if len(candidates) > 1:
             raise SchemaError(
                 f"Ambiguous source columns for '{canonical}': {candidates}. "
                 "Provide an explicit mapping."
             )
-        if not candidates:
-            missing.append(canonical)
-        else:
+        if candidates:
             selected[canonical] = candidates[0]
+            used.add(candidates[0])
+        elif canonical in REQUIRED_COLUMNS:
+            missing.append(canonical)
 
     if missing:
         raise SchemaError(
