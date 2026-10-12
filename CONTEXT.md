@@ -11,8 +11,9 @@ see `docs/HACKATHON_PLAN.md` for the plan and file-ownership map.
 
 ## Current objective
 Analytics core done; Archit's data/evaluation track now has a source-column
-  adapter/config, label scoring CLI, labelling pack, and safer ingestion. The dashboard (Purvansh) builds
-against `src/cri/api.py`.
+  adapter/config, label scoring CLI, labelling pack, safer ingestion, a
+  reproducible label-input preparer, and a documented dataset decision. The
+  dashboard (Purvansh) builds against `src/cri/api.py`.
 
 ## Architecture / state
 `src/cri/`: schema → loader (PII dropped) → normalize → classify (rules by default,
@@ -50,8 +51,10 @@ properties; scope) → insights (priority actions, destination view) → **api.p
 ## Next tasks
 1. Purvansh: build the dashboard on `api.py` (handle scope `undetermined`/`stable`,
    `started`/`change_month` may be missing).
-2. Archit: obtain legitimately provided/open real data if available, then run the
-   eval CLI on hand-labelled rows; merge numpy 2 and pandas 3 Dependabot PRs together.
+2. Archit: obtain a legitimately provided Uttarakhand export if available, then
+   run the eval CLI on hand-labelled rows; merge numpy 2 and pandas 3 Dependabot
+   PRs together. Dataset decision and workflow: `docs/dataset_recommendation.md`
+   and `docs/archit_data_status.md`.
 3. Hackathon: tune on real data; re-run calibration if thresholds change.
 
 ## Important decisions

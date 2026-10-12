@@ -17,6 +17,11 @@ All bundled data in `data/sample/` is **SYNTHETIC**, produced by
 `src/cri/generate.py`. It depicts fictional properties and contains no real
 reviews or personal data.
 
+The candidate datasets reviewed for possible future use are documented in
+[`dataset_recommendation.md`](dataset_recommendation.md). No external review
+rows are bundled or committed. A source will be added to this table only after
+its license, provenance, and permitted use have been verified.
+
 ## Software
 
 Built with Python, NumPy, pandas, PyYAML, and Matplotlib (see `pyproject.toml`

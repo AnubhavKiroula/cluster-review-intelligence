@@ -209,7 +209,9 @@ makes Day 1 parallel.
 - [ ] Enable branch protection on `main` (require PR + CI) — see `docs/hardening.md`.
 - [x] `eval/` scaffold: `eval/labels_schema.md`, `eval/score.py` (metrics CLI), `eval/labelled/.gitkeep`.
 - [x] `src/cri/sources.py` — adapter that maps an arbitrary team CSV's columns onto our schema.
-- [ ] **Start the real-data hunt** (§8). This has the longest lead time — begin today.
+- [x] **Start the real-data hunt** (§8). Dataset research and an acquisition
+      decision are recorded in [`docs/dataset_recommendation.md`](dataset_recommendation.md);
+      the remaining step is obtaining a legitimately provided export.
 - [x] Add `matplotlib`/`plotly`/`streamlit` deps to `pyproject.toml` (you're sole editor).
 
 ---
