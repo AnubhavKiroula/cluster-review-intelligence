@@ -2,7 +2,16 @@
 
 import { useMemo, useState } from "react";
 import { sentimentLabel, useData, type Mention, type Review } from "@/lib/data";
-import { DownloadCsv, ErrorState, Info, Loading, SyntheticBanner, Table } from "@/components/ui";
+import {
+  DownloadCsv,
+  ErrorState,
+  Info,
+  Loading,
+  PageIntro,
+  SectionHeading,
+  SyntheticBanner,
+  Table,
+} from "@/components/ui";
 
 const ANY = "__any__";
 const MAX_ROWS = 300;
@@ -74,57 +83,64 @@ export default function ExplorerPage() {
 
   return (
     <>
-      <h1>🔍 Review explorer</h1>
+      <PageIntro
+        eyebrow="Evidence explorer"
+        icon="🔍"
+        title="Review explorer"
+        description="Audit the exact clause behind every detected aspect and sentiment, then search the cluster in seconds."
+      />
       <SyntheticBanner />
-      <p className="lede">
-        Every classification is auditable: the <strong>matched clause</strong> shows which words
-        drove the aspect and sentiment. Try a mixed Hinglish/Devanagari phrase in the search box.
-      </p>
 
-      <div className="controls">
-        <div className="field">
-          <label htmlFor="f-prop">Property</label>
-          <select id="f-prop" value={prop} onChange={(e) => setProp(e.target.value)}>
-            <option value={ANY}>— any —</option>
-            {data.meta.properties.map((p) => (
-              <option key={p} value={p}>
-                {p}
-              </option>
-            ))}
-          </select>
+      <section className="explorer-lab">
+        <SectionHeading
+          title="✍️ Search the evidence"
+          description="Filter by property, aspect, sentiment, or a literal phrase from the review text."
+        />
+        <div className="controls">
+          <div className="field">
+            <label htmlFor="f-prop">Property</label>
+            <select id="f-prop" value={prop} onChange={(e) => setProp(e.target.value)}>
+              <option value={ANY}>— any —</option>
+              {data.meta.properties.map((p) => (
+                <option key={p} value={p}>
+                  {p}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="field">
+            <label htmlFor="f-aspect">Aspect</label>
+            <select id="f-aspect" value={aspect} onChange={(e) => setAspect(e.target.value)}>
+              <option value={ANY}>— any —</option>
+              {data.meta.aspects.map((a) => (
+                <option key={a} value={a}>
+                  {a}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="field">
+            <label htmlFor="f-sent">Sentiment</label>
+            <select id="f-sent" value={sentiment} onChange={(e) => setSentiment(e.target.value)}>
+              <option value={ANY}>— any —</option>
+              <option value="1">👍 positive</option>
+              <option value="0">😐 neutral</option>
+              <option value="-1">👎 negative</option>
+            </select>
+          </div>
+          <div className="field" style={{ flex: 1 }}>
+            <label htmlFor="f-q">Search review text</label>
+            <input
+              id="f-q"
+              type="text"
+              placeholder="e.g. khana accha tha lekin kamra ganda"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              style={{ width: "100%" }}
+            />
+          </div>
         </div>
-        <div className="field">
-          <label htmlFor="f-aspect">Aspect</label>
-          <select id="f-aspect" value={aspect} onChange={(e) => setAspect(e.target.value)}>
-            <option value={ANY}>— any —</option>
-            {data.meta.aspects.map((a) => (
-              <option key={a} value={a}>
-                {a}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="field">
-          <label htmlFor="f-sent">Sentiment</label>
-          <select id="f-sent" value={sentiment} onChange={(e) => setSentiment(e.target.value)}>
-            <option value={ANY}>— any —</option>
-            <option value="1">👍 positive</option>
-            <option value="0">😐 neutral</option>
-            <option value="-1">👎 negative</option>
-          </select>
-        </div>
-        <div className="field" style={{ flex: 1 }}>
-          <label htmlFor="f-q">Search review text</label>
-          <input
-            id="f-q"
-            type="text"
-            placeholder="e.g. khana accha tha lekin kamra ganda"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            style={{ width: "100%" }}
-          />
-        </div>
-      </div>
+      </section>
 
       <p className="caption">
         {rows.length.toLocaleString()} matched clause(s)

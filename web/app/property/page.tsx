@@ -8,6 +8,8 @@ import {
   ErrorState,
   Info,
   Loading,
+  PageIntro,
+  SectionHeading,
   SyntheticBanner,
   Table,
 } from "@/components/ui";
@@ -128,10 +130,17 @@ export default function PropertyPage() {
 
   const actions = pdata.priority_actions;
   const top = actions[0];
+  const strongest = [...pdata.scorecard].sort((a, b) => b.mean - a.mean)[0];
+  const weakest = [...pdata.scorecard].sort((a, b) => a.mean - b.mean)[0];
 
   return (
     <>
-      <h1>🏨 {prop}</h1>
+      <PageIntro
+        eyebrow="Property workspace"
+        icon="🏨"
+        title={prop}
+        description="A focused view of where this property leads, where it lags, and how the story is changing over time."
+      />
       <SyntheticBanner />
 
       <div className="controls">
@@ -147,7 +156,28 @@ export default function PropertyPage() {
         </div>
       </div>
 
-      <h2>🎯 Fix this first</h2>
+      <div className="insight-strip">
+        <div className="insight-tile">
+          <div className="tile-label">Flagged opportunities</div>
+          <div className="tile-value">{actions.length}</div>
+          <div className="tile-note">Priority actions from the benchmark</div>
+        </div>
+        <div className="insight-tile">
+          <div className="tile-label">Strongest aspect</div>
+          <div className="tile-value">{strongest?.aspect ?? "—"}</div>
+          <div className="tile-note">Highest mean sentiment in the scorecard</div>
+        </div>
+        <div className="insight-tile">
+          <div className="tile-label">Watch closely</div>
+          <div className="tile-value">{weakest?.aspect ?? "—"}</div>
+          <div className="tile-note">Lowest mean sentiment in the scorecard</div>
+        </div>
+      </div>
+
+      <SectionHeading
+        title="🎯 Fix this first"
+        description="Priorities combine the gap to the cluster with mention volume and detected changes."
+      />
       {actions.length === 0 ? (
         <Info>This property is on par with its cluster — nothing lags enough to flag.</Info>
       ) : (
@@ -185,15 +215,25 @@ export default function PropertyPage() {
         </>
       )}
 
-      <h2>📊 Aspect scores vs the cluster</h2>
-      {scorecardChart && <Plot data={scorecardChart.data} layout={scorecardChart.layout} />}
+      <SectionHeading
+        title="📊 Aspect scores vs the cluster"
+        description="Bars show this property; the navy marker is the cluster mean."
+      />
+      {scorecardChart && (
+        <div className="chart-panel">
+          <Plot data={scorecardChart.data} layout={scorecardChart.layout} />
+        </div>
+      )}
       <p className="caption">
         Bar colour = <strong>lead</strong> (teal) / <strong>lag</strong> (red) /{" "}
         <strong>on-par</strong> (grey), flagged only when the confidence interval supports it. Error
         bars are omitted for aspects with fewer than 10 reviews. The navy marker is the cluster mean.
       </p>
 
-      <h2>📈 Trend over time</h2>
+      <SectionHeading
+        title="📈 Trend over time"
+        description="Select an aspect to inspect monthly movement and significant changepoints."
+      />
       <div className="controls">
         <div className="field">
           <label htmlFor="aspect">Aspect</label>
@@ -208,7 +248,9 @@ export default function PropertyPage() {
       </div>
       {trendChart ? (
         <>
-          <Plot data={trendChart.data} layout={trendChart.layout} />
+          <div className="chart-panel">
+            <Plot data={trendChart.data} layout={trendChart.layout} />
+          </div>
           <p className="caption">
             {trendChart.hasCps
               ? "Dashed line = a significant shift relative to the market (FDR-controlled)."
