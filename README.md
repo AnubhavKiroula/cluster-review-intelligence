@@ -3,14 +3,16 @@
 # Cluster Review Intelligence
 
 > Turn a cluster's raw tourist reviews into **aspect-level**, **competitive**,
-> **time-aware** intelligence — and tell a property manager whether a problem is
-> *theirs* or the *whole market's*.
+> **time-aware** intelligence — tell a property manager whether a problem is
+> *theirs* or the *whole market's* — and put that evidence to work for travellers,
+> providers, local sellers and tourism boards in Uttarakhand and Himachal hill
+> destinations.
 
-[![CI](https://github.com/AnubhavKiroula/cluster-review-intelligence/actions/workflows/ci.yml/badge.svg)](https://github.com/AnubhavKiroula/cluster-review-intelligence/actions/workflows/ci.yml)
+[![CI](https://github.com/PxA-Labs/cluster-review-intelligence/actions/workflows/ci.yml/badge.svg)](https://github.com/PxA-Labs/cluster-review-intelligence/actions/workflows/ci.yml)
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
-[![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/AnubhavKiroula/cluster-review-intelligence/badge)](https://securityscorecards.dev/viewer/?uri=github.com/AnubhavKiroula/cluster-review-intelligence)
+[![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/PxA-Labs/cluster-review-intelligence/badge)](https://securityscorecards.dev/viewer/?uri=github.com/PxA-Labs/cluster-review-intelligence)
 
-<sub>AI–Tourism Hackathon 2026 · Problem statement **G5 — Cluster Review Intelligence & Competitive Benchmarking** · The Scorecard badge populates after the first run on the public repository. All bundled data is **SYNTHETIC**.</sub>
+<sub>AI–Tourism Hackathon 2026 · Problem statement **G5 — Cluster Review Intelligence & Competitive Benchmarking** · The Scorecard badge populates after the first run on the public repository. Review data, stays, prices and sellers are **SYNTHETIC**; holidays, distances, arrivals and emission factors are sourced facts ([`docs/DATA_SOURCES.md`](docs/DATA_SOURCES.md)).</sub>
 
 ---
 
@@ -35,7 +37,15 @@ This project answers exactly that, from review text — including the
 - **Property managers** — see where you lead or lag the cluster, per aspect, and
   whether a decline is yours or market-wide.
 - **Tourism boards / DMOs** — a destination view: which issues move together across
-  the whole cluster and when (e.g. seasonal), to target interventions.
+  the whole cluster and when (e.g. seasonal), to target interventions; plus expected
+  visitor pressure against assumed capacity ceilings and where to redistribute it.
+- **Travellers** (students, families, budget travellers) — holiday-aware crowd
+  estimates, quieter dates, similar less-crowded places, stays compared **without
+  star ratings**, and a budget trip plan with local sellers and a carbon estimate.
+- **Accommodation providers** — explained priorities from reviews, demand peaks
+  against their room mix, amenity gaps and quiet windows for offers.
+- **Local sellers** (artisans, weavers, guides; not restaurants) — discovered inside
+  trip plans; tourism boards see which categories are under-served.
 
 ## What it does today (MVP)
 
@@ -56,10 +66,17 @@ This project answers exactly that, from review text — including the
 | Stable **API facade** for the dashboard (contract in `docs/HACKATHON_PLAN.md` §3.2); normalises messy exports (numeric ids, timezone-stamped dates) | ✅ | `src/cri/api.py` |
 | **Reproducible calibration**: recall and false-alarm rates on SYNTHETIC data | ✅ | `python -m cri.calibration` |
 | Reproducible figures from synthetic data | ✅ | `scripts/make_figures.py` |
-| **Streamlit dashboard**: property view, heatmap, market quadrant, destination view, review explorer with live *Try your own review*; SYNTHETIC banner, CSV export | ✅ | `app/` |
+| **Next.js web app** (the only UI): property view, heatmap, market quadrant, destination view, review explorer with live *Try your own review*, *Did my fix work?*; SYNTHETIC banner, CSV export | ✅ | `web/` |
+| **HTTP API** (FastAPI) for the web app: review core + travel layer, validated inputs, CORS | ✅ | `src/cri/server.py` |
+| **Holiday-aware demand index** (0–100, every point explained): DoPT gazetted holidays 2026–27, long weekends, assumed school / year-end windows, quieter dates, regional overview — an estimate, *not* live traffic | ✅ | `src/cri/travel/demand.py` |
+| **Crowd-aware alternatives**: similarity × crowd relief with a capacity guard and five-part explanations | ✅ | `src/cri/travel/alternatives.py` |
+| **Star-free stay profiles** + **provider insights** (review priorities, amenity gaps, peaks vs room mix, offer windows) | ✅ | `src/cri/travel/stays.py` |
+| **Local sellers**, seller-category opportunity (labelled "not sales") and the **tourism-board region view** | ✅ | `src/cri/travel/region.py` |
+| **Trip planner**: itinerary, traced costs, car vs bus carbon from sourced factors, cheaper / quieter variants | ✅ | `src/cri/travel/planner.py` |
+| **Learned sentiment backend** trained on open Hinglish data (+ a local model on hill-destination reviews), measured on held-out data | ✅ (opt-in) | `src/cri/learned_backend.py`, `scripts/train_sentiment.py` |
 | Partner exports with other column names (aliases or a YAML mapping) | ✅ | `src/cri/sources.py` |
 | **Evaluation harness**: export predictions, then aspect P/R/F1 + sentiment macro-F1, confusion matrix, error analysis | ✅ | `eval/predict.py`, `eval/score.py` |
-| Tests: pattern recovery, null-data silence, API contract, every dashboard page run headlessly, demo claims | ✅ | `tests/` |
+| Tests: pattern recovery, null-data silence, API contract, HTTP API, travel invariants, learned-model parity, demo claims; CI also type-checks and builds the web app | ✅ | `tests/`, `.github/workflows/ci.yml` |
 | Accuracy on **real** hand-labelled reviews | ⏳ `TBD` | needs the labelled set |
 
 The aspect taxonomy is **Food, Room, Housekeeping, Staff, Location, Value for
@@ -81,8 +98,15 @@ flowchart LR
     ME --> IN
     MK --> IN
     IN --> API["api.py facade"]
-    API --> OUT["Streamlit dashboard · Figures · CLI demo"]
+    API --> SRV["FastAPI · cri.server"]
+    TRV["cri.travel<br/>demand · alternatives · stays<br/>region · planner"] --> SRV
+    API --> TRV
+    SRV --> WEB["Next.js web app (web/)"]
+    API --> OUT["Snapshots · Figures · CLI demo"]
+    OUT --> WEB
 ```
+
+Full design, data flows and trade-offs: [`docs/SYSTEM_DESIGN.md`](docs/SYSTEM_DESIGN.md).
 
 ### Data flow
 
@@ -117,36 +141,50 @@ sequenceDiagram
 
 ## Quickstart (under 5 minutes)
 
-```bash
-git clone https://github.com/AnubhavKiroula/cluster-review-intelligence.git
-cd cluster-review-intelligence
-python -m pip install -e ".[dev,dashboard]"   # Python 3.11 or 3.12
+Prerequisites: Python 3.11 or 3.12, Node 22. No database, no secrets.
 
-python -m pytest                       # 1) tests recover the injected patterns
-streamlit run app/Home.py              # 2) the dashboard (SYNTHETIC sample by default)
-python scripts/demo.py                 # 3) every number the demo script quotes
-python scripts/make_figures.py         # 4) regenerate the figures below (docs/img/)
-python -m cri.calibration --seeds 1-20 # 5) recall / false-alarm rates (about a minute)
+```bash
+git clone https://github.com/PxA-Labs/cluster-review-intelligence.git
+cd cluster-review-intelligence
+python -m pip install -e ".[dev,api]"
+
+python -m pytest                          # 1) tests (patterns, API, travel invariants)
+uvicorn cri.server:app --port 8000        # 2) the API (terminal 1; docs at /docs)
+cd web && npm ci && npm run dev           # 3) the web app at http://localhost:3000 (terminal 2)
+python scripts/demo.py                    # 4) every number the G5 demo quotes
+python scripts/make_figures.py            # 5) regenerate the figures below (docs/img/)
+python -m cri.calibration --seeds 1-20    # 6) recall / false-alarm rates (about a minute)
 ```
+
+The G5 pages read a committed snapshot (`web/public/data/*.synthetic.json`) and work
+without the API; the travel pages and *Try your own review* need it. The web app
+finds the API at `NEXT_PUBLIC_API_BASE_URL` (default `http://localhost:8000`, read at
+build time; see `web/.env.example`), and the API accepts browser calls from
+`CRI_API_CORS_ORIGINS` (default `http://localhost:3000`; see `.env.example`).
 
 `scripts/demo.py` prints, from the SYNTHETIC sample, the facts the judge demo
 ([`docs/DEMO.md`](docs/DEMO.md)) relies on, including `Property F` food declining
 from `2025-06` (property-specific) and cluster-wide December room complaints
-(market-wide). Deploying the dashboard: [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md).
+(market-wide). The full-product demo is [`docs/DEMO_SCRIPT.md`](docs/DEMO_SCRIPT.md);
+deployment: [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md).
 
 > Windows without `make`: run the commands above directly (the `Makefile` just
 > wraps them).
 
-## Dashboard (SYNTHETIC data)
+## Web app (SYNTHETIC data)
 
 ![Property view for Property F: fix-this-first, scorecard with 95% intervals, trend with the detected June 2025 changepoint (SYNTHETIC data)](docs/screenshots/property_view_SYNTHETIC.png)
 
-More pages, all on the SYNTHETIC sample:
+![Explore: Mussoorie over the Christmas 2026 long weekend: crowd estimate with its factors, demand calendar, quieter dates, alternatives and star-free stays (SYNTHETIC profiles, sourced holidays)](docs/screenshots/explore_SYNTHETIC.png)
+
+More pages, all on SYNTHETIC data:
+[trip planner](docs/screenshots/plan_SYNTHETIC.png) ·
+[provider insights](docs/screenshots/provider_SYNTHETIC.png) ·
+[regional pressure](docs/screenshots/region_SYNTHETIC.png) ·
 [market quadrant](docs/screenshots/market_quadrant_SYNTHETIC.png) ·
-[cluster heatmap](docs/screenshots/cluster_heatmap_SYNTHETIC.png) ·
-[destination view](docs/screenshots/destination_view_SYNTHETIC.png) ·
 [review explorer](docs/screenshots/review_explorer_SYNTHETIC.png).
-Open a property directly with `/Property?property=Property F`.
+Deep links: `/property/?property=Property%20F`,
+`/explore/?destination=mussoorie&start=2026-12-25&nights=2`.
 
 ## Figures (SYNTHETIC data)
 
@@ -191,6 +229,28 @@ claim tested rather than thresholded.
 Full details, exact thresholds and their justification:
 [`docs/methodology.md`](docs/methodology.md).
 
+## Travel intelligence (summary)
+
+Transparent engines, because there is no footfall or booking data to train on.
+Every number they return carries its **basis**: `fact` (cited source), `measured`,
+`derived`, `synthetic` or `assumption`.
+
+- **Demand index** = popularity tier + season + weekend + gazetted holiday + long
+  weekend + assumed school / year-end window, clipped to 0–100. The index always
+  equals the sum of the factors shown. Low < 30 ≤ Moderate < 55 ≤ High < 75 ≤ Very
+  High. Holidays come from the DoPT lists for 2026–27; state holidays and live
+  traffic are not modelled.
+- **Alternatives** = similarity (landscape, activities, budget, travel time, season)
+  × min(crowd relief, capacity headroom), with **assumed** ceilings by environmental
+  sensitivity. No official carrying capacity exists for these places.
+- **Stays** are compared on price, rooms, self-reported amenities and practices, and
+  aspect-level guest feedback from the review core, never on stars.
+- **Provider insights**, **seller opportunity** (an exposure estimate, *not* sales)
+  and the **trip planner** (traced costs; car vs bus carbon from India GHG Program /
+  UK DESNZ factors).
+
+Formulas, evaluation and limits: [`docs/AI_MODEL.md`](docs/AI_MODEL.md).
+
 ## Evaluation
 
 Honesty first: there are **no real-world accuracy numbers yet**, so none are
@@ -217,7 +277,20 @@ Recall is limited by sample size, not tuned up: thresholds control the false-ala
 rate, and several injected declines are small. Details, fresh-seed calibration
 and limitations: [`docs/methodology.md` §10–11](docs/methodology.md).
 
-**Classifier accuracy on real reviews** (needs hand-labelled data):
+**Learned sentiment model** (held-out test sets, macro-F1 with 95% bootstrap
+interval; `python scripts/train_sentiment.py --model open|region`):
+
+| Test set | `open` model (shipped) | `region` model (local only) | Rule baseline |
+|---|---|---|---|
+| SentiMix Hinglish tweets (n = 2,997) | **0.663** (0.646–0.680) | 0.629 | 0.361 |
+| Hill-destination hotel reviews, hotel-grouped, weak labels from stars (n = 8,388) | 0.390 | **0.687** (0.669–0.706) | 0.557 |
+
+These are document-level results. On the SYNTHETIC clause-level patterns the
+learned models recover the injected food decline less often than the rules (5/20
+and 4/20 seeds vs 15/20), so **`rule` stays the default**. Clause-level accuracy on
+real reviews remains `TBD` (below). Details: [`docs/AI_MODEL.md`](docs/AI_MODEL.md).
+
+**Classifier accuracy on real reviews, clause level** (needs hand-labelled data):
 
 | Metric (on real labelled data) | Baseline | Model backend |
 |---|---|---|
@@ -256,6 +329,12 @@ Every `TBD` is tracked in [`docs/TODO_RESULTS.md`](docs/TODO_RESULTS.md).
   priorities compare a property with its own history instead.
 - **Synthetic validation only** — calibration proves the statistics behave as
   designed, not real-world accuracy. Real labelled evaluation is pending (`TBD`).
+- **Demand is an estimate** — a transparent points model on assumed weights and
+  season curves, not trained or validated (no footfall data); never live traffic.
+- **Assumed capacity** — ceilings by environmental sensitivity are assumptions;
+  state holidays and school calendars are not (fully) modelled.
+- **SYNTHETIC profiles** — stays, prices, amenities, practices and sellers are
+  illustrative; estimated road distances underestimate short hill hops.
 
 ## Responsible data use
 
@@ -268,6 +347,11 @@ Every `TBD` is tracked in [`docs/TODO_RESULTS.md`](docs/TODO_RESULTS.md).
   in the filename and `SYNTHETIC` on every figure.
 - **No secrets.** Configuration via environment variables; see `.env.example`.
 - Respect each platform's terms before using any real export.
+- **Third-party review data stays local.** The Kaggle hill-destination reviews used
+  to train the local `region` model are downloaded by a team member, never
+  committed, read without reviewer columns, and the model trained on them is not
+  distributed. The shipped model uses CC BY 4.0 data only
+  ([`docs/DATA_SOURCES.md`](docs/DATA_SOURCES.md)).
 
 Supply-chain hardening status (pinned deps, token permissions, Dependabot, and
 the manual GitHub settings still to enable) is tracked in
@@ -276,19 +360,24 @@ the manual GitHub settings still to enable) is tracked in
 ## Project layout
 
 ```
-app/                # Streamlit dashboard: Home.py + pages/ (imports only cri.api)
-src/cri/api.py      # the facade the dashboard imports (stable contract)
+web/                # Next.js app (the only UI): G5 pages (snapshot) + travel pages (API)
+src/cri/api.py      # the review-intelligence facade (stable contract)
+src/cri/server.py   # FastAPI service for the web app
+src/cri/travel/     # data, demand, alternatives, stays, region, planner
 src/cri/            # schema, loader, sources, generate, normalize, classify, pipeline,
-                    # benchmark, changepoint, insights, calibration, transformer_backend
-src/cri/resources/  # aspects.yaml (aspect taxonomy), lexicon.yaml (sentiment words)
+                    # benchmark, changepoint, insights, intervention, calibration,
+                    # transformer_backend, learned_backend
+src/cri/resources/  # aspects.yaml, lexicon.yaml, travel_facts.yaml (sourced),
+                    # travel_synthetic.yaml (SYNTHETIC), models/ (shipped open model)
 eval/               # predict.py, score.py, labelling guide, split_labels.py
-scripts/            # make_figures.py, demo.py, capture_screenshots.py
-tests/              # pattern-recovery, unit, dashboard (AppTest) and demo-claim tests
+scripts/            # demo, make_figures, capture_screenshots, calibrate_intervention,
+                    # prepare_region_reviews, train_sentiment
+tests/              # pattern recovery, API, server, travel, learned model, demo claims
 data/sample/        # SYNTHETIC reviews (committed); data/raw/ is gitignored
-docs/               # DEMO, DEPLOYMENT, data_schema, methodology, CREDITS, TODO_RESULTS,
-                    # img/, screenshots/
-requirements.txt    # Streamlit Community Cloud entry point (installs .[dashboard])
-.github/workflows/  # ci.yml, codeql.yml, scorecard.yml (actions pinned by commit SHA)
+docs/               # PRD, SRS, SYSTEM_DESIGN, AI_MODEL, BUSINESS_MODEL, DATA_SOURCES,
+                    # API_CONTRACTS, IMPLEMENTATION_PLAN, DEMO_SCRIPT, DEMO, DEPLOYMENT,
+                    # methodology, data_schema, CREDITS, TODO_RESULTS, img/, screenshots/
+.github/workflows/  # ci.yml (Python + web), codeql.yml, scorecard.yml (SHA-pinned)
 ```
 
 ## Roadmap
@@ -297,8 +386,13 @@ Planned / to be built during the hackathon:
 
 - **Real labelled evaluation** — run `eval/predict.py` + `eval/score.py` on
   hand-labelled real reviews and replace the `TBD`s with measured values.
-- **Public deployment** of the Next.js static site in `web/` on Vercel (steps in
-  [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md); URL `TBD`).
+- **Public deployment** of the static site in `web/` plus the API (steps in
+  [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md); URLs `TBD`).
+- **Clause-level gold set** of hill-destination reviews to decide whether the
+  learned backend should replace the rules.
+- **Real data for the travel layer**: monthly arrivals to validate the demand index,
+  onboarding of real providers and sellers (with verification and accounts).
+  Full plan: [`docs/IMPLEMENTATION_PLAN.md`](docs/IMPLEMENTATION_PLAN.md).
 - **Evaluate the transformer backend** against the rule baseline on the real
   labelled set, and make it the default only if it wins.
 - **Multiple changepoints per series** (e.g. PELT) once real data allows the
@@ -307,17 +401,36 @@ Planned / to be built during the hackathon:
 ## Development
 
 ```bash
-python -m pip install -e ".[dev,dashboard]"
-python -m pytest            # tests (dashboard pages run headlessly via AppTest)
+python -m pip install -e ".[dev,api]"
+python -m pytest            # tests (incl. the HTTP API via TestClient)
 python -m ruff check .      # lint
+(cd web && npx tsc --noEmit && npm run build)   # web type-check + static build
 python -m ruff format .     # format
 python -m cri.generate --out data/sample/synthetic_reviews.csv  # regenerate sample
 python -m cri.calibration --seeds 1-20                          # detector calibration
+
+# learned sentiment backend (packaged open-data model; no extra install for inference)
+CRI_MODEL_BACKEND=learned python scripts/demo.py
+# re-train it (needs the train extra; data downloads: docs/DATA_SOURCES.md)
+python -m pip install -e ".[train]"
+python scripts/train_sentiment.py --model open
 
 # optional transformer backend (downloads a ~541 MB model on first use)
 python -m pip install -e ".[model]"
 CRI_MODEL_BACKEND=transformer python scripts/demo.py
 ```
+
+### Documentation
+
+| Doc | What |
+|---|---|
+| [PRD](docs/PRD.md) · [SRS](docs/SRS.md) | Product requirements; requirement IDs traced to tests |
+| [SYSTEM_DESIGN](docs/SYSTEM_DESIGN.md) · [API_CONTRACTS](docs/API_CONTRACTS.md) | Architecture, data flows; endpoints with real examples |
+| [AI_MODEL](docs/AI_MODEL.md) · [methodology](docs/methodology.md) | Every model and engine; G5 statistics |
+| [DATA_SOURCES](docs/DATA_SOURCES.md) | Real vs SYNTHETIC vs assumption, licences, gaps |
+| [BUSINESS_MODEL](docs/BUSINESS_MODEL.md) | Canvas, revenue hypotheses, impact metrics |
+| [IMPLEMENTATION_PLAN](docs/IMPLEMENTATION_PLAN.md) · [TODO_RESULTS](docs/TODO_RESULTS.md) | Status, limitations, next steps; every `TBD` |
+| [DEMO_SCRIPT](docs/DEMO_SCRIPT.md) · [DEMO](docs/DEMO.md) · [DEPLOYMENT](docs/DEPLOYMENT.md) | Full demo; test-pinned G5 demo; hosting |
 
 See [`CONTRIBUTING.md`](CONTRIBUTING.md) and [`SECURITY.md`](SECURITY.md).
 

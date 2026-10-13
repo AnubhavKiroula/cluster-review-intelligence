@@ -57,12 +57,38 @@ Simulated 6-property clusters; "naive" = plain before/after on the property alon
 | Injected food decline recovered end-to-end (`seed=42`) | yes | no | measured: model misreads Hinglish negatives |
 | Precision / recall / F1 on real labelled reviews | TBD | TBD | needs the hand-labelled set |
 
-## Dashboard
+## Learned sentiment backend (measured 2026-10-13, `scripts/train_sentiment.py`)
 
-- Streamlit dashboard: **built** (`app/`), every page tested headlessly in CI.
-  Real screenshots on SYNTHETIC data: `docs/screenshots/*_SYNTHETIC.png`.
-- Public deployment URL (Next.js static site on Vercel): `TBD` (steps in
-  `docs/DEPLOYMENT.md`).
+Document-level macro-F1 on held-out test sets (95% bootstrap CI). Details and probes:
+`docs/AI_MODEL.md`. The "templates" row here is *whole-sentence* polarity, a different
+probe from the clause-level one in the transformer table above.
+
+| Measure | Rules | `open` model | `region` model (local) | Status |
+|---|---|---|---|---|
+| SentiMix Hinglish test (n=2,997) | 0.361 | 0.663 (0.646–0.680) | 0.629 (0.613–0.646) | measured |
+| YouTube Hinglish test (n=314) | 0.317 | 0.631 (0.573–0.682) | 0.609 (0.555–0.655) | measured |
+| Hill hotel reviews, hotel-grouped, weak labels (n=8,388) | 0.557 (0.539–0.574) | 0.390 | 0.687 (0.669–0.706) | measured |
+| Whole-sentence polarity, 36 SYNTHETIC templates | 36/36 | 17/36 | 24/36 | measured |
+| Food decline found, 20 SYNTHETIC seeds | 15/20 | 5/20 | 4/20 | measured |
+| December Room market-wide, 20 SYNTHETIC seeds | 20/20 | 20/20 | 14/20 | measured |
+| **Clause-level** F1 on hand-labelled hill-destination reviews | TBD | TBD | TBD | needs the gold set |
+
+## Travel layer
+
+| Measure | Status |
+|---|---|
+| Demand index vs real footfall (Spearman per destination; time-aware backtest) | TBD: no monthly destination arrivals available |
+| Demand index vs partner occupancy | TBD: no partner data |
+| Carrying capacity per destination | TBD: no official figures; ceilings are assumptions |
+| Adoption of quieter dates / alternatives (impact) | TBD: no users yet |
+| Local spend reaching sellers (impact) | TBD: estimates only; needs seller reports |
+
+## Web app and API
+
+- Next.js app (the only UI; Streamlit removed): **built**, type-checked and built in CI;
+  every page verified in headless Edge with the API running (2026-10-13). Screenshots
+  on SYNTHETIC data: `docs/screenshots/*_SYNTHETIC.png`.
+- Public URLs (static site and API): `TBD` (steps in `docs/DEPLOYMENT.md`).
 
 ## Deployment / OpenSSF Scorecard
 

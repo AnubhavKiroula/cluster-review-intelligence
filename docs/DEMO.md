@@ -1,7 +1,7 @@
 # Demo script (judge-facing, ~3 min)
 
-Every number below is true for the **SYNTHETIC** sample (seed 42, the dashboard's
-default source) and is printed by:
+Every number below is true for the **SYNTHETIC** sample (seed 42, the web app's
+data) and is printed by:
 
 ```bash
 python scripts/demo.py
@@ -14,8 +14,9 @@ Say "synthetic" out loud: the banner is on every page.
 ## Before you go on stage
 
 1. `python -m pytest tests/test_demo.py` passes.
-2. The dashboard is open: deployed URL (`TBD`, see `docs/DEPLOYMENT.md`) **or**
-   locally with `streamlit run app/Home.py` (plan B, rehearsed).
+2. The web app is open: deployed URL (`TBD`, see `docs/DEPLOYMENT.md`) **or**
+   locally (`uvicorn cri.server:app --port 8000` + `cd web && npm run dev`; plan B,
+   rehearsed). The full-product demo around this G5 segment: `docs/DEMO_SCRIPT.md`.
 3. Plan C: the backup demo video (recorded at H+18).
 
 ## The script
@@ -24,7 +25,7 @@ Say "synthetic" out loud: the banner is on every page.
    **3.33**. One of them has a serious, recent problem. A star average can't tell you
    which."
 2. **Property view (40 s)** - open **🏨 Property → Property F** (deep link:
-   `<app-url>/Property?property=Property F`). *Fix this first* says
+   `<app-url>/property/?property=Property%20F`). *Fix this first* says
    **Food**, 1.05 below the cluster **since 2025-06**, a significant decline relative
    to the market. The trend line drops at the dashed June marker. (Property I:
    nothing flagged.)

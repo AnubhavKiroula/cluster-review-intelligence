@@ -1,17 +1,20 @@
 # Cluster Review Intelligence — Next.js frontend
 
-A static Next.js (App Router + TypeScript) dashboard. It reads a **static JSON snapshot**
-exported from the Python `cri.api` core — there is **no backend at runtime**, so the whole
-thing deploys as static files (Vercel, Netlify, GitHub Pages, any static host).
+A static Next.js (App Router + TypeScript) app, and the project's only UI. The review
+intelligence pages read a **static JSON snapshot** exported from the Python `cri.api`
+core, so they work as plain static files. The travel pages (`/explore`, `/plan`,
+`/provider`, `/region`) and *Try your own review* call the Python API (`cri.server`)
+at `NEXT_PUBLIC_API_BASE_URL` (default `http://localhost:8000`, read at build time;
+see `.env.example`).
 
 The interface is organised as a decision workspace: a property scorecard for operational
 action, a cluster benchmark for comparison, a market diagnosis for scope, a destination view
 for tourism boards, and an evidence explorer for auditability. Shared navigation, signal tiles,
 chart panels, and responsive layouts keep the experience consistent across every route.
 
-> This is an alternative frontend to the Streamlit app in `../app/`, which remains the
-> reference implementation. All numbers come from the same audited `cri.api` (CLAUDE.md
-> rule 1); the snapshot is clearly SYNTHETIC (`cluster.synthetic.json`, rule 2).
+> All numbers come from the audited Python core: the snapshot from `cri.api`, the
+> travel pages from `cri.travel` through the API (CLAUDE.md rule 1). Data is clearly
+> SYNTHETIC (`*.synthetic.json`, banners on every page; rule 2).
 
 ## Data flow
 
@@ -29,16 +32,18 @@ Regenerate the snapshots whenever the analytics change (`--skip-fix-check` for a
 re-export of the main snapshot only):
 
 ```bash
-# from the repo root, with the project installed (pip install -e ".[dashboard]")
+# from the repo root, with the project installed (pip install -e .)
 python web/scripts/export_snapshot.py
 ```
 
 ## Develop
 
 ```bash
+uvicorn cri.server:app --port 8000   # from the repo root (pip install -e ".[api]")
 cd web
-npm install
+npm ci
 npm run dev          # http://localhost:3000
+npx tsc --noEmit     # type-check (CI runs this and npm run build)
 ```
 
 The default snapshot is labelled **SYNTHETIC** in both the filename and the interface. It is

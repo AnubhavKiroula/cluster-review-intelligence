@@ -6,3 +6,6 @@
 
 # Keep CSV diffs readable
 *.csv text eol=lf
+
+# Model weights (zip archives)
+*.npz binary
