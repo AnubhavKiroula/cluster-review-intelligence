@@ -35,12 +35,27 @@ precomputed *Did my fix work?* results (a few minutes to generate).
 1. Merge the work to `main`.
 2. On <https://vercel.com>, **Add New → Project** and import
    `PxA-Labs/cluster-review-intelligence`.
-3. **Root Directory: `web`.** Framework preset: Next.js (detected). Leave the build
-   command and output at their defaults: `output: "export"` in `next.config.mjs` makes
-   the build static. Optional environment variable: `NEXT_PUBLIC_API_BASE_URL` = the
-   API's public URL (without it, *Try your own review* shows an error; every other
-   page works).
+3. **Root Directory: `web`** (the only setting Vercel cannot read from the repo).
+   Everything else comes from `web/vercel.json` and `web/package.json`; leave the
+   dashboard build settings at their defaults. Optional environment variable:
+   `NEXT_PUBLIC_API_BASE_URL` = the API's public URL, for Production and Preview
+   (without it, *Try your own review* shows an error; every other page works). It is
+   read at build time, so redeploy after changing it.
 4. **Deploy.** Every push to `main` then redeploys, and pull requests get preview URLs.
+
+What the repo configures (`web/vercel.json`, `web/package.json`):
+
+| Setting | Value | Why |
+|---|---|---|
+| Framework | `nextjs` | `output: "export"` in `next.config.mjs` makes the build static |
+| Install / build | `npm ci` / `npm run build` | Installs exactly the locked versions |
+| Node.js | `engines.node: "22.x"` | Same major version as CI |
+| Ignored build step | `git diff --quiet HEAD^ HEAD ./` | Skips a deploy when a commit changes nothing under `web/` (Python-only commits); the first deploy always builds |
+| Headers, all paths | `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy: strict-origin-when-cross-origin` | Basic hardening for a site with no third-party embeds |
+| Headers, `/data/*` | `Cache-Control: public, max-age=0, must-revalidate` | Browsers revalidate the snapshots, so a redeploy is seen at once |
+
+The ignored build step compares only the last commit. If a merge leaves `web/`
+unchanged but an earlier push did not deploy, use **Redeploy** in the dashboard.
 
 Not yet verified on Vercel itself (verified locally: `npm run build` in `web/`, then
 `python -m http.server 8787 --directory out`, pages rendered in headless Edge). Check

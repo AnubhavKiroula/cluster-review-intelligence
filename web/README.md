@@ -64,9 +64,11 @@ python -m http.server 8787 --directory out   # preview
 
 ## Deploy
 
-Point a static host at this folder. On Vercel: set the project root to `web/`, framework
-preset **Next.js**; `output: "export"` produces a static deployment. The snapshot JSON ships
-in `public/`, so no build-time Python is needed. See `docs/DEPLOYMENT.md`.
+Point a static host at this folder. On Vercel: import the repository and set the project
+root to `web/`; `vercel.json` here sets the framework, install and build commands, the
+ignored build step and the response headers, and `package.json` pins Node.js 22.
+`output: "export"` produces a static deployment. The snapshot JSON ships in `public/`, so
+no build-time Python is needed. See `docs/DEPLOYMENT.md`.
 
 ## Notes
 
