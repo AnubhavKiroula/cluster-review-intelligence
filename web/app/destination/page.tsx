@@ -3,7 +3,16 @@
 import { useMemo } from "react";
 import Plot from "@/components/Plot";
 import { fmtNum, fmtPct, useData } from "@/lib/data";
-import { DownloadCsv, ErrorState, Info, Loading, SyntheticBanner, Table } from "@/components/ui";
+import {
+  DownloadCsv,
+  ErrorState,
+  Info,
+  Loading,
+  PageIntro,
+  SectionHeading,
+  SyntheticBanner,
+  Table,
+} from "@/components/ui";
 import { COLORS, SCOPE_COLORS } from "@/lib/theme";
 
 export default function DestinationPage() {
@@ -22,18 +31,39 @@ export default function DestinationPage() {
     .filter((d) => d.scope === "market-wide")
     .sort((a, b) => b.pct_negative - a.pct_negative);
   const worst = marketWide[0];
+  const negativeCount = dest.filter((row) => row.pct_negative > 0).length;
 
   return (
     <>
-      <h1>🧭 Destination view</h1>
+      <PageIntro
+        eyebrow="Tourism board view"
+        icon="🧭"
+        title="Destination view"
+        description="See where the whole cluster underperforms and which issues are worth a coordinated destination response."
+      />
       <SyntheticBanner />
-      <p className="lede">
-        For a tourism board, not a single hotel: where does the <strong>whole cluster</strong>{" "}
-        underperform? Issues flagged <strong>market-wide</strong> are destination problems — worth
-        coordinated action.
-      </p>
+      <div className="insight-strip">
+        <div className="insight-tile">
+          <div className="tile-label">Aspects summarised</div>
+          <div className="tile-value">{dest.length}</div>
+          <div className="tile-note">Destination-level view</div>
+        </div>
+        <div className="insight-tile">
+          <div className="tile-label">Market-wide issues</div>
+          <div className="tile-value">{marketWide.length}</div>
+          <div className="tile-note">Shared patterns for intervention</div>
+        </div>
+        <div className="insight-tile">
+          <div className="tile-label">Negative signal present</div>
+          <div className="tile-value">{negativeCount}</div>
+          <div className="tile-note">Aspects with negative mentions</div>
+        </div>
+      </div>
 
-      <h2>🚩 Top cluster-wide issues</h2>
+      <SectionHeading
+        title="🚩 Top cluster-wide issues"
+        description="Prioritised by the share of negative mentions among aspects classified as market-wide."
+      />
       {marketWide.length === 0 ? (
         <Info>
           No aspect is flagged market-wide — problems look property-specific, not destination-wide.
@@ -58,22 +88,27 @@ export default function DestinationPage() {
         </>
       )}
 
-      <h2>Negative share by aspect</h2>
-      <Plot
-        height={Math.max(320, 60 + 38 * ordered.length)}
-        data={[
-          {
-            type: "bar",
-            orientation: "h",
-            x: ordered.map((d) => d.pct_negative),
-            y: ordered.map((d) => d.aspect),
-            marker: { color: ordered.map((d) => SCOPE_COLORS[d.scope] ?? COLORS.muted) },
-            customdata: ordered.map((d) => [d.scope, d.n]),
-            hovertemplate: "%{y}<br>negative %{x:.0%}<br>%{customdata[0]} · n=%{customdata[1]}<extra></extra>",
-          },
-        ]}
-        layout={{ xaxis: { title: "share of reviews negative", tickformat: ".0%" }, yaxis: { title: "" } }}
+      <SectionHeading
+        title="Negative share by aspect"
+        description="Use scope colour together with the rate to distinguish severity from breadth."
       />
+      <div className="chart-panel">
+        <Plot
+          height={Math.max(320, 60 + 38 * ordered.length)}
+          data={[
+            {
+              type: "bar",
+              orientation: "h",
+              x: ordered.map((d) => d.pct_negative),
+              y: ordered.map((d) => d.aspect),
+              marker: { color: ordered.map((d) => SCOPE_COLORS[d.scope] ?? COLORS.muted) },
+              customdata: ordered.map((d) => [d.scope, d.n]),
+              hovertemplate: "%{y}<br>negative %{x:.0%}<br>%{customdata[0]} · n=%{customdata[1]}<extra></extra>",
+            },
+          ]}
+          layout={{ xaxis: { title: "share of reviews negative", tickformat: ".0%" }, yaxis: { title: "" } }}
+        />
+      </div>
       <p className="caption">
         Bar colour encodes scope: navy = market-wide, amber = property-specific, grey = undetermined,
         teal = stable.

@@ -3,6 +3,47 @@
 // Small shared UI pieces: SYNTHETIC banner, states, CSV download, generic table.
 import { useData } from "@/lib/data";
 
+export function PageIntro({
+  eyebrow,
+  icon,
+  title,
+  description,
+}: {
+  eyebrow: string;
+  icon: string;
+  title: string;
+  description: React.ReactNode;
+}) {
+  return (
+    <header className="page-heading">
+      <div className="page-heading-copy">
+        <div className="eyebrow">
+          <span aria-hidden>{icon}</span> {eyebrow}
+        </div>
+        <h1>{title}</h1>
+        <p className="page-subtitle">{description}</p>
+      </div>
+    </header>
+  );
+}
+
+export function SectionHeading({
+  title,
+  description,
+}: {
+  title: string;
+  description?: React.ReactNode;
+}) {
+  return (
+    <div className="section-heading">
+      <div>
+        <h2>{title}</h2>
+        {description ? <p className="section-description">{description}</p> : null}
+      </div>
+    </div>
+  );
+}
+
 export function SyntheticBanner() {
   const { data } = useData();
   if (!data) return null;
@@ -11,8 +52,13 @@ export function SyntheticBanner() {
   }
   return (
     <div className="banner" role="status">
-      🧪 <strong>SYNTHETIC DATA</strong> — {data.meta.source_name}. Figures below describe
-      generated reviews, not real properties.
+      <span className="banner-icon" aria-hidden>
+        ✦
+      </span>
+      <span>
+        <strong>SYNTHETIC DATA</strong> · {data.meta.source_name}. Figures describe generated reviews,
+        not real properties.
+      </span>
     </div>
   );
 }

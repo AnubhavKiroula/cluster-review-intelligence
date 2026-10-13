@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useData } from "@/lib/data";
 
 const LINKS = [
   { href: "/", label: "Home", icon: "🏔️" },
@@ -14,23 +15,43 @@ const LINKS = [
 
 export default function Nav() {
   const pathname = usePathname();
+  const { data } = useData();
   return (
     <nav className="nav">
       <div className="nav-brand">
-        <span aria-hidden>🏔️</span> Cluster Review Intelligence
+        <div className="brand-mark" aria-hidden>
+          ◒
+        </div>
+        <div>
+          <div className="brand-title">Cluster Review</div>
+          <div className="brand-subtitle">Intelligence workspace</div>
+        </div>
       </div>
+      <div className="nav-section-label">Workspace</div>
       <ul className="nav-links">
         {LINKS.map((l) => {
           const active = l.href === "/" ? pathname === "/" : pathname.startsWith(l.href);
           return (
             <li key={l.href}>
               <Link href={l.href} className={active ? "nav-link active" : "nav-link"}>
-                <span aria-hidden>{l.icon}</span> {l.label}
+                <span className="nav-icon" aria-hidden>
+                  {l.icon}
+                </span>
+                {l.label}
               </Link>
             </li>
           );
         })}
       </ul>
+      <div className="nav-footer">
+        <div className="workspace-card">
+          <span className="status-dot" aria-hidden />
+          <div>
+            <strong>{data?.meta.is_synthetic ? "Synthetic workspace" : "Connected workspace"}</strong>
+            <small>{data ? `${data.meta.properties.length} properties · ${data.meta.n_reviews.toLocaleString()} reviews` : "Loading cluster snapshot…"}</small>
+          </div>
+        </div>
+      </div>
     </nav>
   );
 }

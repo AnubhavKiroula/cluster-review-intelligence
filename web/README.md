@@ -4,6 +4,11 @@ A static Next.js (App Router + TypeScript) dashboard. It reads a **static JSON s
 exported from the Python `cri.api` core — there is **no backend at runtime**, so the whole
 thing deploys as static files (Vercel, Netlify, GitHub Pages, any static host).
 
+The interface is organised as a decision workspace: a property scorecard for operational
+action, a cluster benchmark for comparison, a market diagnosis for scope, a destination view
+for tourism boards, and an evidence explorer for auditability. Shared navigation, signal tiles,
+chart panels, and responsive layouts keep the experience consistent across every route.
+
 > This is an alternative frontend to the Streamlit app in `../app/`, which remains the
 > reference implementation. All numbers come from the same audited `cri.api` (CLAUDE.md
 > rule 1); the snapshot is clearly SYNTHETIC (`cluster.synthetic.json`, rule 2).
@@ -28,6 +33,9 @@ cd web
 npm install
 npm run dev          # http://localhost:3000
 ```
+
+The default snapshot is labelled **SYNTHETIC** in both the filename and the interface. It is
+fictional data for demonstrating the product flow, not a claim about real properties.
 
 ## Build a static site
 

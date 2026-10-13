@@ -3,7 +3,16 @@
 import { useMemo } from "react";
 import Plot from "@/components/Plot";
 import { fmtPct, useData } from "@/lib/data";
-import { DownloadCsv, ErrorState, Info, Loading, SyntheticBanner, Table } from "@/components/ui";
+import {
+  DownloadCsv,
+  ErrorState,
+  Info,
+  Loading,
+  PageIntro,
+  SectionHeading,
+  SyntheticBanner,
+  Table,
+} from "@/components/ui";
 import { COLORS, SCOPE_COLORS } from "@/lib/theme";
 
 export default function MarketPage() {
@@ -50,36 +59,61 @@ export default function MarketPage() {
   if (error) return <ErrorState message={error} />;
   if (!data) return <Loading />;
 
+  const marketWideCount = data.market_scope.filter((row) => row.scope === "market-wide").length;
+  const propertySpecificCount = data.market_scope.filter((row) => row.scope === "property-specific").length;
+
   return (
     <>
-      <h1>⚖️ Market-wide vs property-specific</h1>
+      <PageIntro
+        eyebrow="Market diagnosis"
+        icon="⚖️"
+        title="Market-wide vs property-specific"
+        description="Separate the issues a property can win on from the patterns that call for destination-level action."
+      />
       <SyntheticBanner />
-      <p className="lede">
-        The same low score means two different things. A <strong>property-specific</strong> gap is
-        one a hotel owns and can win on. A <strong>market-wide</strong> issue hits most of the
-        cluster — a destination problem, not a hotel one. <em>Same chart, two different actions.</em>
-      </p>
+      <div className="insight-strip">
+        <div className="insight-tile">
+          <div className="tile-label">Market-wide signals</div>
+          <div className="tile-value">{marketWideCount}</div>
+          <div className="tile-note">Patterns shared across the cluster</div>
+        </div>
+        <div className="insight-tile">
+          <div className="tile-label">Property-specific gaps</div>
+          <div className="tile-value">{propertySpecificCount}</div>
+          <div className="tile-note">Issues a property can act on</div>
+        </div>
+        <div className="insight-tile">
+          <div className="tile-label">Decision rule</div>
+          <div className="tile-value">Tested</div>
+          <div className="tile-note">Scope comes from statistical patterns</div>
+        </div>
+      </div>
 
       {!chart ? (
         <Info>No aspects show a negative shift to classify yet.</Info>
       ) : (
         <>
-          <Plot
-            height={520}
-            data={chart.traces}
-            layout={{
-              xaxis: { title: "share of properties affected", tickformat: ".0%", range: [-0.05, 1.05] },
-              yaxis: { title: "share of reviews negative", tickformat: ".0%" },
-              shapes: chart.shapes,
-            }}
-          />
+          <div className="chart-panel">
+            <Plot
+              height={520}
+              data={chart.traces}
+              layout={{
+                xaxis: { title: "share of properties affected", tickformat: ".0%", range: [-0.05, 1.05] },
+                yaxis: { title: "share of reviews negative", tickformat: ".0%" },
+                shapes: chart.shapes,
+              }}
+            />
+          </div>
           <p className="caption">
             Dotted lines: half the cluster (vertical) and the cluster&apos;s average negative rate
             (horizontal). Top-right = broad and severe (market-wide); left = property-specific.{" "}
             <code>undetermined</code> = too few properties review the aspect to tell.
           </p>
 
-          <h2>Scope by aspect</h2>
+          <SectionHeading
+            title="Scope by aspect"
+            description="Each aspect is classified from the evidence across properties, not from chart position alone."
+          />
           <Table
             rows={data.market_scope}
             columns={[
