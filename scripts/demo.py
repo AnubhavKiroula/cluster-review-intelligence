@@ -1,6 +1,6 @@
 """Judge demo facts: every number docs/DEMO.md quotes, printed from the SYNTHETIC sample.
 
-Run: ``python scripts/demo.py`` (same data as the dashboard's default source).
+Run: ``python scripts/demo.py`` (the same data as the web app's snapshot).
 """
 
 import sys
@@ -35,23 +35,26 @@ def main() -> None:
     for prop in ("Property F", "Property I"):
         actions = api.priority_actions(d, prop)
         print(f"2. {prop} - fix this first:")
-        print(actions[["aspect", "gap", "started", "rationale"]].to_string(index=False)
+        cols = ["aspect", "gap", "started", "whose_problem", "whose_detail"]
+        print(actions[cols].to_string(index=False)
               if not actions.empty else "   (nothing flagged)", "\n")
+    room = api.priority_actions(d, "Property D").set_index("aspect").loc["Room"]
+    print(f"2b. Property D, Room - {room['whose_problem']}: {room['whose_detail']}\n")
 
     print("3. Market-wide vs property-specific:")
     scope = api.market_scope(d)[["aspect", "scope", "n_properties", "pattern"]]
     print(scope.to_string(index=False), "\n")
 
-    print("4. Live Hinglish/Devanagari examples (explorer 'Try your own review'):")
+    print("4. Did my fix work? Property A, Room, 2025-12 (a December renovation):")
+    fix = api.intervention_check(d, "Property A", "Room", "2025-12")
+    print(f"   plain before/after {fix['naive_delta']:+.2f}, market {fix['market_delta']:+.2f}, "
+          f"relative to the market {fix['effect']:+.2f} -> {fix['verdict']}\n")
+
+    print("5. Live Hinglish/Devanagari examples (explorer 'Try your own review'):")
     for text in LIVE_EXAMPLES:
         found = api.classify_text(text)
         pairs = zip(found["aspect"], found["sentiment"], strict=True)
         print(f"   {text}  ->  " + ", ".join(f"{a} {s:+d}" for a, s in pairs))
-    print()
-
-    print("5. Destination view (tourism board):")
-    dest = api.destination_summary(d)[["aspect", "cluster_mean", "pct_negative", "scope"]]
-    print(dest.to_string(index=False))
 
 
 if __name__ == "__main__":
