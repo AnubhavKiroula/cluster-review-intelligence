@@ -24,7 +24,7 @@ jobs:
       # All actions pinned by commit SHA (verified via the GitHub API against the
       # tagged release). Usage follows the official ossf/scorecard-action README.
       - name: Harden the runner
-        uses: step-security/harden-runner@91182cccc01eb5e619899d80e4e971d6181294a7 # v2.10.1
+        uses: step-security/harden-runner@ccd8616d44fd3846e67624a50d5aad6d37bf2d25 # v2.22.1
         with:
           egress-policy: audit
 
