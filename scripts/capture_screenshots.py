@@ -9,7 +9,8 @@ Not a project dependency - a one-off tool:
     python scripts/capture_screenshots.py --channel chrome
 
 Each page is captured once its data has rendered, so the images show exactly what a
-visitor sees (SYNTHETIC banner included). Only the explorer's live classification
+visitor sees. (The on-page SYNTHETIC banner is hidden for now; the files keep the
+_SYNTHETIC suffix.) Only the explorer's live classification
 needs the API; port 3000 matches its default CORS origin.
 """
 

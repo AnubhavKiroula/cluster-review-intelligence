@@ -78,7 +78,7 @@ no NaN in JSON (it becomes `null`).
 | ID | Requirement | How met |
 |---|---|---|
 | NFR-HON-1 | No fabricated results; unknowns are `TBD` | TODO_RESULTS.md; demo claims pinned by `tests/test_demo.py` |
-| NFR-HON-2 | SYNTHETIC data labelled in filenames, figures and UI | `synthetic` in snapshot filenames; banner on every page; `test_default_load_is_labelled_synthetic` |
+| NFR-HON-2 | SYNTHETIC data labelled in filenames, figures and UI | `synthetic` in snapshot filenames; banner on every page (**hidden in the web app for now**, see TODO_RESULTS.md); `test_default_load_is_labelled_synthetic` |
 | NFR-HON-3 | A market-wide label is never shown as a property's verdict without a per-property test | FR-P2 tests |
 | NFR-STAT-1 | False alarms controlled: FDR q = 0.05 per test family | `test_null_data_has_no_changepoints_or_market_patterns`, calibration (1/20 pattern-free seeds with a false alarm) |
 | NFR-SEC-1 | No secrets in git; config by env vars | `.env.example`, `.gitignore` |
