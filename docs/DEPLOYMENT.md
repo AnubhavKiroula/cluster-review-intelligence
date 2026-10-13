@@ -79,17 +79,38 @@ Then record the URL in `README.md`, `docs/DEMO.md` and `docs/TODO_RESULTS.md`
 
 ## The API (`cri.server`, optional)
 
-Any Python host that can run a long-lived web process (for example Render, Railway,
-Fly.io, a small VM). Not yet deployed; URL `TBD`. Verified locally only.
+Any Python host that runs a long-lived web process. `render.yaml` in the repo root is
+a Render blueprint for exactly this service; the same three settings work anywhere.
 
 - Python **3.12** (the pinned `numpy==1.26.2` has no Python 3.13 wheels).
-- Install: `pip install -e ".[api]"` from the repo root.
+- Build: `pip install ".[api]"` from the repo root (a plain, non-editable install;
+  the wheel carries `resources/*.yaml`, which the classifier loads at import).
 - Start: `uvicorn cri.server:app --host 0.0.0.0 --port $PORT`.
 - Environment: `CRI_API_CORS_ORIGINS=https://<your-site>` (comma-separate several).
   Optional `CRI_MODEL_BACKEND` (default `rule`).
 - Health check: `GET /health` returns `{"status": "ok", "classifier": "rule"}`.
 - Start-up loads no review data (the classifier is built on the first request), so
   the process stays small.
+
+### Render (free plan)
+
+1. <https://render.com> -> sign in with GitHub -> **New -> Web Service** -> pick
+   `PxA-Labs/cluster-review-intelligence`, branch `main`, root directory blank.
+2. Language **Python 3**; build `pip install ".[api]"`; start
+   `uvicorn cri.server:app --host 0.0.0.0 --port $PORT`; instance type **Free**.
+3. Environment variables: `PYTHON_VERSION=3.12.10` and
+   `CRI_API_CORS_ORIGINS=https://cluster-review-intelligence.vercel.app`.
+4. Deploy, then check `https://<service>.onrender.com/health`.
+5. On Vercel set `NEXT_PUBLIC_API_BASE_URL` to that URL and **redeploy**: the site
+   bakes it in at build time, so changing it alone does nothing.
+
+Free instances spin down after about 15 minutes idle and take roughly a minute to
+wake, so open `/health` a minute before a live demo. No card is required and the
+plan allows 750 instance-hours per month; re-check Render's current terms.
+
+Verified locally only: wheel build carries the YAML resources, and `/health` plus
+`/reviews/classify` answer correctly (`Khana accha tha lekin kamra ganda tha.` ->
+Food +1, Room -1, Cleanliness -1). The Render deploy itself is `TBD` until it runs.
 
 After deploying both pieces, `<site>/explorer/` → *Try your own review* →
 `Khana accha tha lekin kamra ganda tha.` shows Food +1, Room −1, Cleanliness −1.
