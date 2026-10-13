@@ -4,11 +4,15 @@
 //   deodar  = better / leads the cluster        buransh = worse / yours alone
 //   slate   = the market, everyone's            stone   = neutral, on par, not tested
 //   marigold = your neighbourhood's (a decline shared by nearby properties)
-// HTML takes colours from the CSS variables in globals.css (which switch with
-// prefers-color-scheme). Plotly needs literal colours, so charts read the matching
-// palette here through usePalette(). Keep the two in step; contrast is documented in
-// web/README.md.
-import { useEffect, useState } from "react";
+// HTML takes colours from the CSS variables in globals.css; Plotly needs literal
+// colours, so charts read the matching palette here through usePalette(). Keep the two
+// in step; contrast is documented in web/README.md.
+//
+// Which of the two applies is the *resolved* scheme: the reader's explicit choice if
+// they made one (stored under THEME_KEY and mirrored onto <html data-theme>), else the
+// device setting. CSS and charts resolve it the same way, so they can never disagree.
+import { useCallback, useSyncExternalStore } from "react";
+import { THEME_KEY } from "@/lib/theme-boot";
 
 const LIGHT = {
   ink: "#1F2D27",
@@ -47,17 +51,102 @@ export type Palette = typeof LIGHT;
 
 const DARK_QUERY = "(prefers-color-scheme: dark)";
 
-/** The chart palette for the viewer's colour scheme; follows changes live. */
-export function usePalette(): Palette {
-  const [dark, setDark] = useState(false);
-  useEffect(() => {
-    const mq = window.matchMedia(DARK_QUERY);
-    const update = () => setDark(mq.matches);
-    update();
-    mq.addEventListener("change", update);
-    return () => mq.removeEventListener("change", update);
+/** "system" follows the device; the other two are the reader's explicit choice. */
+export type ThemeMode = "system" | "light" | "dark";
+export type Scheme = "light" | "dark";
+
+// The key lives in lib/theme-boot.ts, which the pre-paint script also reads; see the
+// note there for why it cannot live in this ("use client") module.
+export { THEME_KEY } from "@/lib/theme-boot";
+
+const isMode = (v: unknown): v is ThemeMode => v === "system" || v === "light" || v === "dark";
+
+function storedMode(): ThemeMode {
+  if (typeof window === "undefined") return "system";
+  try {
+    const v = window.localStorage.getItem(THEME_KEY);
+    return isMode(v) ? v : "system";
+  } catch {
+    // Private mode or blocked storage: fall back to the device setting.
+    return "system";
+  }
+}
+
+// One store for the whole page, so the stylesheet, the charts and the toggle button
+// always read the same scheme. Subscribers are notified on an explicit choice and on
+// a device change.
+const listeners = new Set<() => void>();
+const announce = () => listeners.forEach((l) => l());
+
+function subscribe(listener: () => void): () => void {
+  listeners.add(listener);
+  const mq = typeof window === "undefined" ? null : window.matchMedia(DARK_QUERY);
+  mq?.addEventListener("change", announce);
+  return () => {
+    listeners.delete(listener);
+    mq?.removeEventListener("change", announce);
+  };
+}
+
+/** The scheme actually in force, as CSS resolves it. */
+function resolved(): Scheme {
+  if (typeof window === "undefined") return "light";
+  const mode = storedMode();
+  if (mode !== "system") return mode;
+  return window.matchMedia(DARK_QUERY).matches ? "dark" : "light";
+}
+
+// The server renders no theme, so both snapshots start light and the first client
+// render corrects them. The inline script has already set <html data-theme>, so the
+// painted colours are right before React runs either way.
+const serverScheme = (): Scheme => "light";
+const serverMode = (): ThemeMode => "system";
+
+export function useScheme(): Scheme {
+  return useSyncExternalStore(subscribe, resolved, serverScheme);
+}
+
+/** The reader's choice, and a setter that persists it and repaints the page. */
+export function useThemeMode(): { mode: ThemeMode; scheme: Scheme; setMode: (m: ThemeMode) => void } {
+  const mode = useSyncExternalStore(subscribe, storedMode, serverMode);
+  const scheme = useScheme();
+  const setMode = useCallback((next: ThemeMode) => {
+    try {
+      if (next === "system") window.localStorage.removeItem(THEME_KEY);
+      else window.localStorage.setItem(THEME_KEY, next);
+    } catch {
+      // Unstorable choice still applies to this page view.
+    }
+    applyMode(next);
+    announce();
   }, []);
-  return dark ? DARK : LIGHT;
+  return { mode, scheme, setMode };
+}
+
+/** Mirror the mode onto <html> for CSS, and onto the browser chrome colour.
+ *
+ * app/layout.tsx emits one theme-color meta per scheme, so a reader without
+ * JavaScript still gets a matching browser chrome. An explicit choice appends a
+ * single unconditional meta, which browsers prefer because it comes last; choosing
+ * "Auto" removes it and hands the two media metas back. */
+export function applyMode(mode: ThemeMode): void {
+  const root = document.documentElement;
+  if (mode === "system") root.removeAttribute("data-theme");
+  else root.setAttribute("data-theme", mode);
+
+  const OVERRIDE = "data-cri-theme-color";
+  document.querySelector(`meta[${OVERRIDE}]`)?.remove();
+  if (mode === "system") return;
+  const meta = document.createElement("meta");
+  meta.name = "theme-color";
+  meta.content = mode === "dark" ? DARK.paper : LIGHT.paper;
+  meta.setAttribute(OVERRIDE, "");
+  document.head.append(meta);
+}
+
+/** The chart palette for the scheme in force; follows changes live. */
+export function usePalette(): Palette {
+  return useScheme() === "dark" ? DARK : LIGHT;
 }
 
 export const flagColors = (c: Palette): Record<string, string> => ({

@@ -18,6 +18,7 @@ import {
   signed,
   Table,
   WhosePill,
+  ZoneRule,
 } from "@/components/ui";
 import { flagColors, FLAG_VARS, usePalette } from "@/lib/theme";
 
@@ -276,6 +277,8 @@ export default function PropertyPage() {
         </section>
       )}
 
+      <ZoneRule label="The evidence" />
+
       {actions.length > 0 && (
         <>
           <SectionHeading
@@ -312,7 +315,10 @@ export default function PropertyPage() {
       )}
       {shared.length > 0 && (
         <aside className="note">
-          <h3>Also hitting you, but market-wide</h3>
+          {/* A sibling of this page's other sections, so h2: with no priority actions
+              above it, an h3 here skipped a level. The market page's note is nested
+              inside a section and correctly stays an h3. */}
+          <h2>Also hitting you, but market-wide</h2>
           <p>
             {shared.map((s) => `${s.aspect}: ${s.pattern}`).join("; ")}. Most of the cluster shares
             this, so it is not a gap against your competitors. See{" "}

@@ -1,8 +1,11 @@
 "use client";
 
 import Link from "next/link";
+import HeroFigure from "@/components/HeroFigure";
 import { fmtPct, useData, type Snapshot } from "@/lib/data";
-import { ChangeSplit, ErrorState, Loading, WhosePill } from "@/components/ui";
+import { useStaggerIn } from "@/lib/motion";
+import { WHOSE_VARS } from "@/lib/theme";
+import { ChangeSplit, Counter, ErrorState, Loading, WhosePill, ZoneRule } from "@/components/ui";
 
 const TOOLS = [
   {
@@ -35,44 +38,61 @@ function ownProblemExample(data: Snapshot) {
     const top = pd.priority_actions[0];
     if (!top || top.whose_problem !== "yours alone" || !top.started) continue;
     const cp = pd.changepoints.find((c) => c.aspect === top.aspect && c.change_month === top.started);
-    if (cp) return { property: p, top, cp };
+    if (cp) return { property: p, top, cp, trend: pd.trends[top.aspect] ?? [] };
   }
   return null;
 }
 
+/** The colour of the verdict a case carries, on the rule at its head. */
+const tone = (whose: string) => ({ "--tone": WHOSE_VARS[whose] ?? "var(--stone)" }) as React.CSSProperties;
+
 export default function Home() {
   const { data, error } = useData();
+  // The three cases are the one group on the site that is revealed on scroll.
+  const casesRef = useStaggerIn<HTMLElement>();
+
   if (error) return <ErrorState message={error} />;
   if (!data) return <Loading />;
   const headline = data.market_headline;
   const own = ownProblemExample(data);
   const hood = data.neighbourhoods[0];
+  const hasFigure = own != null && own.trend.length > 1;
 
   return (
     <>
-      <section className="home-hero">
-        <h1>Your reviews got worse. Is it your property, your street, or the whole market?</h1>
-        <p className="lede">
-          One property&apos;s reviews cannot answer that. A December dip that hits every hotel in a
-          hill town needs a different response from a kitchen problem only you have. Compare
-          yourself with your cluster and the two separate.
-        </p>
-        <div className="hero-actions">
-          <Link className="btn btn-primary" href="/property">
-            Open your property
-          </Link>
-          <Link className="btn btn-quiet" href="/market">
-            See what the market shares
-          </Link>
+      <section className={hasFigure ? "home-hero" : "home-hero solo"}>
+        <div>
+          <h1>Your reviews got worse. Is it your property, your street, or the whole market?</h1>
+          <p className="lede">
+            One property&apos;s reviews cannot answer that. A December dip that hits every hotel in a
+            hill town needs a different response from a kitchen problem only you have. Compare
+            yourself with your cluster and the two separate.
+          </p>
+          <div className="hero-actions">
+            <Link className="btn btn-primary" href="/property">
+              Open your property
+            </Link>
+            <Link className="btn btn-quiet" href="/market">
+              See what the market shares
+            </Link>
+          </div>
         </div>
+        {hasFigure && own && (
+          <HeroFigure
+            property={own.property}
+            aspect={own.top.aspect}
+            trend={own.trend}
+            changepoint={own.cp}
+            synthetic={data.meta.is_synthetic}
+          />
+        )}
       </section>
 
-      <section className="contrast" aria-labelledby="contrast-title">
-        <h2 id="contrast-title" className="visually-hidden">
-          Two declines, two owners
-        </h2>
+      <ZoneRule heading id="contrast-title" label="Three declines, three different answers" />
+
+      <section className="contrast" aria-labelledby="contrast-title" ref={casesRef}>
         {own && (
-          <article className="contrast-case">
+          <article className="contrast-case" style={tone(own.top.whose_problem)}>
             <header>
               <h3>
                 {own.property}: {own.top.aspect} since {own.top.started}
@@ -98,14 +118,17 @@ export default function Home() {
           </article>
         )}
         {headline && (
-          <article className="contrast-case">
+          <article className="contrast-case" style={tone("everyone's")}>
             <header>
               <h3>Every property: {headline.aspect}</h3>
               <WhosePill value="everyone's" />
             </header>
             <p className="contrast-figure">
-              <span>{fmtPct(headline.pct_negative)}</span> of {headline.aspect.toLowerCase()}{" "}
-              mentions are negative across {headline.n_properties_reviewed} properties.
+              <span>
+                <Counter value={headline.pct_negative} format={(v) => fmtPct(v)} />
+              </span>{" "}
+              of {headline.aspect.toLowerCase()} mentions are negative across{" "}
+              {headline.n_properties_reviewed} properties.
             </p>
             <p>
               Pattern: {headline.pattern}. The whole cluster shares it, so it is not a gap against
@@ -115,7 +138,7 @@ export default function Home() {
           </article>
         )}
         {hood && (
-          <article className="contrast-case">
+          <article className="contrast-case" style={tone("your neighbourhood's")}>
             <header>
               <h3>
                 {hood.n_members} neighbours: {hood.aspect} since {hood.change_month}

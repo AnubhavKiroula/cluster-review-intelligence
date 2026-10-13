@@ -7,6 +7,7 @@ import { fmtPct, syncQuery, useData } from "@/lib/data";
 import { nearestKm, positionsNote, statusFor } from "@/lib/geo";
 import {
   ChartNumbers,
+  Counter,
   DownloadCsv,
   ErrorState,
   Info,
@@ -14,8 +15,18 @@ import {
   PageHeader,
   SectionHeading,
   Table,
+  ZoneRule,
 } from "@/components/ui";
 import { SCOPE_VARS, scopeColors, usePalette } from "@/lib/theme";
+
+// The four scopes, in the order the reader should weigh them: shared by everyone
+// first, one property's own last.
+const COUNTED: [string, string][] = [
+  ["market-wide", "Shared across the market"],
+  ["neighbourhood-wide", "Shared by one neighbourhood"],
+  ["property-specific", "Belong to one property"],
+  ["undetermined", "Too few properties to tell"],
+];
 
 // Shape as well as colour tells the scopes apart.
 const SCOPE_SYMBOLS: Record<string, string> = {
@@ -115,31 +126,30 @@ export default function MarketPage() {
             {headline.aspect} is the market&apos;s biggest problem, not any one property&apos;s
           </h2>
           <p className="contrast-figure">
-            <span>{fmtPct(headline.pct_negative)}</span> of {headline.aspect.toLowerCase()} mentions
-            are negative across {headline.n_properties_reviewed} properties.
+            <span>
+              <Counter value={headline.pct_negative} format={(v) => fmtPct(v)} />
+            </span>{" "}
+            of {headline.aspect.toLowerCase()} mentions are negative across{" "}
+            {headline.n_properties_reviewed} properties.
           </p>
           <p>Pattern: {headline.pattern}.</p>
         </section>
       )}
 
+      {/* Four counts of aspects, by who owns the decline. Each takes the colour it
+          carries everywhere else on the site, on the rule above it as well as in the
+          figure. Not counted up: these are single digits, where a count would be
+          motion without a quantity behind it. */}
       <dl className="counts">
-        <div>
-          <dt>Shared across the market</dt>
-          <dd style={{ color: SCOPE_VARS["market-wide"] }}>{count("market-wide")}</dd>
-        </div>
-        <div>
-          <dt>Shared by one neighbourhood</dt>
-          <dd style={{ color: SCOPE_VARS["neighbourhood-wide"] }}>{count("neighbourhood-wide")}</dd>
-        </div>
-        <div>
-          <dt>Belong to one property</dt>
-          <dd style={{ color: SCOPE_VARS["property-specific"] }}>{count("property-specific")}</dd>
-        </div>
-        <div>
-          <dt>Too few properties to tell</dt>
-          <dd>{count("undetermined")}</dd>
-        </div>
+        {COUNTED.map(([scope, label]) => (
+          <div key={scope} style={{ "--tone": SCOPE_VARS[scope] ?? "var(--stone)" } as React.CSSProperties}>
+            <dt>{label}</dt>
+            <dd>{count(scope)}</dd>
+          </div>
+        ))}
       </dl>
+
+      <ZoneRule label="Where it comes from" />
 
       {data.locations.length > 0 && mapAspect && (
         <section aria-labelledby="where-title">

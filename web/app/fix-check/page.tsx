@@ -13,6 +13,7 @@ import {
   PageHeader,
   SectionHeading,
   signed,
+  ZoneRule,
 } from "@/components/ui";
 import { usePalette } from "@/lib/theme";
 
@@ -199,6 +200,8 @@ export default function FixCheckPage() {
           }
         />
       )}
+
+      <ZoneRule label="The evidence" />
 
       <SectionHeading
         title="Before and after"

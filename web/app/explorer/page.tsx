@@ -6,6 +6,7 @@ import { syncQuery, useData, type Mention, type Review } from "@/lib/data";
 import {
   DownloadCsv,
   ErrorState,
+  Highlight,
   Info,
   Loading,
   PageHeader,
@@ -183,6 +184,8 @@ export default function ExplorerPage() {
           <Table
             caption="Matching review clauses"
             rows={rows.slice(0, shown)}
+            // Hundreds of rows: cap the height so the column names stay in view.
+            tall
             columns={[
               { key: "date", label: "Date", render: (r) => <span className="nowrap">{r.date.slice(0, 10)}</span> },
               { key: "property_id", label: "Property", render: (r) => <span className="nowrap">{r.property_id}</span> },
@@ -190,8 +193,20 @@ export default function ExplorerPage() {
               { key: "rating", label: "Rating", align: "right" },
               { key: "aspect", label: "Aspect", render: (r) => r.aspect || "—" },
               { key: "sentiment", label: "Sentiment", render: (r) => <SentimentTag value={r.sentiment} /> },
-              { key: "sentence", label: "Matched clause", wide: true },
-              { key: "text", label: "Full review", wide: true },
+              // The searched phrase is marked where it landed, so the reader does not
+              // have to find it in the clause themselves.
+              {
+                key: "sentence",
+                label: "Matched clause",
+                wide: true,
+                render: (r) => <Highlight text={r.sentence} query={deferredQuery} />,
+              },
+              {
+                key: "text",
+                label: "Full review",
+                wide: true,
+                render: (r) => <Highlight text={r.text} query={deferredQuery} />,
+              },
             ]}
           />
           <div className="table-actions">

@@ -1,9 +1,19 @@
 /* Cluster Review Intelligence: one stylesheet, no framework.
+
    Palette from the Uttarakhand hills, light and dark (same values as lib/theme.ts):
      deodar  = better / ahead of the cluster   buransh (rhododendron) = worse / yours alone
      slate   = the market, everyone's          stone = neutral, on par, not tested
      marigold = your neighbourhood's (a decline shared by nearby properties)
-   Type: Source Serif 4 for headings, Public Sans for everything else (next/font). */
+   The palette is measured against WCAG 2.2 AA (web/README.md) and is unchanged here.
+
+   Type: Literata for headings and the figures that carry a verdict, IBM Plex Sans for
+   the interface and the numbers, IBM Plex Sans Devanagari behind it for Hindi review
+   text (next/font, app/layout.tsx).
+
+   Layout idea: every page is two zones. The *verdict* is roomy, set in the serif, and
+   the one place allowed elevation and load motion. The *evidence* under it is dense,
+   flat and tabular. The rule between them is labelled, so a reader always knows which
+   of the two they are reading. */
 
 :root {
   color-scheme: light;
@@ -28,8 +38,40 @@
   --strip-bg: #4a6386;
   --strip-fg: #f1f4f9;
 
-  --font-body: var(--font-sans), "Segoe UI", system-ui, -apple-system, sans-serif;
+  /* The verdict card is the only elevated surface on the site. */
+  --lift: 0 1px 2px rgba(31, 45, 39, 0.04), 0 8px 24px -12px rgba(31, 45, 39, 0.18);
+  /* Skeletons and the hero's shaded gap: tone without a new hue. */
+  --wash: rgba(74, 99, 134, 0.08);
+
+  --font-body: var(--font-sans), var(--font-devanagari), "Segoe UI", system-ui, -apple-system,
+    sans-serif;
   --font-head: var(--font-serif), Georgia, "Times New Roman", serif;
+
+  /* Type scale, used instead of ad-hoc sizes. */
+  --t-12: 0.75rem;
+  --t-13: 0.8125rem;
+  --t-15: 0.9375rem;
+  --t-16: 1rem;
+  --t-18: 1.125rem;
+  --t-21: 1.3125rem;
+  --t-26: 1.625rem;
+  --t-32: 2rem;
+
+  /* The dense end of the spacing scale: this is a dashboard, not a brochure. */
+  --s1: 4px;
+  --s2: 8px;
+  --s3: 12px;
+  --s4: 16px;
+  --s5: 24px;
+  --s6: 32px;
+  --s7: 48px;
+  --s8: 64px;
+
+  /* Durations are chosen per distance, not copied from one token. */
+  --m-fast: 120ms;
+  --m-base: 200ms;
+  --m-slow: 320ms;
+  --ease: cubic-bezier(0.2, 0.7, 0.3, 1);
 
   --measure: 68ch;
   --page: 1120px;
@@ -38,9 +80,12 @@
 }
 
 /* Dark: lighter, slightly desaturated tones on deep pine. Every pair is measured to the
-   same WCAG AA targets as the light palette (web/README.md). */
+   same WCAG AA targets as the light palette (web/README.md).
+
+   Applied for the device setting unless the reader chose light, and always when they
+   chose dark. The two blocks must hold the same values. */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]) {
     color-scheme: dark;
     --ink: #e3e9e5;
     --muted: #a4b1aa;
@@ -62,7 +107,35 @@
     --on-deodar: #0f1a15;
     --strip-bg: #2b3a52;
     --strip-fg: #e8edf6;
+    --lift: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px -12px rgba(0, 0, 0, 0.6);
+    --wash: rgba(147, 169, 204, 0.12);
   }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --ink: #e3e9e5;
+  --muted: #a4b1aa;
+  --paper: #1b2420;
+  --mist: #121915;
+  --panel: #222d28;
+  --grid: #2b3631;
+  --line: #3b4842;
+  --deodar: #74b8a0;
+  --deodar-deep: #95cbb7;
+  --buransh: #f0789f;
+  --slate: #93a9cc;
+  --stone: #8d9993;
+  --marigold: #e2b24e;
+  --deodar-tint: #1c352c;
+  --buransh-tint: #3b1c29;
+  --slate-tint: #222e40;
+  --marigold-tint: #382d17;
+  --on-deodar: #0f1a15;
+  --strip-bg: #2b3a52;
+  --strip-fg: #e8edf6;
+  --lift: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px -12px rgba(0, 0, 0, 0.6);
+  --wash: rgba(147, 169, 204, 0.12);
 }
 
 *,
@@ -80,7 +153,7 @@ body {
   background: var(--mist);
   color: var(--ink);
   font-family: var(--font-body);
-  font-size: 16px;
+  font-size: var(--t-16);
   line-height: 1.55;
   font-variant-numeric: tabular-nums;
   text-rendering: optimizeLegibility;
@@ -106,6 +179,7 @@ a {
   color: var(--deodar);
   text-decoration-thickness: 1px;
   text-underline-offset: 3px;
+  transition: color var(--m-fast) var(--ease);
 }
 
 a:hover {
@@ -156,17 +230,18 @@ summary {
 
 .skip-link {
   position: absolute;
-  left: 8px;
+  left: var(--s2);
   top: -48px;
   z-index: 20;
-  padding: 8px 12px;
+  padding: var(--s2) var(--s3);
   background: var(--ink);
   color: var(--paper);
   border-radius: var(--radius);
+  transition: top var(--m-base) var(--ease);
 }
 
 .skip-link:focus {
-  top: 8px;
+  top: var(--s2);
 }
 
 /* --- Site chrome ------------------------------------------------------------------ */
@@ -174,12 +249,12 @@ summary {
 .source-strip {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px 12px;
+  gap: var(--s1) var(--s3);
   margin: 0;
   padding: 7px var(--gutter);
   background: var(--strip-bg);
   color: var(--strip-fg);
-  font-size: 13px;
+  font-size: var(--t-13);
 }
 
 .synthetic-strip strong {
@@ -187,7 +262,13 @@ summary {
 }
 
 .site-header {
-  background: var(--paper);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  /* Translucent, so a long table reads as passing under the header rather than
+     stopping at it. */
+  background: color-mix(in srgb, var(--paper) 88%, transparent);
+  backdrop-filter: saturate(1.4) blur(8px);
   border-bottom: 1px solid var(--line);
 }
 
@@ -195,21 +276,22 @@ summary {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  justify-content: space-between;
-  gap: 8px 24px;
+  gap: var(--s2) var(--s5);
   max-width: var(--page);
   margin: 0 auto;
-  padding: 14px var(--gutter);
+  padding: var(--s3) var(--gutter);
 }
 
 .wordmark {
   display: inline-flex;
   align-items: center;
   gap: 10px;
+  margin-right: auto;
   color: var(--ink);
   font-family: var(--font-head);
-  font-size: 19px;
+  font-size: var(--t-18);
   font-weight: 600;
+  letter-spacing: -0.015em;
   text-decoration: none;
 }
 
@@ -217,10 +299,21 @@ summary {
   color: var(--ink);
 }
 
+/* The mark is the product in one glyph: a ridge line, and the line it parted from. */
 .wordmark-mark {
   width: 30px;
   height: 19px;
-  fill: var(--deodar);
+  overflow: visible;
+  fill: none;
+  stroke: var(--deodar);
+  stroke-width: 2;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.wordmark-mark .mark-split {
+  stroke: var(--buransh);
+  stroke-dasharray: 3 3;
 }
 
 .site-header nav {
@@ -231,42 +324,124 @@ summary {
 .nav-links {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px 22px;
+  gap: var(--s1) var(--s5);
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
 .nav-link {
+  position: relative;
   display: inline-block;
-  padding: 6px 0;
-  border-bottom: 2px solid transparent;
+  padding: var(--s2) 0;
   color: var(--muted);
-  font-size: 15px;
+  font-size: var(--t-15);
   font-weight: 500;
   text-decoration: none;
+  transition: color var(--m-fast) var(--ease);
+}
+
+/* The rule under the current page grows in from the left rather than appearing: it
+   answers the navigation the reader just performed. */
+.nav-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2px;
+  background: var(--deodar);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform var(--m-base) var(--ease);
 }
 
 .nav-link:hover {
   color: var(--ink);
-  border-bottom-color: var(--line);
+}
+
+.nav-link:hover::after {
+  background: var(--line);
+  transform: scaleX(1);
 }
 
 .nav-link.active {
   color: var(--ink);
-  border-bottom-color: var(--deodar);
+}
+
+.nav-link.active::after,
+.nav-link.active:hover::after {
+  background: var(--deodar);
+  transform: scaleX(1);
+}
+
+/* --- Colour scheme control -------------------------------------------------------- */
+.theme-toggle {
+  display: inline-flex;
+  padding: 2px;
+  background: var(--panel);
+  border: 1px solid var(--grid);
+  border-radius: 999px;
+}
+
+.theme-btn {
+  display: grid;
+  place-items: center;
+  min-width: 36px;
+  min-height: 36px;
+  padding: 0;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  color: var(--muted);
+  cursor: pointer;
+  touch-action: manipulation;
+  transition:
+    background var(--m-fast) var(--ease),
+    color var(--m-fast) var(--ease);
+}
+
+.theme-btn svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.theme-btn:hover {
+  color: var(--ink);
+}
+
+.theme-btn.on {
+  background: var(--paper);
+  border-color: var(--line);
+  color: var(--ink);
+}
+
+/* Fingers need more than a cursor does (WCAG 2.5.8). */
+@media (pointer: coarse) {
+  .theme-btn {
+    min-width: 44px;
+    min-height: 44px;
+  }
 }
 
 .main {
   max-width: var(--page);
   margin: 0 auto;
-  padding: 40px var(--gutter) 64px;
+  padding: var(--s6) var(--gutter) var(--s8);
+  /* The header is sticky: without this, "Skip to content" and any #anchor land
+     underneath it. */
+  scroll-margin-top: 96px;
 }
 
 .site-footer {
   border-top: 1px solid var(--line);
   color: var(--muted);
-  font-size: 13px;
+  font-size: var(--t-13);
 }
 
 .site-footer p {
@@ -277,50 +452,82 @@ summary {
 
 /* --- Page structure --------------------------------------------------------------- */
 .page-header {
-  margin-bottom: 32px;
+  margin-bottom: var(--s6);
 }
 
 .page-header h1 {
-  font-size: clamp(32px, 4.5vw, 44px);
+  font-size: clamp(2rem, 4.5vw, 2.75rem);
 }
 
 .lede {
   max-width: var(--measure);
   margin-top: 10px;
   color: var(--muted);
-  font-size: 18px;
+  font-size: var(--t-18);
 }
 
 .page-header .controls {
-  margin-top: 24px;
+  margin-top: var(--s5);
+}
+
+/* The labelled rule between a verdict and the evidence for it. Sentence case, set in
+   the serif: a signpost, not a tracked-out label. */
+.zone-rule {
+  display: flex;
+  align-items: center;
+  gap: var(--s4);
+  margin: var(--s8) 0 var(--s5);
+  color: var(--muted);
+  font-family: var(--font-head);
+  font-size: var(--t-15);
+  font-weight: 400;
+  letter-spacing: 0;
+}
+
+.home-hero + .zone-rule {
+  margin-top: 0;
+}
+
+.zone-rule::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--line);
 }
 
 .section-heading {
-  margin: 48px 0 14px;
+  margin: var(--s7) 0 var(--s4);
 }
 
 .section-heading h2 {
-  font-size: 24px;
+  font-size: var(--t-21);
 }
 
 .section-heading p {
   max-width: var(--measure);
-  margin-top: 4px;
+  margin-top: var(--s1);
   color: var(--muted);
+  font-size: var(--t-15);
+}
+
+/* Inside the evidence zone the first heading sits tight under the rule. */
+.zone-rule + .section-heading,
+.zone-rule + section > .section-heading:first-child {
+  margin-top: 0;
 }
 
 .caption {
   max-width: 90ch;
   margin-top: 10px;
   color: var(--muted);
-  font-size: 14px;
+  font-size: var(--t-13);
 }
 
 .key {
   display: inline-block;
   width: 10px;
   height: 10px;
-  margin: 0 2px 0 6px;
+  margin: 0 2px 0 var(--s2);
   border-radius: 2px;
   vertical-align: baseline;
 }
@@ -334,7 +541,7 @@ summary {
   display: flex;
   flex-wrap: wrap;
   align-items: flex-end;
-  gap: 14px 18px;
+  gap: var(--s3) var(--s4);
 }
 
 .field {
@@ -350,7 +557,7 @@ summary {
 
 .field label {
   color: var(--muted);
-  font-size: 14px;
+  font-size: var(--t-13);
   font-weight: 500;
 }
 
@@ -360,12 +567,15 @@ input[type="search"] {
   min-height: 42px;
   min-width: 190px;
   max-width: 100%;
-  padding: 8px 12px;
+  padding: var(--s2) var(--s3);
   background-color: var(--paper);
   color: var(--ink);
   /* Control borders need 3:1 against the field (WCAG 1.4.11); --line is for surfaces. */
   border: 1px solid var(--stone);
   border-radius: var(--radius);
+  transition:
+    border-color var(--m-fast) var(--ease),
+    box-shadow var(--m-fast) var(--ease);
 }
 
 input[type="text"],
@@ -378,10 +588,17 @@ input:hover {
   border-color: var(--ink);
 }
 
+select:focus-visible,
+input:focus-visible {
+  border-color: var(--slate);
+  box-shadow: 0 0 0 3px var(--slate-tint);
+}
+
 .standing {
   flex: 1 1 280px;
   padding-bottom: 10px;
   color: var(--muted);
+  font-size: var(--t-15);
 }
 
 .btn {
@@ -389,7 +606,7 @@ input:hover {
   align-items: center;
   justify-content: center;
   min-height: 42px;
-  padding: 8px 18px;
+  padding: var(--s2) var(--s4);
   border: 1px solid var(--line);
   border-radius: var(--radius);
   background: var(--paper);
@@ -398,12 +615,21 @@ input:hover {
   text-decoration: none;
   cursor: pointer;
   touch-action: manipulation;
+  transition:
+    background var(--m-fast) var(--ease),
+    border-color var(--m-fast) var(--ease),
+    transform var(--m-fast) var(--ease);
 }
 
 .btn:hover {
   border-color: var(--ink);
   color: var(--ink);
   text-decoration: none;
+}
+
+/* The press is the feedback, and the only place the site moves anything on click. */
+.btn:active:not(:disabled) {
+  transform: translateY(1px);
 }
 
 .btn:disabled {
@@ -431,7 +657,7 @@ input:hover {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
-  margin-top: 12px;
+  margin-top: var(--s3);
 }
 
 /* --- Verdict tags ----------------------------------------------------------------- */
@@ -440,12 +666,12 @@ input:hover {
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  padding: 2px 10px 2px 8px;
+  padding: 2px 10px 2px var(--s2);
   border: 1px solid color-mix(in srgb, var(--tone) 45%, transparent);
   border-radius: 999px;
   background: color-mix(in srgb, var(--tone) 10%, var(--paper));
   color: color-mix(in srgb, var(--tone) 80%, var(--ink));
-  font-size: 14px;
+  font-size: var(--t-13);
   font-weight: 600;
   white-space: nowrap;
 }
@@ -453,8 +679,8 @@ input:hover {
 .whose::before,
 .scope::before {
   content: "";
-  width: 8px;
-  height: 8px;
+  width: var(--s2);
+  height: var(--s2);
   border-radius: 50%;
   background: var(--tone);
 }
@@ -477,42 +703,134 @@ input:hover {
   font-weight: 400;
 }
 
-/* --- Home ------------------------------------------------------------------------- */
+/* --- Home: the hero is the product's argument, drawn once ------------------------- */
 .home-hero {
-  padding: 24px 0 40px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+  align-items: center;
+  gap: var(--s7);
+  padding: var(--s6) 0 var(--s7);
 }
 
 .home-hero h1 {
-  max-width: 24ch;
-  font-size: clamp(36px, 6vw, 60px);
-  line-height: 1.05;
-  letter-spacing: -0.02em;
+  max-width: 26ch;
+  font-size: clamp(2.125rem, 4.2vw, 3.125rem);
+  line-height: 1.06;
+  letter-spacing: -0.022em;
 }
 
 .home-hero .lede {
-  margin-top: 18px;
+  margin-top: var(--s4);
 }
 
 .hero-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
-  margin-top: 26px;
+  gap: var(--s3);
+  margin-top: var(--s5);
 }
 
+/* The figure: one real property's monthly series, the month it broke, and that break
+   split into the market's share and its own. Every number is from the snapshot; the
+   drawing is all this adds. */
+.hero-figure {
+  margin: 0;
+  padding: var(--s5);
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--lift);
+}
+
+.hero-figure figcaption {
+  margin-top: var(--s3);
+  color: var(--muted);
+  font-size: var(--t-12);
+}
+
+.hero-figure-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s2) var(--s3);
+  margin-bottom: var(--s3);
+}
+
+.hero-figure-head h2 {
+  font-family: var(--font-body);
+  font-size: var(--t-15);
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+.hero-figure-head > span {
+  color: var(--muted);
+  font-size: var(--t-13);
+}
+
+.hero-trend {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.hero-trend .trend-line {
+  fill: none;
+  stroke: var(--slate);
+  stroke-width: 1.75;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.hero-trend .trend-break {
+  stroke: var(--buransh);
+  stroke-width: 1.25;
+  stroke-dasharray: 3 3;
+  vector-effect: non-scaling-stroke;
+}
+
+.hero-trend .trend-after {
+  fill: var(--buransh);
+  opacity: 0.09;
+}
+
+.hero-trend .trend-zero {
+  stroke: var(--line);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+.hero-trend .trend-tick {
+  fill: var(--muted);
+  /* In the figure's own units; the drawing is ~505px wide, so this lands near 11px. */
+  font-size: 11px;
+}
+
+.hero-split {
+  margin-top: var(--s4);
+  padding-top: var(--s4);
+  border-top: 1px solid var(--grid);
+}
+
+/* --- Home: the three cases -------------------------------------------------------- */
 .contrast {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 330px), 1fr));
-  gap: 20px;
+  gap: var(--s5);
 }
 
 .contrast-case {
   display: flex;
   flex-direction: column;
-  gap: 14px;
-  padding: 24px;
+  gap: var(--s3);
+  padding: var(--s5);
   background: var(--paper);
   border: 1px solid var(--line);
+  /* A case is identified by the colour of the rule at its head, not by a shadow. */
+  border-top: 3px solid var(--tone, var(--line));
   border-radius: var(--radius);
 }
 
@@ -522,15 +840,16 @@ input:hover {
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 8px 16px;
+  gap: var(--s2) var(--s4);
 }
 
 .contrast-case h3 {
-  font-size: 21px;
+  font-size: var(--t-21);
 }
 
 .contrast-case > p {
   color: var(--muted);
+  font-size: var(--t-15);
 }
 
 .contrast-case > a {
@@ -540,29 +859,30 @@ input:hover {
 
 .contrast-figure {
   color: var(--ink) !important;
-  font-size: 17px;
+  font-size: var(--t-16);
 }
 
 .contrast-figure span {
   display: block;
   font-family: var(--font-head);
-  font-size: 56px;
+  font-size: 3.25rem;
   font-weight: 600;
   line-height: 1;
+  letter-spacing: -0.03em;
   color: var(--slate);
 }
 
 .tools {
-  margin-top: 56px;
+  margin-top: var(--s8);
 }
 
 .tools h2,
 .about h2 {
-  font-size: 24px;
+  font-size: var(--t-21);
 }
 
 .tool-list {
-  margin: 14px 0 0;
+  margin: var(--s4) 0 0;
   padding: 0;
   list-style: none;
   border-top: 1px solid var(--line);
@@ -575,19 +895,21 @@ input:hover {
 .tool-list a {
   display: grid;
   grid-template-columns: minmax(180px, 240px) 1fr;
-  gap: 4px 24px;
-  padding: 16px 4px;
+  gap: var(--s1) var(--s5);
+  padding: var(--s4);
+  margin: 0 calc(-1 * var(--s4));
   color: var(--ink);
   text-decoration: none;
+  transition: background var(--m-fast) var(--ease);
 }
 
 .tool-list a:hover {
-  background: color-mix(in srgb, var(--paper) 60%, transparent);
+  background: var(--paper);
 }
 
 .tool-title {
   font-family: var(--font-head);
-  font-size: 20px;
+  font-size: var(--t-18);
   font-weight: 600;
 }
 
@@ -600,17 +922,19 @@ input:hover {
 .tool-text {
   max-width: var(--measure);
   color: var(--muted);
+  font-size: var(--t-15);
   padding-top: 3px;
 }
 
 .about {
-  margin-top: 48px;
+  margin-top: var(--s7);
 }
 
 .about p {
   max-width: var(--measure);
-  margin-top: 8px;
+  margin-top: var(--s2);
   color: var(--muted);
+  font-size: var(--t-15);
 }
 
 /* --- Change split (the signature figure) ------------------------------------------ */
@@ -627,8 +951,8 @@ input:hover {
   display: grid;
   grid-template-columns: minmax(150px, 1.1fr) 2fr 64px;
   align-items: center;
-  gap: 14px;
-  padding: 8px 0;
+  gap: var(--s3);
+  padding: var(--s2) 0;
 }
 
 .split-row + .split-row {
@@ -642,18 +966,19 @@ input:hover {
 .split-label span {
   display: block;
   font-weight: 600;
+  font-size: var(--t-15);
 }
 
 .split-label small {
   display: block;
   color: var(--muted);
-  font-size: 13px;
+  font-size: var(--t-12);
   line-height: 1.35;
 }
 
 .split-track {
   position: relative;
-  height: 16px;
+  height: var(--s4);
 }
 
 .split-zero {
@@ -672,12 +997,15 @@ input:hover {
   background: var(--stone);
 }
 
+/* Bars grow out of the shared zero line, so scaleX has to start there. */
 .split-bar.down {
   background: color-mix(in srgb, var(--buransh) 65%, var(--paper));
+  transform-origin: right center;
 }
 
 .split-bar.up {
   background: color-mix(in srgb, var(--deodar) 65%, var(--paper));
+  transform-origin: left center;
 }
 
 .split-row.is-verdict .split-bar.down {
@@ -695,7 +1023,7 @@ input:hover {
 
 .split-row.is-verdict .split-value {
   font-family: var(--font-head);
-  font-size: 22px;
+  font-size: var(--t-21);
 }
 
 .split-value.down {
@@ -714,16 +1042,17 @@ input:hover {
 .split figcaption {
   margin-top: 10px;
   color: var(--muted);
-  font-size: 14px;
+  font-size: var(--t-13);
 }
 
-/* --- Property --------------------------------------------------------------------- */
+/* --- Property: the verdict card --------------------------------------------------- */
 .priority {
-  padding: 28px;
+  padding: var(--s6);
   background: var(--paper);
   border: 1px solid var(--line);
   border-left: 4px solid var(--buransh);
   border-radius: var(--radius);
+  box-shadow: var(--lift);
 }
 
 .priority.hood {
@@ -732,9 +1061,10 @@ input:hover {
 
 .note.hood {
   background: var(--marigold-tint);
-  margin-bottom: 16px;
+  margin-bottom: var(--s4);
 }
 
+.note.hood h2,
 .note.hood h3 {
   color: var(--ink);
 }
@@ -766,15 +1096,19 @@ input:hover {
   color: var(--ink);
   border: 1px solid var(--stone);
   border-radius: var(--radius);
-  font-size: 18px;
+  font-size: var(--t-18);
   font-weight: 600;
   line-height: 1;
   cursor: pointer;
   touch-action: manipulation;
+  transition:
+    border-color var(--m-fast) var(--ease),
+    background var(--m-fast) var(--ease);
 }
 
 .map-controls button:hover:not(:disabled) {
   border-color: var(--ink);
+  background: var(--panel);
 }
 
 .map-controls button:disabled {
@@ -783,21 +1117,21 @@ input:hover {
 }
 
 .map-controls .map-reset {
-  font-size: 13px;
+  font-size: var(--t-13);
 }
 
 .map-panel .chart-numbers {
-  margin: 10px 14px 14px;
+  margin: 10px var(--s3) var(--s3);
 }
 
 .priority-head h2 {
-  font-size: clamp(26px, 3.5vw, 34px);
+  font-size: clamp(1.625rem, 3.5vw, 2.125rem);
 }
 
 .priority-body {
   display: grid;
-  gap: 24px 40px;
-  margin-top: 16px;
+  gap: var(--s5) var(--s7);
+  margin-top: var(--s4);
 }
 
 .priority-body.with-split {
@@ -811,102 +1145,154 @@ input:hover {
   max-width: var(--measure);
 }
 
+.priority-text p {
+  font-size: var(--t-15);
+}
+
 details {
-  margin-top: 4px;
+  margin-top: var(--s1);
 }
 
 summary {
   width: fit-content;
+  padding-block: 3px;
   color: var(--deodar);
   font-weight: 600;
+  font-size: var(--t-15);
   cursor: pointer;
+  transition: color var(--m-fast) var(--ease);
+}
+
+summary:hover {
+  color: var(--deodar-deep);
 }
 
 details ul {
-  margin: 8px 0 0;
+  margin: var(--s2) 0 0;
   padding-left: 20px;
   color: var(--muted);
+  font-size: var(--t-15);
+}
+
+/* Opening an answer shows it arriving rather than cutting to it, where the browser
+   can interpolate to auto. Everywhere else it simply opens, as before. */
+@supports (interpolate-size: allow-keywords) {
+  :root {
+    interpolate-size: allow-keywords;
+  }
+
+  details::details-content {
+    block-size: 0;
+    overflow: hidden;
+    transition:
+      block-size var(--m-slow) var(--ease),
+      content-visibility var(--m-slow) allow-discrete;
+  }
+
+  details[open]::details-content {
+    block-size: auto;
+  }
 }
 
 .note {
   max-width: 90ch;
-  margin-top: 24px;
-  padding: 16px 20px;
+  margin-top: var(--s5);
+  padding: var(--s4) 20px;
   background: var(--slate-tint);
   border-radius: var(--radius);
 }
 
+.note h2,
 .note h3 {
   font-family: var(--font-body);
-  font-size: 16px;
-  font-weight: 700;
+  font-size: var(--t-16);
+  font-weight: 600;
   color: var(--slate);
   letter-spacing: 0;
 }
 
 .note p {
-  margin-top: 4px;
+  margin-top: var(--s1);
+  font-size: var(--t-15);
 }
 
 /* --- Market ----------------------------------------------------------------------- */
 .headline-case {
-  padding: 28px;
+  padding: var(--s6);
   background: var(--paper);
   border: 1px solid var(--line);
   border-left: 4px solid var(--slate);
   border-radius: var(--radius);
+  box-shadow: var(--lift);
 }
 
 .headline-case h2 {
   max-width: 28ch;
-  font-size: clamp(24px, 3.2vw, 32px);
+  font-size: clamp(1.5rem, 3.2vw, 2rem);
 }
 
 .headline-case .contrast-figure {
-  margin-top: 18px;
+  margin-top: var(--s4);
 }
 
 .headline-case > p:last-child {
-  margin-top: 8px;
+  margin-top: var(--s2);
   color: var(--muted);
+  font-size: var(--t-15);
 }
 
 .counts {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 16px 48px;
-  margin: 28px 0 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 170px), 1fr));
+  gap: var(--s4);
+  margin: var(--s6) 0 0;
+}
+
+/* The rule over each count takes the colour of what it counts, so the four read
+   apart without reading the labels. */
+.counts > div {
+  padding-top: var(--s3);
+  border-top: 2px solid var(--tone, var(--line));
 }
 
 .counts dt {
   color: var(--muted);
-  font-size: 14px;
+  font-size: var(--t-13);
 }
 
 .counts dd {
   margin: 0;
   font-family: var(--font-head);
-  font-size: 36px;
+  font-size: var(--t-32);
   font-weight: 600;
   line-height: 1.1;
+  color: var(--tone, var(--ink));
 }
 
 /* --- Fix check -------------------------------------------------------------------- */
 .verdict {
-  margin-bottom: 24px;
-  padding: 22px 26px;
+  margin-bottom: var(--s5);
+  padding: 22px var(--s6);
   border-radius: var(--radius);
   border-left: 4px solid var(--stone);
   background: var(--paper);
+  /* This page's verdict, so it is elevated like the other pages' verdicts. */
+  box-shadow: var(--lift);
+  /* The verdict changes as the reader changes the question; the colour moves with it
+     so the change is visible rather than instantaneous. */
+  transition:
+    border-color var(--m-slow) var(--ease),
+    background var(--m-slow) var(--ease);
 }
 
 .verdict h2 {
-  font-size: clamp(24px, 3vw, 30px);
+  font-size: clamp(1.5rem, 3vw, 1.875rem);
 }
 
 .verdict p {
   max-width: 90ch;
-  margin-top: 8px;
+  margin-top: var(--s2);
+  font-size: var(--t-15);
 }
 
 .verdict.up {
@@ -927,18 +1313,19 @@ details ul {
 .method {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
-  gap: 20px 32px;
+  gap: 20px var(--s6);
   margin: 0;
 }
 
 .method dt {
-  font-weight: 700;
+  font-weight: 600;
+  font-size: var(--t-15);
 }
 
 .method dd {
-  margin: 4px 0 0;
+  margin: var(--s1) 0 0;
   color: var(--muted);
-  font-size: 15px;
+  font-size: var(--t-15);
 }
 
 /* --- Explorer --------------------------------------------------------------------- */
@@ -947,8 +1334,8 @@ details ul {
 }
 
 .tool-section.try {
-  padding: 24px;
-  margin-bottom: 48px;
+  padding: var(--s5);
+  margin-bottom: var(--s7);
   background: var(--paper);
   border: 1px solid var(--line);
   border-radius: var(--radius);
@@ -956,7 +1343,15 @@ details ul {
 
 .tool-section.try .table-wrap,
 .tool-section.try .state {
-  margin-top: 16px;
+  margin-top: var(--s4);
+}
+
+/* What the search matched, inside the clause it matched in. */
+mark.hit {
+  padding: 0 1px;
+  background: color-mix(in srgb, var(--marigold) 26%, transparent);
+  color: inherit;
+  border-radius: 2px;
 }
 
 /* --- Tables ----------------------------------------------------------------------- */
@@ -967,14 +1362,27 @@ details ul {
   border-radius: var(--radius);
 }
 
-.data-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 14px;
+/* Capped so the sticky column names have something to stick to; the region is
+   focusable (Table in components/ui.tsx), so it scrolls by keyboard too. */
+.table-wrap.tall {
+  max-height: min(70vh, 720px);
+  overflow-y: auto;
 }
 
+.data-table {
+  width: 100%;
+  /* separate, not collapse: a collapsed border disappears under a sticky header. */
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: var(--t-13);
+}
+
+/* A long result table otherwise scrolls past its own column names. */
 .data-table th {
-  padding: 10px 14px;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  padding: 10px var(--s3);
   background: var(--panel);
   border-bottom: 1px solid var(--line);
   color: var(--muted);
@@ -984,13 +1392,17 @@ details ul {
 }
 
 .data-table td {
-  padding: 12px 14px;
+  padding: var(--s3);
   border-bottom: 1px solid var(--grid);
   vertical-align: top;
 }
 
 .data-table tbody tr:last-child td {
   border-bottom: 0;
+}
+
+.data-table tbody tr {
+  transition: background var(--m-fast) var(--ease);
 }
 
 .data-table tbody tr:hover td {
@@ -1009,12 +1421,12 @@ details ul {
 .cell-note {
   margin-top: 6px;
   color: var(--muted);
-  font-size: 13px;
+  font-size: var(--t-12);
 }
 
 /* --- Charts and states ------------------------------------------------------------ */
 .chart-panel {
-  padding: 12px 12px 4px;
+  padding: var(--s3) var(--s3) var(--s1);
   background: var(--paper);
   border: 1px solid var(--line);
   border-radius: var(--radius);
@@ -1032,7 +1444,7 @@ details ul {
 }
 
 .chart-numbers {
-  margin: 4px 4px 12px;
+  margin: var(--s1) var(--s1) var(--s3);
 }
 
 .chart-numbers .table-wrap {
@@ -1043,7 +1455,7 @@ details ul {
 
 .state {
   max-width: 90ch;
-  padding: 14px 18px;
+  padding: var(--s3) var(--s4);
   background: var(--paper);
   border: 1px solid var(--line);
   border-radius: var(--radius);
@@ -1062,18 +1474,95 @@ details ul {
   border-color: color-mix(in srgb, var(--buransh) 35%, transparent);
 }
 
+/* --- Loading: hold the shape of what is coming ------------------------------------ */
+/* A one-line "Loading…" replaced by a whole page reflows everything below it. These
+   stand in at roughly the real size, so nothing jumps when the snapshot lands. */
+.skeleton {
+  display: grid;
+  gap: var(--s5);
+}
+
+.skel-bar,
+.skel-panel {
+  background: var(--wash);
+  border-radius: var(--radius);
+  /* One shared pulse, so the screen breathes together instead of shimmering. */
+  animation: skel-pulse 1.6s var(--ease) infinite;
+}
+
+.skel-bar {
+  height: 1em;
+  max-width: 100%;
+}
+
+.skel-panel {
+  border: 1px solid var(--line);
+}
+
+.skel-lines {
+  display: grid;
+  gap: 10px;
+}
+
+@keyframes skel-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.45;
+  }
+}
+
 /* --- Small screens ---------------------------------------------------------------- */
+/* No example with a dated, market-adjusted shift in the snapshot: no figure, so the
+   headline takes the full width rather than leaving a hole beside it. */
+.home-hero.solo {
+  grid-template-columns: 1fr;
+}
+
+@media (max-width: 900px) {
+  .home-hero {
+    grid-template-columns: 1fr;
+    gap: var(--s6);
+    padding-bottom: var(--s7);
+  }
+}
+
 @media (max-width: 640px) {
   .main {
-    padding-top: 28px;
+    padding-top: var(--s5);
   }
 
+  /* Two rows: the name and the scheme control, then the links. */
   .site-header-inner {
-    padding-top: 12px;
-    padding-bottom: 6px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      "brand theme"
+      "nav nav";
+    padding-top: var(--s3);
+    padding-bottom: var(--s1);
+  }
+
+  .wordmark {
+    grid-area: brand;
+    gap: 0;
+    font-size: var(--t-15);
+  }
+
+  /* The mark is decorative (aria-hidden) and the name is the identification; at this
+     width dropping it is what buys the second row back. */
+  .wordmark-mark {
+    display: none;
+  }
+
+  .theme-toggle {
+    grid-area: theme;
   }
 
   .site-header nav {
+    grid-area: nav;
     width: 100%;
   }
 
@@ -1083,6 +1572,12 @@ details ul {
     width: 100%;
     gap: 18px;
     scrollbar-width: none;
+    /* The row fades at its right edge, so it is visible that it scrolls. */
+    mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent);
+  }
+
+  .nav-links::-webkit-scrollbar {
+    display: none;
   }
 
   .nav-link {
@@ -1105,6 +1600,7 @@ details ul {
   .priority,
   .headline-case,
   .contrast-case,
+  .hero-figure,
   .tool-section.try {
     padding: 20px;
   }
@@ -1120,9 +1616,12 @@ details ul {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  * {
+  *,
+  *::before,
+  *::after {
     scroll-behavior: auto !important;
     transition: none !important;
+    animation: none !important;
   }
 }
 
