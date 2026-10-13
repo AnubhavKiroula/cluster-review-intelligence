@@ -570,8 +570,16 @@ docs/               PRD, SRS, SYSTEM_DESIGN, AI_MODEL, BUSINESS_MODEL, DATA_SOUR
 Two pieces, neither needing secrets. The static web app can be served from any static
 host (Vercel is the primary, configured by `web/vercel.json`) and is the whole product on its own. The API
 is optional: it powers only the explorer's live classification and runs on any
-Python host that keeps a long-lived web process. Neither is deployed yet; URLs are `TBD`. Step-by-step
-instructions: [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md).
+Python host that keeps a long-lived web process. Step-by-step instructions:
+[`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md).
+
+| Piece | Live URL | Host |
+|---|---|---|
+| Web app | <https://cluster-review-intelligence.vercel.app> | Vercel (Hobby) |
+| API | <https://cri-api.onrender.com> (`/health`, `POST /reviews/classify`) | Render (free; sleeps when idle) |
+
+Both show the SYNTHETIC sample (the on-page banner is hidden for now; see
+`docs/TODO_RESULTS.md`).
 
 ```mermaid
 flowchart LR
@@ -591,7 +599,7 @@ Real review data is never deployed publicly.
 |---|---|---|
 | Real labelled evaluation | Hand-label real reviews; run `eval/predict.py` and `eval/score.py`; replace the `TBD`s | Planned |
 | Clause-level gold set | Hill-destination reviews labelled per clause, to decide whether the learned backend should replace the rules | Planned |
-| Public deployment | Static site in `web/` plus the API; URLs recorded in this README | Planned |
+| Public deployment | Static site on Vercel plus the API on Render; URLs in section 15 | Done |
 | Transformer evaluation | Compare with the rule baseline on the real labelled set; make it the default only if it wins | Planned |
 | Multiple changepoints | PELT or similar, once real data allows the penalty to be calibrated | Planned |
 

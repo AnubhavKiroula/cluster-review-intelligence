@@ -6,7 +6,12 @@ export const API_BASE = (process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localho
   /\/+$/,
   "",
 );
-const TIMEOUT_MS = 15000;
+// A free-tier host sleeps when idle and takes up to about a minute to wake; while it
+// wakes, its proxy answers without CORS headers, so the browser reports a bare network
+// error ("Failed to fetch"). Wait long enough for a wake-up, and retry a network error
+// once after a pause.
+const TIMEOUT_MS = 60000;
+const RETRY_AFTER_MS = 5000;
 
 export class ApiError extends Error {
   constructor(
@@ -26,6 +31,19 @@ function detail(body: unknown): string {
 }
 
 export async function postApi<T>(path: string, body: unknown): Promise<T> {
+  try {
+    return await postOnce<T>(path, body);
+  } catch (e) {
+    // status 0 without a timeout = the request never got a usable answer.
+    if (!(e instanceof ApiError) || e.status !== 0 || e.message === TIMED_OUT) throw e;
+    await new Promise((resolve) => setTimeout(resolve, RETRY_AFTER_MS));
+    return postOnce<T>(path, body);
+  }
+}
+
+const TIMED_OUT = "the API did not answer in time";
+
+async function postOnce<T>(path: string, body: unknown): Promise<T> {
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), TIMEOUT_MS);
   try {
@@ -40,7 +58,7 @@ export async function postApi<T>(path: string, body: unknown): Promise<T> {
     return json as T;
   } catch (e) {
     if (e instanceof ApiError) throw e;
-    if (ctrl.signal.aborted) throw new ApiError(0, "the API did not answer in time");
+    if (ctrl.signal.aborted) throw new ApiError(0, TIMED_OUT);
     throw new ApiError(0, e instanceof Error ? e.message : String(e));
   } finally {
     clearTimeout(timer);

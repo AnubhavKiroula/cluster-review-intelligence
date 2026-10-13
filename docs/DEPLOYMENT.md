@@ -57,9 +57,15 @@ What the repo configures (`web/vercel.json`, `web/package.json`):
 The ignored build step compares only the last commit. If a merge leaves `web/`
 unchanged but an earlier push did not deploy, use **Redeploy** in the dashboard.
 
-Not yet verified on Vercel itself (verified locally: `npm run build` in `web/`, then
-`python -m http.server 8787 --directory out`, pages rendered in headless Edge). Check
-Vercel's plan terms for your use; the free Hobby plan is meant for non-commercial use.
+**Live:** <https://cluster-review-intelligence.vercel.app> (production; `NEXT_PUBLIC_API_BASE_URL=https://cri-api.onrender.com`). Verified
+on 2026-10-13 in headless Edge: the checks below pass, and *Try your own review*
+returns Food +1, Room −1, Cleanliness −1 from the Render API. Check Vercel's plan
+terms for your use; the free Hobby plan is meant for non-commercial use.
+
+Use the production address. Vercel also serves each deployment, branch and pull
+request at its own `*.vercel.app` address; the API's CORS list does not include
+those, so live classification fails there with *Failed to fetch* (every other page
+works).
 
 **Other static hosts** (Netlify, Cloudflare Pages): build command `npm run build`,
 base directory `web`, publish directory `web/out`. GitHub Pages serves a project site
@@ -75,13 +81,14 @@ root-relative).
 - `<url>/fix-check/?property=Property%20A&aspect=Room&month=2025-12` shows
   −1.38 plain, −0.95 market, −0.43 vs the market, *No detectable change*.
 
-Then record the URL in `README.md`, `docs/DEMO.md` and `docs/TODO_RESULTS.md`
-(replacing `TBD`).
+If the URL changes, update it in `README.md` (section 15), `docs/DEMO.md` and
+`docs/TODO_RESULTS.md`.
 
 ## The API (`cri.server`, optional)
 
 Any Python host that runs a long-lived web process. `render.yaml` in the repo root is
 a Render blueprint for exactly this service; the same three settings work anywhere.
+**Live:** <https://cri-api.onrender.com> on Render's free plan.
 
 - Python **3.12** (the pinned `numpy==1.26.2` has no Python 3.13 wheels).
 - Build: `pip install ".[api]"` from the repo root (a plain, non-editable install;
@@ -109,12 +116,20 @@ Free instances spin down after about 15 minutes idle and take roughly a minute t
 wake, so open `/health` a minute before a live demo. No card is required and the
 plan allows 750 instance-hours per month; re-check Render's current terms.
 
-Verified locally only: wheel build carries the YAML resources, and `/health` plus
-`/reviews/classify` answer correctly (`Khana accha tha lekin kamra ganda tha.` ->
-Food +1, Room -1, Cleanliness -1). The Render deploy itself is `TBD` until it runs.
+Verified on 2026-10-13 against the live service: `/health` answers; a CORS
+preflight from the production site gets `Access-Control-Allow-Origin` for that
+origin, and other origins (localhost, Vercel branch URLs) are refused; *Try your own
+review* on the production site returns Food +1, Room −1, Cleanliness −1. Earlier,
+locally: the wheel carries the YAML resources the classifier loads at import.
 
 After deploying both pieces, `<site>/explorer/` → *Try your own review* →
 `Khana accha tha lekin kamra ganda tha.` shows Food +1, Room −1, Cleanliness −1.
+
+**Free-plan sleep in the browser.** While a sleeping service starts, Render's own
+error response has no CORS header, so the browser reports *Failed to fetch* (the
+wake-up time was not measured here: `TBD`). The web app allows for this
+(`web/lib/api.ts`): it waits up to 60 s, retries a network error once after 5 s, and
+after 4 s tells the user the classifier is starting.
 
 ## Never on the public app
 

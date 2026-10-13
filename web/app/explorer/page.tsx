@@ -1,7 +1,7 @@
 "use client";
 
 import { useDeferredValue, useEffect, useMemo, useState } from "react";
-import { postApi, type ApiError, type ClassifyResponse } from "@/lib/api";
+import { API_BASE, postApi, type ApiError, type ClassifyResponse } from "@/lib/api";
 import { syncQuery, useData, type Mention, type Review } from "@/lib/data";
 import {
   DownloadCsv,
@@ -209,22 +209,31 @@ export default function ExplorerPage() {
 }
 
 // Live classification needs the Python API (cri.server); the rest of this page does not.
+const SLOW_AFTER_MS = 4000;
+const LOCAL_API = /^https?:\/\/(localhost|127\.0\.0\.1)(:|\/|$)/.test(API_BASE);
+
 function TryYourOwnReview() {
   const [text, setText] = useState("Khana accha tha lekin kamra ganda tha.");
   const [res, setRes] = useState<ClassifyResponse | null>(null);
   const [err, setErr] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  // Past a few seconds the API is most likely waking from sleep: say so.
+  const [slow, setSlow] = useState(false);
 
   async function run() {
     setBusy(true);
+    setSlow(false);
     setErr(null);
+    const timer = setTimeout(() => setSlow(true), SLOW_AFTER_MS);
     try {
       setRes(await postApi<ClassifyResponse>("/reviews/classify", { text }));
     } catch (e) {
       setErr((e as ApiError).message);
       setRes(null);
     } finally {
+      clearTimeout(timer);
       setBusy(false);
+      setSlow(false);
     }
   }
 
@@ -252,15 +261,28 @@ function TryYourOwnReview() {
           {busy ? "Classifying…" : "Classify"}
         </button>
       </div>
+      {busy && slow && (
+        <p className="state info" role="status">
+          Starting the classifier. The server sleeps when nobody has used it for a while and can
+          take up to a minute to wake; this page keeps waiting.
+        </p>
+      )}
       {err && (
         <div className="state error" role="alert">
           <p>
             <strong>The classifier did not answer</strong> ({err}).
           </p>
-          <p>
-            Live classification needs the API. Locally, start it with{" "}
-            <code>uvicorn cri.server:app --port 8000</code>. The rest of the site works without it.
-          </p>
+          {LOCAL_API ? (
+            <p>
+              Live classification needs the API. Locally, start it with{" "}
+              <code>uvicorn cri.server:app --port 8000</code>. The rest of the site works without it.
+            </p>
+          ) : (
+            <p>
+              Try again in a minute: the server may still be waking up. The rest of the site works
+              without it.
+            </p>
+          )}
         </div>
       )}
       {res &&

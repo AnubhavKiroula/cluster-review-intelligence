@@ -90,7 +90,9 @@ dropped with the layer on 2026-10-13; they are at the git tag `travel-layer-v1`.
   type-checked and built in CI. Screenshots on SYNTHETIC data:
   `docs/screenshots/*_SYNTHETIC.png`.
 - API: `/health` and `POST /reviews/classify` only (live classify in the explorer).
-- Public URLs (static site and API): `TBD` (steps in `docs/DEPLOYMENT.md`).
+- Public URLs: web app <https://cluster-review-intelligence.vercel.app> (Vercel), API <https://cri-api.onrender.com> (Render free plan).
+  Verified 2026-10-13 (`docs/DEPLOYMENT.md`).
+- API wake-up time after Render's free plan sleeps: `TBD` (not measured).
 - **On-page SYNTHETIC banner: hidden for now** (team decision, 2026-10-13). The site
   still shows the SYNTHETIC sample, so CLAUDE.md rule 2 / SRS NFR-HON-2 are not met in
   the UI until it is restored: render `<SyntheticBanner />` above `<Header />` in
