@@ -57,8 +57,12 @@ def _whose_problem(
     Derived for THIS property, never joined from ``market_scope`` by aspect: a
     market-adjusted decline is the property's own; a lag is re-tested with the
     market-wide patterns it takes part in set aside. It is ``everyone's`` only if
-    the lag disappears without them.
+    the lag disappears without them. Below ``MIN_PROPERTIES_FOR_SCOPE`` properties
+    there is no market to separate, so nothing is tested.
     """
+    k = labelled.loc[labelled["aspect"] == aspect, "property_id"].nunique()
+    if k < MIN_PROPERTIES_FOR_SCOPE:
+        return "not tested", undetermined_note(int(k))
     shared = [f for f in findings if f["aspect"] == aspect and property_id in f["gaps"]]
     also = "; ".join(f"the {describe_finding(f)} is everyone's" for f in shared)
     if decline is not None:
@@ -105,8 +109,8 @@ def priority_actions(labelled: pd.DataFrame, property_id: str, top_n: int = 5) -
     (FDR-controlled) against the cluster.
 
     ``whose_problem`` answers "is it me or the market?" for this property (see
-    ``_whose_problem``); ``whose_detail`` says why. Rows compared with the
-    property's own history are ``not tested``: there is no market to separate.
+    ``_whose_problem``); ``whose_detail`` says why. With fewer than 3 properties
+    reviewing the aspect it is ``not tested``: there is no market to separate.
     """
     bench = benchmark_vs_cluster(labelled, property_id=property_id)
     if bench.empty:
@@ -149,11 +153,7 @@ def priority_actions(labelled: pd.DataFrame, property_id: str, top_n: int = 5) -
         if not gap > 0:
             continue
         volume = r.n / total
-        if basis == "own history":
-            whose = ("not tested", undetermined_note(int(
-                labelled.loc[labelled["aspect"] == r.aspect, "property_id"].nunique())))
-        else:
-            whose = _whose_problem(labelled, property_id, r.aspect, cp, findings)
+        whose = _whose_problem(labelled, property_id, r.aspect, cp, findings)
         compared = "the cluster" if basis == "cluster" else f"your level before {started}"
         when = f" since {started}" if started else ""
         rows.append(

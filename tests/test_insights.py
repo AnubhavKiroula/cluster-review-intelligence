@@ -110,6 +110,14 @@ def test_a_year_round_room_gap_is_not_blamed_on_the_december_dip(labelled):
     assert "is everyone's" in detail
 
 
+def test_a_two_property_cluster_never_claims_whose_problem_it_is(labelled):
+    # A lag against a 2-property "cluster" cannot separate market from property.
+    two = labelled[labelled["property_id"].isin(["Property D", "Property L"])]
+    pa = priority_actions(two, "Property D")
+    assert len(pa) > 0 and (pa["basis"] == "cluster").all()
+    assert (pa["whose_problem"] == "not tested").all()
+
+
 def test_a_lag_that_is_only_the_market_pattern_is_everyones(labelled):
     # Property G is on par for Room; tripling its December Room reviews makes it lag
     # overall, purely because of the market-wide December dip.
