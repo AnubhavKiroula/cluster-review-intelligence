@@ -1,0 +1,229 @@
+/* Styles for the travel-intelligence pages (scoped; globals.css is left as is). */
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+.Low {
+  background: var(--teal-soft);
+  color: #1f7a6f;
+}
+.Moderate {
+  background: #fdf6dd;
+  color: #8a6a12;
+}
+.High {
+  background: var(--amber-soft);
+  color: #a3591a;
+}
+.VeryHigh {
+  background: var(--negative-soft);
+  color: var(--negative);
+}
+
+.basis {
+  display: inline-block;
+  padding: 1px 7px;
+  border-radius: 6px;
+  border: 1px solid var(--grid);
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.fact {
+  border-color: #bfe3dc;
+  color: #1f7a6f;
+}
+.measured {
+  border-color: #c7d6ea;
+  color: var(--navy-soft);
+}
+.synthetic,
+.assumption {
+  border-color: #f2d3b3;
+  color: #a3591a;
+}
+
+.factors {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.factors td {
+  padding: 7px 8px;
+  border-bottom: 1px solid var(--grid);
+  vertical-align: top;
+}
+.factors td:nth-child(2) {
+  text-align: right;
+  font-weight: 800;
+  white-space: nowrap;
+}
+.factors .detail {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.grid2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+.grid3 {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+.card {
+  padding: 16px 18px;
+  border: 1px solid var(--grid);
+  border-radius: 14px;
+  background: var(--paper);
+  box-shadow: var(--shadow-sm);
+}
+.card h3 {
+  margin: 0 0 6px;
+  font-size: 16px;
+}
+.cardHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.muted {
+  color: var(--muted);
+  font-size: 12.5px;
+}
+.list {
+  margin: 6px 0 0;
+  padding-left: 18px;
+  font-size: 13px;
+}
+.list li {
+  margin: 3px 0;
+}
+
+.calendar {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 5px;
+}
+.weekday {
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 800;
+  text-align: center;
+  text-transform: uppercase;
+}
+.dayCell {
+  min-height: 54px;
+  padding: 5px 6px;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  font-size: 11px;
+  text-align: left;
+  cursor: pointer;
+}
+.dayCell:hover {
+  border-color: var(--navy-soft);
+}
+.dayCell b {
+  display: block;
+  font-size: 15px;
+}
+.selected {
+  outline: 2px solid var(--navy);
+}
+.holidayDot {
+  display: block;
+  overflow: hidden;
+  font-size: 9.5px;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.form {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px 14px;
+  margin: 17px 0 22px;
+  padding: 16px;
+  border: 1px solid var(--grid);
+  border-radius: 13px;
+  background: rgba(255, 255, 255, 0.75);
+}
+.form input[type="date"],
+.form input[type="number"],
+.controlsInput {
+  width: 100%;
+  padding: 9px 11px;
+  border: 1px solid var(--grid);
+  border-radius: 9px;
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 13px;
+}
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.chip {
+  padding: 5px 10px;
+  border: 1px solid var(--grid);
+  border-radius: 999px;
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 12px;
+  cursor: pointer;
+}
+.chipOn {
+  border-color: var(--teal);
+  background: var(--teal-soft);
+  color: #1f7a6f;
+  font-weight: 700;
+}
+.full {
+  grid-column: 1 / -1;
+}
+
+.priority {
+  border-left: 4px solid var(--grid);
+}
+.high {
+  border-left-color: var(--negative);
+}
+.medium {
+  border-left-color: var(--amber);
+}
+.low {
+  border-left-color: var(--teal);
+}
+
+@media (max-width: 980px) {
+  .grid3,
+  .form {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 760px) {
+  .grid2,
+  .grid3,
+  .form {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .dayCell {
+    min-height: 44px;
+  }
+}

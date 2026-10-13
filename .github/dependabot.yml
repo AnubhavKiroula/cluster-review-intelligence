@@ -6,11 +6,18 @@ updates:
       interval: "weekly"
     open-pull-requests-limit: 5
     labels: ["dependencies"]
-    # These must move together: pandas 2.1 cannot import on numpy 2, streamlit
-    # 1.41 requires pandas<3, and pyarrow 26 requires numpy>=2. One PR, one CI run.
+    # These must move together: pandas 2.1 cannot import on numpy 2, and scipy /
+    # scikit-learn wheels track numpy. One PR, one CI run.
     groups:
       dataframe-stack:
-        patterns: ["numpy", "pandas", "pyarrow", "streamlit"]
+        patterns: ["numpy", "pandas", "scipy", "scikit-learn"]
+
+  - package-ecosystem: "npm"
+    directory: "/web"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    labels: ["dependencies", "web"]
 
   - package-ecosystem: "github-actions"
     directory: "/"

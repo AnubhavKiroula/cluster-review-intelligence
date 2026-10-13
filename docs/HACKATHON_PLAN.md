@@ -21,17 +21,26 @@ when, and is it just me or the whole market?"* — backed by honest numbers.
 
 ## 1. Decisions (locked — do not relitigate during the build)
 
+> **Changed 2026-10-13 (maintainer decision, PR `feat/anubhav-travel-intelligence`):**
+> the product was extended with a travel-intelligence layer (demand calendar,
+> alternatives, star-free stays, provider insights, sellers, trip planner) that needs
+> live computation from user input. UI, backend and hosting therefore moved to
+> **Next.js + a FastAPI service**, and **Streamlit was removed** after its two unique
+> features were ported (fix check: PR #31; *Try your own review*: web explorer).
+> The original rows are kept below for history.
+
 | Decision | Choice | Why |
 |---|---|---|
-| UI | **Streamlit + Plotly** | All three of us are Python. No API layer ⇒ no integration risk, which is the #1 cause of broken hackathon demos. A themed Streamlit app looks polished and frees our scarcest resource (time) for the *insight*, not plumbing. |
-| Backend | **In-process Python** (`src/cri`) | No service to deploy or debug. Streamlit calls the library directly. |
+| UI | **Next.js (`web/`, static export) + Plotly.js** *(was: Streamlit + Plotly)* | One polished UI. G5 pages read a static snapshot; travel pages call the API. |
+| Backend | **In-process Python (`src/cri`) behind a FastAPI service (`cri.server`)** *(was: in-process only)* | Interactive travel inputs (dates, budgets) must be computed in tested Python, not duplicated in TypeScript. |
 | Charts | **Plotly** | Interactive (hover, zoom) — reads as a product, not a notebook. |
-| Hosting | **Streamlit Community Cloud** | Free, deploys from GitHub in minutes, gives a public link for judges. |
+| Hosting | **Static host (Vercel/Netlify) + a Python host for the API** *(was: Streamlit Community Cloud)* | See `docs/DEPLOYMENT.md`. |
 | Model backend | **Stretch only** | Rule/lexicon baseline is explainable and already works. A transformer is a *nice-to-have*, never a blocker. |
 | Data | Synthetic (shipped) **+** real CSVs if legitimately obtained | See §8 — scraping is forbidden by `CLAUDE.md`. |
 
-**Explicitly out of scope:** React/FastAPI, user accounts, databases, real-time
-ingestion, mobile app. If anyone proposes these, the answer is no.
+**Explicitly out of scope:** user accounts, databases, real-time ingestion, live
+traffic, payments, mobile app. (React/FastAPI were removed from this list on
+2026-10-13; see the note above.)
 
 ---
 
@@ -70,12 +79,13 @@ is **disjoint file ownership** plus **a frozen contract**.
 |---|---|---|
 | `src/cri/api.py` *(the contract)* | `[A]` | **read-only** — consume it, never edit |
 | `src/cri/benchmark.py`, `changepoint.py`, `insights.py`, `classify.py`, `normalize.py`, `pipeline.py` | `[A]` | do not edit |
-| `app/**` *(entire Streamlit app)* | `[P]` | do not edit |
+| `web/**` *(Next.js app; the travel pages `web/app/{explore,plan,provider,region}`, `web/lib/api.ts` and `web/components/travel.*` were added by `[A]`)* | `[P]` | do not edit |
+| `src/cri/server.py`, `src/cri/travel/**`, `src/cri/learned_backend.py`, `src/cri/resources/travel_*.yaml`, `src/cri/resources/models/**` | `[A]` | do not edit |
 | `eval/**`, `scripts/**`, `.github/**`, `data/**` | `[R]` | do not edit |
 | `src/cri/loader.py`, `schema.py`, `sources.py` | `[R]` | do not edit |
 | `src/cri/resources/aspects.yaml`, `lexicon.yaml` *(tuning config)* | `[R]` | do not edit |
 | `tests/test_benchmark.py`, `test_insights.py`, `test_api.py` | `[A]` | — |
-| `tests/test_app_smoke.py` | `[P]` | — |
+| `tests/test_travel.py`, `test_server.py`, `test_learned_backend.py` | `[A]` | — |
 | `tests/test_eval.py`, `test_schema_loader.py`, `test_sources.py` | `[R]` | — |
 | `pyproject.toml` | `[R]` **sole editor** | request deps in the group chat |
 | `README.md` | `[A]`, and only at the end | — |
@@ -152,6 +162,9 @@ def search_reviews(d: ClusterData, property_id=None, aspect=None, sentiment=None
 >   `MIN_REVIEWS_FOR_FLAG` that charts draw instead of hard-coding thresholds.
 > - `intervention_check(d, property_id, aspect, start, baseline_start=None) -> dict`
 >   ("Did my fix work?", keys `INTERVENTION_KEYS`; methodology §12).
+> - 2026-10-13: classifier backend `learned` (`CRI_LEARNED_MODEL_PATH` is part of the
+>   classifier cache key). Nothing above changed. The HTTP API over this facade and the
+>   travel layer is documented in `docs/API_CONTRACTS.md`.
 
 **Day-0 unblock rule:** `[A]` pushes `api.py` with *working or stubbed* returns
 (correct columns, plausible shapes) **within the first 2 hours**. From that moment
@@ -259,7 +272,7 @@ Three tracks, zero file overlap. This is the big push.
        matrix, and an error-analysis table (sarcasm / mixed aspects / very short reviews).
 - [x] Labelling pack: template, a written 1-page guideline, and a deterministic split
       so three people can label disjoint slices without overlap.
-- [ ] **Deploy to Streamlit Community Cloud** from `main`; share the public URL.
+- [ ] **Deploy** the web app + API from `main` (was: Streamlit Community Cloud; see `docs/DEPLOYMENT.md`); share the public URL.
       *(Prepared: `requirements.txt` + `docs/DEPLOYMENT.md`; the deploy itself needs a GitHub login.)*
 - [x] Add the app smoke test + (stretch) CodeQL to CI.
 - [x] Keep `docs/TODO_RESULTS.md` current — every `TBD` tracked.
@@ -332,7 +345,7 @@ Whatever the source: drop reviewer identity at ingestion, anonymise property nam
 | 1 | **No real data in time** | High | Demo on synthetic, labelled honestly. Frame the pipeline as source-agnostic and show the loader accepting any schema-conforming CSV. Judges respect honesty more than a fake dataset. |
 | 2 | **Merge conflicts / overwritten work** | Medium | §3.1 ownership map + integration windows. If two people need one file, one of them waits. |
 | 3 | **Over-scoping** | High | H+11 feature freeze. Everything in "stretch" is explicitly cuttable. |
-| 4 | **Deployment breaks on demo day** | Medium | Backup video at H+18, plus a local `streamlit run` rehearsed as plan C. |
+| 4 | **Deployment breaks on demo day** | Medium | Backup video at H+18, plus the local API + web app rehearsed as plan C. |
 | 5 | **Eval numbers come out weak** | Medium | Report them honestly with an error analysis. A measured 0.6 F1 with insight into *why* beats an unverifiable claim. |
 | 6 | **Someone gets blocked** | Medium | The §3.2 contract + Day-0 stubs mean no one hard-blocks on anyone else. |
 | 7 | **Live Hinglish demo input fails** | Low | Pre-test 5 example strings and keep them in the demo script. |
@@ -384,10 +397,11 @@ produced it.
 ## 12. Quick reference
 
 ```bash
-python -m pip install -e ".[dev]"     # setup
+python -m pip install -e ".[dev,api]" # setup
 python -m pytest                      # tests
 python -m ruff check .                # lint
-streamlit run app/Home.py             # the dashboard
+uvicorn cri.server:app --port 8000    # the API
+cd web && npm ci && npm run dev       # the web app (http://localhost:3000)
 python scripts/demo.py                # CLI demo
 python scripts/make_figures.py        # regenerate README figures
 python -m cri.generate --out data/sample/synthetic_reviews.csv

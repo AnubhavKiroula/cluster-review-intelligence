@@ -113,6 +113,34 @@ export default function Home() {
         </Link>
       </div>
 
+      <div className="section-heading">
+        <div>
+          <h2>Travel intelligence</h2>
+          <p className="section-description">
+            The same review evidence, put to work for travellers, providers and tourism boards
+            (needs the API: <code>uvicorn cri.server:app</code>).
+          </p>
+        </div>
+      </div>
+      <div className="cardlinks">
+        <Link className="cardlink" href="/explore">
+          <div className="t">🧭 When &amp; where to go</div>
+          <div className="d">Holiday-aware crowd estimates, quieter dates, similar places, star-free stays.</div>
+        </Link>
+        <Link className="cardlink" href="/plan">
+          <div className="t">🗺️ Plan a trip</div>
+          <div className="d">A budget itinerary with traced costs, carbon and local sellers.</div>
+        </Link>
+        <Link className="cardlink" href="/provider">
+          <div className="t">🛎️ Provider insights</div>
+          <div className="d">What to fix, upcoming peaks vs your room mix, quiet windows.</div>
+        </Link>
+        <Link className="cardlink" href="/region">
+          <div className="t">🏔️ Regional pressure</div>
+          <div className="d">Pressure vs assumed ceilings, redistribution, local-economy gaps.</div>
+        </Link>
+      </div>
+
       <div className="panel">
         <div className="eyebrow">Data &amp; methodology</div>
         <p className="caption" style={{ marginTop: 0 }}>

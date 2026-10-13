@@ -1,7 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   // Pure static site: `next build` emits ./out, deployable to any static host
-  // (Streamlit-free, no backend). Data is fetched at runtime from /data/cluster.json.
+  // The G5 pages fetch /data/*.synthetic.json at runtime; the travel pages call the
+  // Python API (cri.server) at NEXT_PUBLIC_API_BASE_URL.
   output: "export",
   // Emit <route>/index.html so the site resolves on any static host (and a bare
   // python http.server) without per-host extensionless-route rewrites.

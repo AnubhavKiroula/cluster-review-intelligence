@@ -22,7 +22,7 @@ dependencies = [
 [project.optional-dependencies]
 figures = ["matplotlib==3.10.8"]
 # Optional transformer sentiment backend (CRI_MODEL_BACKEND=transformer). Heavy:
-# not installed by default, in CI, or on Streamlit Cloud. See cri/transformer_backend.py.
+# not installed by default or in CI. See cri/transformer_backend.py.
 model = [
     "transformers==5.19.0",
     "torch==2.14.1",
@@ -31,13 +31,18 @@ dev = [
     "pytest==9.0.3",
     "ruff==0.16.10",
     "matplotlib==3.10.8",
+    "httpx==0.28.1",
 ]
-# pyarrow is pinned because streamlit 1.41.1 only asks for pyarrow>=7, and pyarrow 26
-# refuses numpy<2 at import time (every st.dataframe would crash on our numpy 1.26).
-dashboard = [
-    "plotly==5.24.1",
-    "pyarrow==25.0.1",
-    "streamlit==1.41.1",
+# Training the learned sentiment backend (scripts/train_sentiment.py). Inference needs
+# only numpy, so the API and CI do not install this.
+train = [
+    "scikit-learn==1.9.1",
+    "scipy==1.16.3",
+]
+# HTTP API for the Next.js frontend (web/): uvicorn cri.server:app
+api = [
+    "fastapi==0.143.0",
+    "uvicorn==0.54.0",
 ]
 
 [project.scripts]
@@ -47,7 +52,7 @@ cri-generate = "cri.generate:main"
 where = ["src"]
 
 [tool.setuptools.package-data]
-cri = ["resources/*.yaml"]
+cri = ["resources/*.yaml", "resources/models/*.npz", "resources/models/*.json"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

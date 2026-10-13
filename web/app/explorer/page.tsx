@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { postApi, type ApiError, type ClassifyResponse } from "@/lib/api";
 import { sentimentLabel, useData, type Mention, type Review } from "@/lib/data";
 import {
   DownloadCsv,
@@ -91,6 +92,8 @@ export default function ExplorerPage() {
       />
       <SyntheticBanner />
 
+      <TryYourOwnReview />
+
       <section className="explorer-lab">
         <SectionHeading
           title="✍️ Search the evidence"
@@ -170,6 +173,72 @@ export default function ExplorerPage() {
         </>
       )}
     </>
+  );
+}
+
+// Live classification needs the Python API (cri.server); the rest of this page does not.
+function TryYourOwnReview() {
+  const [text, setText] = useState("Khana accha tha lekin kamra ganda tha.");
+  const [res, setRes] = useState<ClassifyResponse | null>(null);
+  const [err, setErr] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+
+  async function run() {
+    setBusy(true);
+    setErr(null);
+    try {
+      setRes(await postApi<ClassifyResponse>("/reviews/classify", { text }));
+    } catch (e) {
+      setErr((e as ApiError).message);
+      setRes(null);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <section className="explorer-lab">
+      <SectionHeading
+        title="🧪 Try your own review"
+        description="English, Hinglish or Devanagari. Each aspect, its sentiment and the clause it came from."
+      />
+      <div className="controls">
+        <div className="field" style={{ flex: 1 }}>
+          <label htmlFor="try-text">Review text</label>
+          <input
+            id="try-text"
+            type="text"
+            maxLength={2000}
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && text.trim() && run()}
+          />
+        </div>
+        <button className="btn btn-primary" onClick={run} disabled={busy || !text.trim()}>
+          {busy ? "Classifying…" : "Classify"}
+        </button>
+      </div>
+      {err && (
+        <div className="state error">
+          Live classification needs the API (<code>uvicorn cri.server:app --port 8000</code>):{" "}
+          {err}
+        </div>
+      )}
+      {res &&
+        (res.mentions.length === 0 ? (
+          <Info>No aspect detected. The rule baseline only knows the cue words in aspects.yaml.</Info>
+        ) : (
+          <Table
+            rows={res.mentions}
+            columns={[
+              { key: "aspect", label: "Aspect" },
+              { key: "sentiment", label: "Sentiment", render: (r) => sentimentLabel(r.sentiment) },
+              { key: "sentence", label: "Clause" },
+            ]}
+          />
+        ))}
+      {res && <p className="caption">Classifier backend: {res.backend}.</p>}
+    </section>
   );
 }
 

@@ -28,8 +28,8 @@ like 101 work everywhere), and the schema turns dates with a UTC offset into nai
 local time in ``LOCAL_TZ`` while naive dates stay as they are (so months are the
 calendar months the guests experienced).
 
-All functions are pure: they never mutate ``ClusterData``. In Streamlit, cache
-``load_cluster`` and the heavier calls with ``st.cache_data``.
+All functions are pure: they never mutate ``ClusterData``. In a UI or server, cache
+``load_cluster`` once (cri.server keeps one ``ClusterData`` per process).
 Unknown property/aspect names or invalid arguments raise ``ValueError`` naming
 the valid options; empty results are empty frames with the documented columns.
 """
@@ -86,14 +86,15 @@ class ClusterData:
 
 
 @functools.lru_cache(maxsize=4)
-def _classifier(backend: str | None, aspects_path: str | None):
+def _classifier(backend: str | None, aspects_path: str | None, model_path: str | None):
     # Keyed by everything a classifier is built from: the transformer backend loads
     # a ~541 MB model, so it must not be rebuilt for every load or typed review.
     return get_classifier(backend)
 
 
 def _configured_classifier():
-    return _classifier(os.environ.get("CRI_MODEL_BACKEND"), os.environ.get("CRI_ASPECTS_PATH"))
+    return _classifier(os.environ.get("CRI_MODEL_BACKEND"), os.environ.get("CRI_ASPECTS_PATH"),
+                       os.environ.get("CRI_LEARNED_MODEL_PATH"))
 
 
 def _with_review_ids(reviews: pd.DataFrame) -> pd.DataFrame:
