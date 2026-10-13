@@ -76,7 +76,8 @@ def detect_language(text: str) -> str:
         "khaana", "khana", "kamra", "accha", "acha", "bahut", "nahi",
         "saaf", "ganda", "mehenga", "paisa", "badhiya", "thanda",
     )
-    if any(m in lowered for m in hinglish_markers):
+    # Whole words: as substrings "acha" would match "reachable", "Himachal".
+    if set(_WORD.findall(lowered)) & set(hinglish_markers):
         return "hinglish"
     return "en"
 
