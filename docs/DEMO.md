@@ -32,6 +32,11 @@ Say "synthetic" out loud: the banner is on every page.
    **⚖️ Market**. Food = **property-specific** (only Property F) → a competitive gap
    they own. Room = **market-wide**: a seasonal dip every **December** at 12/12
    properties. **"Same chart, two completely different actions."**
+   *Optional (30 s):* **🔧 Did my fix work? → Property A, Room, 2025-12**: "Say they
+   renovated rooms in December." The plain before/after says **−1.38**, but the market
+   fell **−0.95** over the same months; relative to the market it is **−0.43**, *no
+   detectable change*. "A plain before/after would have blamed the renovation for
+   the weather."
 4. **Hinglish (20 s)** - **🔍 Explorer → Try your own review**. Type one of the
    rehearsed examples below; point at the *clause it came from* column.
 5. **Destination view (20 s)** - **🧭 Destination**: "For a tourism board, Room is a
