@@ -16,7 +16,13 @@ export const metadata: Metadata = {
     "For hotel and homestay owners in Uttarakhand: when your reviews get worse, is it your property or the whole market? Your cluster can tell.",
 };
 
-export const viewport: Viewport = { themeColor: "#4A6386" };
+// Matches the SYNTHETIC strip at the top of every page, in each colour scheme.
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#4A6386" },
+    { media: "(prefers-color-scheme: dark)", color: "#2B3A52" },
+  ],
+};
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (

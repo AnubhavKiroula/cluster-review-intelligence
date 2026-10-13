@@ -3,7 +3,7 @@
 // Small shared UI pieces: page header, SYNTHETIC banner, states, change split, CSV
 // download, generic table.
 import { fmtNum, useData } from "@/lib/data";
-import { COLORS, WHOSE_COLORS } from "@/lib/theme";
+import { WHOSE_VARS } from "@/lib/theme";
 
 export function PageHeader({
   title,
@@ -80,7 +80,7 @@ export function ErrorState({ message, file = "cluster.synthetic.json" }: { messa
 /** "Is it you or the market?" verdict for one priority (priority_actions.whose_problem). */
 export function WhosePill({ value }: { value: string }) {
   return (
-    <span className="whose" style={{ "--tone": WHOSE_COLORS[value] ?? COLORS.stone } as React.CSSProperties}>
+    <span className="whose" style={{ "--tone": WHOSE_VARS[value] ?? "var(--stone)" } as React.CSSProperties}>
       {value}
     </span>
   );

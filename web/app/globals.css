@@ -1,5 +1,5 @@
 /* Cluster Review Intelligence: one stylesheet, no framework.
-   Palette from the Uttarakhand hills (same values as lib/theme.ts):
+   Palette from the Uttarakhand hills, light and dark (same values as lib/theme.ts):
      deodar  = better / ahead of the cluster   buransh (rhododendron) = worse / yours alone
      slate   = the market, everyone's          stone = neutral, on par, not tested
    Type: Source Serif 4 for headings, Public Sans for everything else (next/font). */
@@ -23,6 +23,9 @@
   --buransh-tint: #f8e7ee;
   --slate-tint: #e6ebf2;
   --marigold-tint: #f8efdc;
+  --on-deodar: #ffffff;
+  --strip-bg: #4a6386;
+  --strip-fg: #f1f4f9;
 
   --font-body: var(--font-sans), "Segoe UI", system-ui, -apple-system, sans-serif;
   --font-head: var(--font-serif), Georgia, "Times New Roman", serif;
@@ -31,6 +34,34 @@
   --page: 1120px;
   --gutter: clamp(16px, 4vw, 40px);
   --radius: 6px;
+}
+
+/* Dark: lighter, slightly desaturated tones on deep pine. Every pair is measured to the
+   same WCAG AA targets as the light palette (web/README.md). */
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --ink: #e3e9e5;
+    --muted: #a4b1aa;
+    --paper: #1b2420;
+    --mist: #121915;
+    --panel: #222d28;
+    --grid: #2b3631;
+    --line: #3b4842;
+    --deodar: #74b8a0;
+    --deodar-deep: #95cbb7;
+    --buransh: #f0789f;
+    --slate: #93a9cc;
+    --stone: #8d9993;
+    --marigold: #e2b24e;
+    --deodar-tint: #1c352c;
+    --buransh-tint: #3b1c29;
+    --slate-tint: #222e40;
+    --marigold-tint: #382d17;
+    --on-deodar: #0f1a15;
+    --strip-bg: #2b3a52;
+    --strip-fg: #e8edf6;
+  }
 }
 
 *,
@@ -145,8 +176,8 @@ summary {
   gap: 4px 12px;
   margin: 0;
   padding: 7px var(--gutter);
-  background: var(--slate);
-  color: #f1f4f9;
+  background: var(--strip-bg);
+  color: var(--strip-fg);
   font-size: 13px;
 }
 
@@ -382,13 +413,13 @@ input:hover {
 .btn-primary {
   background: var(--deodar);
   border-color: var(--deodar);
-  color: var(--paper);
+  color: var(--on-deodar);
 }
 
 .btn-primary:hover {
   background: var(--deodar-deep);
   border-color: var(--deodar-deep);
-  color: var(--paper);
+  color: var(--on-deodar);
 }
 
 .btn-quiet {
@@ -396,6 +427,9 @@ input:hover {
 }
 
 .table-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
   margin-top: 12px;
 }
 

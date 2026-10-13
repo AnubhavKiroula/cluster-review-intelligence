@@ -12,7 +12,7 @@ import {
   SectionHeading,
   Table,
 } from "@/components/ui";
-import { COLORS, SCOPE_COLORS } from "@/lib/theme";
+import { SCOPE_VARS, scopeColors, usePalette } from "@/lib/theme";
 
 // Shape as well as colour tells the scopes apart.
 const SCOPE_SYMBOLS: Record<string, string> = {
@@ -24,6 +24,8 @@ const SCOPE_SYMBOLS: Record<string, string> = {
 
 export default function MarketPage() {
   const { data, error } = useData();
+  // Charts need literal colours for the viewer's scheme (light or dark).
+  const C = usePalette();
 
   const chart = useMemo(() => {
     if (!data) return null;
@@ -48,8 +50,8 @@ export default function MarketPage() {
         marker: {
           size: 15,
           symbol: SCOPE_SYMBOLS[sc] ?? "circle",
-          color: SCOPE_COLORS[sc] ?? COLORS.stone,
-          line: { width: 1.5, color: COLORS.paper },
+          color: scopeColors(C)[sc] ?? C.stone,
+          line: { width: 1.5, color: C.paper },
         },
         customdata: g.map((s) => s.n_properties),
         hovertemplate:
@@ -62,11 +64,11 @@ export default function MarketPage() {
       traces,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       shapes: [
-        { type: "line", x0: 0.5, x1: 0.5, yref: "paper", y0: 0, y1: 1, line: { color: COLORS.stone, dash: "dot", width: 1 } },
-        { type: "line", xref: "paper", x0: 0, x1: 1, y0: avgNeg, y1: avgNeg, line: { color: COLORS.stone, dash: "dot", width: 1 } },
+        { type: "line", x0: 0.5, x1: 0.5, yref: "paper", y0: 0, y1: 1, line: { color: C.stone, dash: "dot", width: 1 } },
+        { type: "line", xref: "paper", x0: 0, x1: 1, y0: avgNeg, y1: avgNeg, line: { color: C.stone, dash: "dot", width: 1 } },
       ] as any[],
     };
-  }, [data]);
+  }, [data, C]);
 
   if (error) return <ErrorState message={error} />;
   if (!data) return <Loading />;
@@ -97,11 +99,11 @@ export default function MarketPage() {
       <dl className="counts">
         <div>
           <dt>Shared across the market</dt>
-          <dd style={{ color: SCOPE_COLORS["market-wide"] }}>{count("market-wide")}</dd>
+          <dd style={{ color: SCOPE_VARS["market-wide"] }}>{count("market-wide")}</dd>
         </div>
         <div>
           <dt>Belong to one property</dt>
-          <dd style={{ color: SCOPE_COLORS["property-specific"] }}>{count("property-specific")}</dd>
+          <dd style={{ color: SCOPE_VARS["property-specific"] }}>{count("property-specific")}</dd>
         </div>
         <div>
           <dt>Too few properties to tell</dt>
@@ -151,7 +153,7 @@ export default function MarketPage() {
                 key: "scope",
                 label: "Scope",
                 render: (r) => (
-                  <span className="scope" style={{ "--tone": SCOPE_COLORS[r.scope] ?? COLORS.stone } as React.CSSProperties}>
+                  <span className="scope" style={{ "--tone": SCOPE_VARS[r.scope] ?? "var(--stone)" } as React.CSSProperties}>
                     {r.scope}
                   </span>
                 ),

@@ -17,7 +17,7 @@ import {
   Table,
   WhosePill,
 } from "@/components/ui";
-import { COLORS, FLAG_COLORS } from "@/lib/theme";
+import { flagColors, FLAG_VARS, usePalette } from "@/lib/theme";
 
 const FLAG_WORD: Record<string, string> = { lead: "ahead", lag: "behind", on_par: "on par" };
 
@@ -25,6 +25,8 @@ export default function PropertyPage() {
   const { data, error } = useData();
   const [prop, setProp] = useState<string>("");
   const [aspect, setAspect] = useState<string>("");
+  // Charts need literal colours for the viewer's scheme (light or dark).
+  const C = usePalette();
 
   // Deep link: /property?property=Property%20F (read once, client-side).
   useEffect(() => {
@@ -58,13 +60,13 @@ export default function PropertyPage() {
           name: prop,
           x: sc.map((r) => r.aspect),
           y: sc.map((r) => r.mean),
-          marker: { color: sc.map((r) => FLAG_COLORS[r.flag] ?? COLORS.muted) },
+          marker: { color: sc.map((r) => flagColors(C)[r.flag] ?? C.muted) },
           error_y: {
             type: "data",
             symmetric: false,
             array: sc.map((r) => (r.ci_high != null ? r.ci_high - r.mean : 0)),
             arrayminus: sc.map((r) => (r.ci_low != null ? r.mean - r.ci_low : 0)),
-            color: COLORS.ink,
+            color: C.ink,
             thickness: 1.2,
           },
           customdata: sc.map((r) => r.n),
@@ -76,7 +78,7 @@ export default function PropertyPage() {
           name: "Cluster mean",
           x: sc.map((r) => r.aspect),
           y: sc.map((r) => r.cluster_mean),
-          marker: { symbol: "line-ew", size: 26, line: { width: 3, color: COLORS.ink } },
+          marker: { symbol: "line-ew", size: 26, line: { width: 3, color: C.ink } },
           hovertemplate: "%{x}<br>cluster %{y:.2f}<extra></extra>",
         },
       ],
@@ -87,13 +89,13 @@ export default function PropertyPage() {
           ticktext: sc.map((r) =>
             r.flag === "on_par"
               ? r.aspect
-              : `${r.aspect}<br><span style="color:${FLAG_COLORS[r.flag]}">${FLAG_WORD[r.flag] ?? r.flag}</span>`,
+              : `${r.aspect}<br><span style="color:${flagColors(C)[r.flag]}">${FLAG_WORD[r.flag] ?? r.flag}</span>`,
           ),
         },
         margin: { l: 56, r: 16, t: 36, b: 64 },
       },
     };
-  }, [pdata, prop]);
+  }, [pdata, prop, C]);
 
   const trendChart = useMemo(() => {
     if (!pdata || !aspect) return null;
@@ -109,7 +111,7 @@ export default function PropertyPage() {
       y0: 0,
       y1: 1,
       line: {
-        color: c.direction === "negative" ? COLORS.negative : COLORS.positive,
+        color: c.direction === "negative" ? C.buransh : C.deodar,
         width: 1.5,
         dash: "dash",
       },
@@ -121,7 +123,7 @@ export default function PropertyPage() {
       y: 1,
       text: `${c.change_month}: ${c.delta > 0 ? "+" : "−"}${Math.abs(c.delta).toFixed(2)} vs the market`,
       showarrow: false,
-      font: { size: 12, color: c.direction === "negative" ? COLORS.negative : COLORS.positive },
+      font: { size: 12, color: c.direction === "negative" ? C.buransh : C.deodar },
       yanchor: "bottom",
     }));
     return {
@@ -132,7 +134,7 @@ export default function PropertyPage() {
           name: aspect,
           x: tr.map((p) => p.month),
           y: tr.map((p) => p.mean),
-          line: { color: COLORS.slate, width: 2 },
+          line: { color: C.slate, width: 2 },
           marker: { size: 5 },
           customdata: tr.map((p) => p.n),
           hovertemplate: "%{x|%b %Y}<br>mean %{y:.2f} (n=%{customdata})<extra></extra>",
@@ -146,7 +148,7 @@ export default function PropertyPage() {
       },
       hasCps: cps.length > 0,
     };
-  }, [pdata, aspect]);
+  }, [pdata, aspect, C]);
 
   if (error) return <ErrorState message={error} />;
   if (!data || !pdata) return <Loading />;
@@ -284,7 +286,7 @@ export default function PropertyPage() {
 
       <SectionHeading
         title="Aspect scores against the cluster"
-        description="Bars are this property, with 95% intervals; the dark tick is the cluster mean."
+        description="Bars are this property, with 95% intervals; the short horizontal tick is the cluster mean."
       />
       {scorecardChart && (
         <div className="chart-panel">
@@ -315,9 +317,9 @@ export default function PropertyPage() {
         </div>
       )}
       <p className="caption">
-        <span className="key" style={{ background: FLAG_COLORS.lead }} /> ahead{" "}
-        <span className="key" style={{ background: FLAG_COLORS.lag }} /> behind{" "}
-        <span className="key" style={{ background: FLAG_COLORS.on_par }} /> on par. Flagged only
+        <span className="key" style={{ background: FLAG_VARS.lead }} /> ahead{" "}
+        <span className="key" style={{ background: FLAG_VARS.lag }} /> behind{" "}
+        <span className="key" style={{ background: FLAG_VARS.on_par }} /> on par. Flagged only
         when the interval supports it after a multiple-testing correction. Intervals are omitted for
         aspects with fewer than 10 reviews.
       </p>

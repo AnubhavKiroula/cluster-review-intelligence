@@ -14,7 +14,7 @@ import {
   SectionHeading,
   signed,
 } from "@/components/ui";
-import { COLORS } from "@/lib/theme";
+import { usePalette } from "@/lib/theme";
 
 const VERDICT: Record<FixCheck["verdict"], { tone: string; headline: string }> = {
   improved: { tone: "up", headline: "Improved, relative to the market" },
@@ -30,6 +30,8 @@ export default function FixCheckPage() {
   const [prop, setProp] = useState("");
   const [aspect, setAspect] = useState("");
   const [month, setMonth] = useState("");
+  // Charts need literal colours for the viewer's scheme (light or dark).
+  const C = usePalette();
 
   // Defaults once both files are in. Deep link (demo):
   // /fix-check/?property=Property%20A&aspect=Room&month=2025-12
@@ -63,7 +65,7 @@ export default function FixCheckPage() {
         yref: "paper",
         y0: 0,
         y1: 1,
-        line: { color: COLORS.ink, width: 1.5, dash: "dash" },
+        line: { color: C.ink, width: 1.5, dash: "dash" },
       },
     ];
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -75,7 +77,7 @@ export default function FixCheckPage() {
         yanchor: "bottom",
         text: "your change",
         showarrow: false,
-        font: { size: 12, color: COLORS.ink },
+        font: { size: 12, color: C.ink },
       },
     ];
     if (result.baseline_start) {
@@ -86,7 +88,7 @@ export default function FixCheckPage() {
         yref: "paper",
         y0: 0,
         y1: 1,
-        fillcolor: COLORS.mist,
+        fillcolor: C.mist,
         line: { width: 0 },
         layer: "below",
       });
@@ -98,7 +100,7 @@ export default function FixCheckPage() {
         yanchor: "bottom",
         text: "before",
         showarrow: false,
-        font: { size: 12, color: COLORS.muted },
+        font: { size: 12, color: C.muted },
       });
     }
     return {
@@ -109,7 +111,7 @@ export default function FixCheckPage() {
           name: aspect,
           x: trend.map((p) => p.month),
           y: trend.map((p) => p.mean),
-          line: { color: COLORS.slate, width: 2 },
+          line: { color: C.slate, width: 2 },
           marker: { size: 5 },
           customdata: trend.map((p) => p.n),
           hovertemplate: "%{x|%b %Y}<br>mean %{y:.2f} (n=%{customdata})<extra></extra>",
@@ -123,7 +125,7 @@ export default function FixCheckPage() {
         showlegend: false,
       },
     };
-  }, [trend, result, month, aspect]);
+  }, [trend, result, month, aspect, C]);
 
   if (error) return <ErrorState message={error} />;
   if (fix.error) return <ErrorState message={fix.error} file="fixcheck.synthetic.json" />;
