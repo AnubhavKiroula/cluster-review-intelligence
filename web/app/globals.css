@@ -304,7 +304,7 @@ h2 {
   font-size: 13px;
 }
 
-/* --- Hero, metrics and panels ----------------------------------------------------- */
+/* --- Hero and panels --------------------------------------------------------- */
 .hero-grid {
   display: grid;
   grid-template-columns: minmax(0, 1.45fr) minmax(270px, 0.8fr);
@@ -403,69 +403,6 @@ h2 {
   color: var(--teal);
   font-size: 12px;
   font-weight: 700;
-}
-
-.cards {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 13px;
-  margin: 19px 0 10px;
-}
-
-.card,
-.metric-card {
-  min-width: 0;
-  padding: 19px 20px;
-  border: 1px solid var(--grid);
-  border-radius: 14px;
-  background: var(--paper);
-  box-shadow: var(--shadow-sm);
-}
-
-.metric-card .metric-icon {
-  display: grid;
-  width: 29px;
-  height: 29px;
-  margin-bottom: 14px;
-  place-items: center;
-  border-radius: 9px;
-  background: var(--teal-soft);
-  color: var(--teal);
-  font-size: 14px;
-}
-
-.metric-card:nth-child(2) .metric-icon {
-  background: var(--amber-soft);
-  color: #c9792f;
-}
-
-.metric-card:nth-child(3) .metric-icon {
-  background: #edf0ff;
-  color: #5867af;
-}
-
-.metric-card:nth-child(4) .metric-icon {
-  background: #f3edf9;
-  color: #83539e;
-}
-
-.card .value,
-.metric-card .value {
-  color: var(--navy);
-  font-size: 27px;
-  font-weight: 800;
-  letter-spacing: -0.045em;
-  line-height: 1.1;
-}
-
-.card .label,
-.metric-card .label {
-  margin-top: 6px;
-  color: var(--muted);
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
 }
 
 .panel {
@@ -726,19 +663,9 @@ input[type="text"]:focus {
   background: #fbfcfe;
 }
 
-.badge {
-  display: inline-block;
-  padding: 3px 8px;
-  border-radius: 999px;
-  background: var(--panel);
-  color: var(--muted);
-  font-size: 11px;
-  font-weight: 700;
-}
-
 .cardlinks {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 13px;
   margin-top: 16px;
 }
@@ -814,10 +741,6 @@ code {
 }
 
 @media (max-width: 980px) {
-  .cards {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
   .cardlinks {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -876,7 +799,6 @@ code {
     min-height: 0;
   }
 
-  .cards,
   .cardlinks {
     grid-template-columns: 1fr;
   }
