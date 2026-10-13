@@ -31,7 +31,7 @@ EXPLORER = "review_explorer_SYNTHETIC.png"
 
 def settle(page, marker: str) -> None:
     page.get_by_text(marker, exact=False).first.wait_for(timeout=60_000)
-    page.wait_for_timeout(2000)  # let Plotly finish drawing
+    page.wait_for_timeout(6000)  # let Plotly finish drawing and the map tiles load
 
 
 def main() -> None:

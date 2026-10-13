@@ -3008,7 +3008,7 @@ Property F,GoogleMaps,2025-03-04,5,"Room service accha tha, towels clean the. Th
 Property A,Booking,2025-03-05,1,The staff were rude and the manager was unhelpful.,en
 Property A,GoogleMaps,2025-03-05,3,Kamra badhiya aur comfortable tha.,hinglish
 Property B,Booking,2025-03-05,3,"Very clean and hygienic bathroom. The food was stale and cold, really disappointing.",en
-Property C,MakeMyTrip,2025-03-05,4,"Mountain ka nazara shandar, location badhiya.",hinglish
+Property C,MakeMyTrip,2025-03-05,2,"Location bekaar thi, market se door.",hinglish
 Property C,GoogleMaps,2025-03-05,4,Housekeeping was prompt and the towels were fresh.,en
 Property H,Booking,2025-03-05,2,"Bahut mehenga tha, bilkul value nahi.",hinglish
 Property H,Booking,2025-03-05,5,"The check-in was quick and the booking was smooth, really good. Great value for money and worth the price.",en
@@ -3033,7 +3033,7 @@ Property C,TripAdvisor,2025-03-08,3,"Sasta aur accha, paisa vasool stay. Kamra b
 Property C,Booking,2025-03-08,5,"The check-in was quick and the booking was smooth, really good. Bathroom ekdum saaf, safai badhiya.",hinglish
 Property C,MakeMyTrip,2025-03-08,4,The staff were friendly and the reception was helpful.,en
 Property D,TripAdvisor,2025-03-08,3,"The staff were friendly and the reception was helpful. Location bekaar thi, market se door.",hinglish
-Property E,TripAdvisor,2025-03-08,3,कमरे का हीटर खराब था. The location was great with a beautiful mountain view.,hi
+Property E,TripAdvisor,2025-03-08,2,कमरे का हीटर खराब था. The location was poor and far from the market.,hi
 Property B,GoogleMaps,2025-03-09,4,"The staff were rude and the manager was unhelpful. Room service accha tha, towels clean the.",hinglish
 Property B,TripAdvisor,2025-03-09,4,"Bathroom ganda tha, gandagi thi. Kamra badhiya aur comfortable tha.",hinglish
 Property D,MakeMyTrip,2025-03-09,3,The room was spacious and comfortable with a warm heater.,en
@@ -3059,7 +3059,7 @@ Property D,GoogleMaps,2025-03-12,2,The check-in was slow and the booking was a p
 Property K,TripAdvisor,2025-03-12,3,Very clean and hygienic bathroom. Overpriced and too expensive for what you get.,en
 Property B,TripAdvisor,2025-03-13,3,Khaana badhiya tha aur nashta bhi tasty.,hinglish
 Property C,TripAdvisor,2025-03-13,3,"Bathroom ekdum saaf, safai badhiya. Kamra badhiya aur comfortable tha.",hinglish
-Property C,TripAdvisor,2025-03-13,3,"Mountain ka nazara shandar, location badhiya.",hinglish
+Property C,TripAdvisor,2025-03-13,1,"Location bekaar thi, market se door.",hinglish
 Property F,Booking,2025-03-13,3,"Sasta aur accha, paisa vasool stay. Mountain ka nazara shandar, location badhiya.",hinglish
 Property G,Booking,2025-03-13,3,Khaana badhiya tha aur nashta bhi tasty. कमरे का हीटर खराब था.,hi
 Property H,GoogleMaps,2025-03-13,3,"Room service accha tha, towels clean the.",hinglish
@@ -3068,7 +3068,7 @@ Property K,MakeMyTrip,2025-03-13,1,"Towels ganda the, room service bekaar.",hing
 Property K,Booking,2025-03-13,2,"Kamre ka heater band tha, bahut thanda kamra. Room service accha tha, towels clean the.",hinglish
 Property C,Booking,2025-03-14,3,खाना बहुत बढ़िया था.,hi
 Property D,Booking,2025-03-14,4,"The location was great with a beautiful mountain view. Staff ka vyavhaar accha tha, reception helpful.",hinglish
-Property E,MakeMyTrip,2025-03-14,2,"Housekeeping never changed the towels, poor service. The location was great with a beautiful mountain view.",en
+Property E,MakeMyTrip,2025-03-14,1,"Housekeeping never changed the towels, poor service. The location was poor and far from the market.",en
 Property F,GoogleMaps,2025-03-14,4,The location was great with a beautiful mountain view. The room was spacious and comfortable with a warm heater.,en
 Property G,MakeMyTrip,2025-03-14,4,"The check-in was quick and the booking was smooth, really good. The staff were friendly and the reception was helpful.",en
 Property H,TripAdvisor,2025-03-14,3,"The location was poor and far from the market. Staff ka vyavhaar accha tha, reception helpful.",hinglish
@@ -3231,7 +3231,7 @@ Property A,TripAdvisor,2025-04-07,4,"Bathroom ekdum saaf, safai badhiya. Sasta a
 Property A,TripAdvisor,2025-04-07,3,"Reception staff ka vyavhaar bekaar tha. Towels ganda the, room service bekaar.",hinglish
 Property B,GoogleMaps,2025-04-07,3,The staff were friendly and the reception was helpful. Khaana badhiya tha aur nashta bhi tasty.,hinglish
 Property C,TripAdvisor,2025-04-07,4,"Sasta aur accha, paisa vasool stay. Room service accha tha, towels clean the.",hinglish
-Property E,GoogleMaps,2025-04-07,4,कमरे का हीटर खराब था. The location was great with a beautiful mountain view.,hi
+Property E,GoogleMaps,2025-04-07,3,कमरे का हीटर खराब था. The location was poor and far from the market.,hi
 Property I,TripAdvisor,2025-04-07,3,"Location bekaar thi, market se door.",hinglish
 Property I,Booking,2025-04-07,5,"Mountain ka nazara shandar, location badhiya.",hinglish
 Property A,GoogleMaps,2025-04-08,3,"Bathroom ekdum saaf, safai badhiya. Great value for money and worth the price.",hinglish
@@ -3243,7 +3243,7 @@ Property E,GoogleMaps,2025-04-08,4,Kamra badhiya aur comfortable tha.,hinglish
 Property F,Booking,2025-04-08,4,Housekeeping was prompt and the towels were fresh.,en
 Property G,GoogleMaps,2025-04-08,3,"The food was delicious and the breakfast was fresh. Location bekaar thi, market se door.",hinglish
 Property K,TripAdvisor,2025-04-08,2,"कमरे का हीटर खराब था. Towels ganda the, room service bekaar.",hi
-Property B,TripAdvisor,2025-04-09,3,"Mountain ka nazara shandar, location badhiya.",hinglish
+Property B,TripAdvisor,2025-04-09,1,"Location bekaar thi, market se door.",hinglish
 Property C,MakeMyTrip,2025-04-09,5,"Bathroom ekdum saaf, safai badhiya. Staff ka vyavhaar accha tha, reception helpful.",hinglish
 Property E,GoogleMaps,2025-04-09,2,कमरे का हीटर खराब था. The staff were rude and the manager was unhelpful.,hi
 Property G,GoogleMaps,2025-04-09,2,"Bathroom ganda tha, gandagi thi.",hinglish
@@ -3251,7 +3251,7 @@ Property H,Booking,2025-04-09,3,"Location bekaar thi, market se door. The food w
 Property J,TripAdvisor,2025-04-09,3,Reception staff ka vyavhaar bekaar tha.,hinglish
 Property A,Booking,2025-04-10,5,"Staff ka vyavhaar accha tha, reception helpful.",hinglish
 Property E,MakeMyTrip,2025-04-10,4,The staff were friendly and the reception was helpful.,en
-Property E,TripAdvisor,2025-04-10,4,"The staff were friendly and the reception was helpful. Mountain ka nazara shandar, location badhiya.",hinglish
+Property E,TripAdvisor,2025-04-10,3,"The staff were friendly and the reception was helpful. Location bekaar thi, market se door.",hinglish
 Property G,TripAdvisor,2025-04-10,3,The room was spacious and comfortable with a warm heater. The staff were rude and the manager was unhelpful.,en
 Property J,TripAdvisor,2025-04-10,4,बाथरूम गंदा था. The food was delicious and the breakfast was fresh.,hi
 Property K,TripAdvisor,2025-04-10,3,"The check-in was quick and the booking was smooth, really good.",en
@@ -3265,7 +3265,7 @@ Property G,TripAdvisor,2025-04-11,3,Kamra badhiya aur comfortable tha.,hinglish
 Property H,TripAdvisor,2025-04-11,3,"Housekeeping was prompt and the towels were fresh. The bathroom was dirty and smelly, poor hygiene.",en
 Property I,GoogleMaps,2025-04-11,4,The room was spacious and comfortable with a warm heater.,en
 Property J,GoogleMaps,2025-04-11,2,"Housekeeping never changed the towels, poor service.",en
-Property C,TripAdvisor,2025-04-12,3,"Mountain ka nazara shandar, location badhiya. The staff were friendly and the reception was helpful.",hinglish
+Property C,TripAdvisor,2025-04-12,2,"Location bekaar thi, market se door. The staff were friendly and the reception was helpful.",hinglish
 Property E,Booking,2025-04-12,3,"Bathroom ganda tha, gandagi thi.",hinglish
 Property G,GoogleMaps,2025-04-12,3,Great value for money and worth the price. Housekeeping was prompt and the towels were fresh.,en
 Property H,GoogleMaps,2025-04-12,2,"Kamre ka heater band tha, bahut thanda kamra.",hinglish
@@ -3283,7 +3283,7 @@ Property J,GoogleMaps,2025-04-13,4,Very clean and hygienic bathroom.,en
 Property K,TripAdvisor,2025-04-13,2,"Location bekaar thi, market se door. Towels ganda the, room service bekaar.",hinglish
 Property L,MakeMyTrip,2025-04-13,5,"Room service accha tha, towels clean the. The food was delicious and the breakfast was fresh.",hinglish
 Property L,Booking,2025-04-13,4,The room was spacious and comfortable with a warm heater. The location was great with a beautiful mountain view.,en
-Property C,TripAdvisor,2025-04-14,4,"Mountain ka nazara shandar, location badhiya.",hinglish
+Property C,TripAdvisor,2025-04-14,2,"Location bekaar thi, market se door.",hinglish
 Property C,Booking,2025-04-14,4,The food was delicious and the breakfast was fresh.,en
 Property H,Booking,2025-04-14,4,Kamra badhiya aur comfortable tha.,hinglish
 Property B,MakeMyTrip,2025-04-15,2,खाना बेकार और ठंडा था.,hi
@@ -3318,7 +3318,7 @@ Property F,MakeMyTrip,2025-04-17,3,"बाथरूम गंदा था. Sast
 Property G,MakeMyTrip,2025-04-17,4,The location was great with a beautiful mountain view. Kamra badhiya aur comfortable tha.,hinglish
 Property A,TripAdvisor,2025-04-18,2,"Towels ganda the, room service bekaar.",hinglish
 Property A,GoogleMaps,2025-04-18,3,Overpriced and too expensive for what you get. Very clean and hygienic bathroom.,en
-Property C,GoogleMaps,2025-04-18,4,Kamra badhiya aur comfortable tha. The location was great with a beautiful mountain view.,hinglish
+Property C,GoogleMaps,2025-04-18,3,Kamra badhiya aur comfortable tha. The location was poor and far from the market.,hinglish
 Property C,TripAdvisor,2025-04-18,3,The room was spacious and comfortable with a warm heater. खाना बहुत बढ़िया था.,hi
 Property D,MakeMyTrip,2025-04-18,3,The location was great with a beautiful mountain view. Very clean and hygienic bathroom.,en
 Property E,TripAdvisor,2025-04-18,4,The room was spacious and comfortable with a warm heater.,en
@@ -3432,7 +3432,7 @@ Property A,TripAdvisor,2025-05-05,4,Very clean and hygienic bathroom. The room h
 Property B,MakeMyTrip,2025-05-05,4,"The room was spacious and comfortable with a warm heater. Location bekaar thi, market se door.",hinglish
 Property C,MakeMyTrip,2025-05-05,4,Khaana badhiya tha aur nashta bhi tasty. The staff were friendly and the reception was helpful.,hinglish
 Property D,MakeMyTrip,2025-05-05,4,The location was great with a beautiful mountain view.,en
-Property E,GoogleMaps,2025-05-05,3,"Mountain ka nazara shandar, location badhiya. बाथरूम गंदा था.",hi
+Property E,GoogleMaps,2025-05-05,2,"Location bekaar thi, market se door. बाथरूम गंदा था.",hi
 Property I,TripAdvisor,2025-05-05,4,The food was delicious and the breakfast was fresh.,en
 Property I,Booking,2025-05-05,3,"Staff ka vyavhaar accha tha, reception helpful.",hinglish
 Property K,MakeMyTrip,2025-05-05,2,"Housekeeping never changed the towels, poor service.",en
@@ -3462,9 +3462,9 @@ Property J,MakeMyTrip,2025-05-08,4,"The check-in was quick and the booking was s
 Property J,Booking,2025-05-08,1,Khaana bekaar aur thanda tha.,hinglish
 Property A,GoogleMaps,2025-05-09,3,Housekeeping was prompt and the towels were fresh.,en
 Property A,TripAdvisor,2025-05-09,4,"Mountain ka nazara shandar, location badhiya.",hinglish
-Property B,GoogleMaps,2025-05-09,3,"Staff ka vyavhaar accha tha, reception helpful. The location was great with a beautiful mountain view.",hinglish
+Property B,GoogleMaps,2025-05-09,2,"Staff ka vyavhaar accha tha, reception helpful. The location was poor and far from the market.",hinglish
 Property C,TripAdvisor,2025-05-09,4,"The food was stale and cold, really disappointing. Staff ka vyavhaar accha tha, reception helpful.",hinglish
-Property E,MakeMyTrip,2025-05-09,4,"Very clean and hygienic bathroom. Mountain ka nazara shandar, location badhiya.",hinglish
+Property E,MakeMyTrip,2025-05-09,3,"Very clean and hygienic bathroom. Location bekaar thi, market se door.",hinglish
 Property H,TripAdvisor,2025-05-09,2,"Location bekaar thi, market se door.",hinglish
 Property J,MakeMyTrip,2025-05-09,3,Overpriced and too expensive for what you get.,en
 Property K,TripAdvisor,2025-05-09,4,"Staff ka vyavhaar accha tha, reception helpful. The room was spacious and comfortable with a warm heater.",hinglish
@@ -3516,7 +3516,7 @@ Property F,Booking,2025-05-16,3,The staff were rude and the manager was unhelpfu
 Property G,GoogleMaps,2025-05-16,4,"The check-in was quick and the booking was smooth, really good.",en
 Property I,MakeMyTrip,2025-05-16,3,"Mountain ka nazara shandar, location badhiya.",hinglish
 Property A,Booking,2025-05-17,2,The staff were rude and the manager was unhelpful. Khaana badhiya tha aur nashta bhi tasty.,hinglish
-Property C,Booking,2025-05-17,3,"The location was great with a beautiful mountain view. Bathroom ganda tha, gandagi thi.",hinglish
+Property C,Booking,2025-05-17,2,"The location was poor and far from the market. Bathroom ganda tha, gandagi thi.",hinglish
 Property C,Booking,2025-05-17,5,The room was spacious and comfortable with a warm heater.,en
 Property E,TripAdvisor,2025-05-17,3,कमरे का हीटर खराब था. Housekeeping was prompt and the towels were fresh.,hi
 Property F,MakeMyTrip,2025-05-17,4,"The food was stale and cold, really disappointing. Kamra badhiya aur comfortable tha.",hinglish
@@ -3646,9 +3646,9 @@ Property L,GoogleMaps,2025-06-06,5,"Staff ka vyavhaar accha tha, reception helpf
 Property A,GoogleMaps,2025-06-07,4,"Staff ka vyavhaar accha tha, reception helpful. Kamra badhiya aur comfortable tha.",hinglish
 Property B,Booking,2025-06-07,3,The staff were friendly and the reception was helpful.,en
 Property B,MakeMyTrip,2025-06-07,5,"Sasta aur accha, paisa vasool stay.",hinglish
-Property C,MakeMyTrip,2025-06-07,5,"Mountain ka nazara shandar, location badhiya. Great value for money and worth the price.",hinglish
+Property C,MakeMyTrip,2025-06-07,4,"Location bekaar thi, market se door. Great value for money and worth the price.",hinglish
 Property C,Booking,2025-06-07,4,Khaana badhiya tha aur nashta bhi tasty.,hinglish
-Property C,MakeMyTrip,2025-06-07,3,"The bathroom was dirty and smelly, poor hygiene. Mountain ka nazara shandar, location badhiya.",hinglish
+Property C,MakeMyTrip,2025-06-07,2,"The bathroom was dirty and smelly, poor hygiene. Location bekaar thi, market se door.",hinglish
 Property E,Booking,2025-06-07,2,The room heater was not working and it was freezing cold at night.,en
 Property F,MakeMyTrip,2025-06-07,4,"The check-in was quick and the booking was smooth, really good.",en
 Property G,TripAdvisor,2025-06-07,3,"Staff ka vyavhaar accha tha, reception helpful. The room heater was not working and it was freezing cold at night.",hinglish
@@ -3682,7 +3682,7 @@ Property K,Booking,2025-06-10,3,कमरे का हीटर खराब �
 Property L,Booking,2025-06-10,5,The room was spacious and comfortable with a warm heater.,en
 Property C,GoogleMaps,2025-06-11,1,The room heater was not working and it was freezing cold at night.,en
 Property C,Booking,2025-06-11,4,"Staff ka vyavhaar accha tha, reception helpful.",hinglish
-Property E,MakeMyTrip,2025-06-11,5,"The staff were friendly and the reception was helpful. Mountain ka nazara shandar, location badhiya.",hinglish
+Property E,MakeMyTrip,2025-06-11,4,"The staff were friendly and the reception was helpful. Location bekaar thi, market se door.",hinglish
 Property F,MakeMyTrip,2025-06-11,3,"Mountain ka nazara shandar, location badhiya. Reception staff ka vyavhaar bekaar tha.",hinglish
 Property F,Booking,2025-06-11,5,The location was great with a beautiful mountain view.,en
 Property J,TripAdvisor,2025-06-11,1,"Kamre ka heater band tha, bahut thanda kamra. बाथरूम गंदा था.",hi
@@ -3748,7 +3748,7 @@ Property I,Booking,2025-06-18,5,"Sasta aur accha, paisa vasool stay.",hinglish
 Property J,MakeMyTrip,2025-06-18,4,Khaana badhiya tha aur nashta bhi tasty. The room was spacious and comfortable with a warm heater.,hinglish
 Property L,GoogleMaps,2025-06-18,5,Kamra badhiya aur comfortable tha.,hinglish
 Property A,Booking,2025-06-19,4,The staff were friendly and the reception was helpful.,en
-Property E,Booking,2025-06-19,2,Khaana bekaar aur thanda tha. The location was great with a beautiful mountain view.,hinglish
+Property E,Booking,2025-06-19,1,Khaana bekaar aur thanda tha. The location was poor and far from the market.,hinglish
 Property E,TripAdvisor,2025-06-19,5,"Sasta aur accha, paisa vasool stay.",hinglish
 Property J,GoogleMaps,2025-06-19,4,"Great value for money and worth the price. Staff ka vyavhaar accha tha, reception helpful.",hinglish
 Property J,Booking,2025-06-19,5,"Sasta aur accha, paisa vasool stay.",hinglish
@@ -3780,7 +3780,7 @@ Property I,GoogleMaps,2025-06-22,3,कमरे का हीटर खराब
 Property J,MakeMyTrip,2025-06-22,4,"Check-in fast tha, booking process accha.",hinglish
 Property K,TripAdvisor,2025-06-22,3,"The staff were rude and the manager was unhelpful. The check-in was quick and the booking was smooth, really good.",en
 Property D,MakeMyTrip,2025-06-23,5,"Mountain ka nazara shandar, location badhiya.",hinglish
-Property E,MakeMyTrip,2025-06-23,4,"Mountain ka nazara shandar, location badhiya. Staff ka vyavhaar accha tha, reception helpful.",hinglish
+Property E,MakeMyTrip,2025-06-23,3,"Location bekaar thi, market se door. Staff ka vyavhaar accha tha, reception helpful.",hinglish
 Property F,GoogleMaps,2025-06-23,4,The room was spacious and comfortable with a warm heater. Very clean and hygienic bathroom.,en
 Property G,TripAdvisor,2025-06-23,1,The location was poor and far from the market. कमरे का हीटर खराब था.,hi
 Property G,MakeMyTrip,2025-06-23,2,"Towels ganda the, room service bekaar. Kamra badhiya aur comfortable tha.",hinglish
@@ -3860,7 +3860,7 @@ Property J,Booking,2025-07-06,4,Great value for money and worth the price.,en
 Property K,GoogleMaps,2025-07-06,3,"Kamre ka heater band tha, bahut thanda kamra.",hinglish
 Property L,MakeMyTrip,2025-07-06,5,"Mountain ka nazara shandar, location badhiya. The food was delicious and the breakfast was fresh.",hinglish
 Property L,TripAdvisor,2025-07-06,4,"The check-in was quick and the booking was smooth, really good.",en
-Property B,MakeMyTrip,2025-07-07,4,"Mountain ka nazara shandar, location badhiya.",hinglish
+Property B,MakeMyTrip,2025-07-07,2,"Location bekaar thi, market se door.",hinglish
 Property C,GoogleMaps,2025-07-07,3,The food was delicious and the breakfast was fresh.,en
 Property E,MakeMyTrip,2025-07-07,2,"The food was stale and cold, really disappointing. Booking me check-in slow tha, bekaar process.",hinglish
 Property E,GoogleMaps,2025-07-07,3,"Kamre ka heater band tha, bahut thanda kamra. Khaana badhiya tha aur nashta bhi tasty.",hinglish
@@ -3872,7 +3872,7 @@ Property B,GoogleMaps,2025-07-08,4,The room was spacious and comfortable with a 
 Property B,TripAdvisor,2025-07-08,4,"Bathroom ekdum saaf, safai badhiya. Khaana badhiya tha aur nashta bhi tasty.",hinglish
 Property B,Booking,2025-07-08,2,The staff were rude and the manager was unhelpful. Very clean and hygienic bathroom.,en
 Property C,TripAdvisor,2025-07-08,4,"The room was spacious and comfortable with a warm heater. Check-in fast tha, booking process accha.",hinglish
-Property C,MakeMyTrip,2025-07-08,4,"Mountain ka nazara shandar, location badhiya. Very clean and hygienic bathroom.",hinglish
+Property C,MakeMyTrip,2025-07-08,3,"Location bekaar thi, market se door. Very clean and hygienic bathroom.",hinglish
 Property D,MakeMyTrip,2025-07-08,4,The staff were friendly and the reception was helpful.,en
 Property D,TripAdvisor,2025-07-08,3,"Room service accha tha, towels clean the. Overpriced and too expensive for what you get.",hinglish
 Property E,TripAdvisor,2025-07-08,4,"Room service accha tha, towels clean the.",hinglish
@@ -3989,7 +3989,7 @@ Property K,GoogleMaps,2025-07-21,4,Housekeeping was prompt and the towels were f
 Property A,Booking,2025-07-22,3,The food was delicious and the breakfast was fresh. Kamra badhiya aur comfortable tha.,hinglish
 Property B,GoogleMaps,2025-07-22,3,The room heater was not working and it was freezing cold at night.,en
 Property C,MakeMyTrip,2025-07-22,3,बाथरूम गंदा था.,hi
-Property C,Booking,2025-07-22,4,The location was great with a beautiful mountain view. The room was spacious and comfortable with a warm heater.,en
+Property C,Booking,2025-07-22,3,The location was poor and far from the market. The room was spacious and comfortable with a warm heater.,en
 Property D,MakeMyTrip,2025-07-22,2,The check-in was slow and the booking was a problem.,en
 Property H,MakeMyTrip,2025-07-22,4,"Sasta aur accha, paisa vasool stay.",hinglish
 Property I,GoogleMaps,2025-07-22,3,खाना बहुत बढ़िया था. The room heater was not working and it was freezing cold at night.,hi
@@ -4053,7 +4053,7 @@ Property I,MakeMyTrip,2025-08-04,3,"Bathroom ekdum saaf, safai badhiya. कम�
 Property K,GoogleMaps,2025-08-04,2,"Overpriced and too expensive for what you get. Kamre ka heater band tha, bahut thanda kamra.",hinglish
 Property K,Booking,2025-08-04,3,The room was spacious and comfortable with a warm heater. खाना बेकार और ठंडा था.,hi
 Property L,MakeMyTrip,2025-08-04,4,Very clean and hygienic bathroom. खाना बहुत बढ़िया था.,hi
-Property B,MakeMyTrip,2025-08-05,4,The location was great with a beautiful mountain view.,en
+Property B,MakeMyTrip,2025-08-05,2,The location was poor and far from the market.,en
 Property G,GoogleMaps,2025-08-05,3,"Staff ka vyavhaar accha tha, reception helpful.",hinglish
 Property H,MakeMyTrip,2025-08-05,3,Reception staff ka vyavhaar bekaar tha.,hinglish
 Property L,Booking,2025-08-05,3,"Room service accha tha, towels clean the.",hinglish
@@ -4091,7 +4091,7 @@ Property F,GoogleMaps,2025-08-10,2,"कमरे का हीटर खरा�
 Property K,Booking,2025-08-10,3,"The room was spacious and comfortable with a warm heater. The food was stale and cold, really disappointing.",en
 Property A,Booking,2025-08-11,4,Kamra badhiya aur comfortable tha.,hinglish
 Property D,Booking,2025-08-11,2,"Booking me check-in slow tha, bekaar process.",hinglish
-Property E,TripAdvisor,2025-08-11,4,"Mountain ka nazara shandar, location badhiya.",hinglish
+Property E,TripAdvisor,2025-08-11,2,"Location bekaar thi, market se door.",hinglish
 Property E,MakeMyTrip,2025-08-11,4,"Check-in fast tha, booking process accha.",hinglish
 Property E,Booking,2025-08-11,4,Housekeeping was prompt and the towels were fresh.,en
 Property H,MakeMyTrip,2025-08-11,2,The staff were rude and the manager was unhelpful.,en
@@ -4202,8 +4202,8 @@ Property E,GoogleMaps,2025-08-24,3,कमरे का हीटर खराब
 Property G,TripAdvisor,2025-08-24,3,खाना बहुत बढ़िया था. Very clean and hygienic bathroom.,hi
 Property I,TripAdvisor,2025-08-24,3,"Kamra badhiya aur comfortable tha. Room service accha tha, towels clean the.",hinglish
 Property K,TripAdvisor,2025-08-24,2,"The bathroom was dirty and smelly, poor hygiene. Location bekaar thi, market se door.",hinglish
-Property B,TripAdvisor,2025-08-25,3,"The food was stale and cold, really disappointing. The location was great with a beautiful mountain view.",en
-Property B,TripAdvisor,2025-08-25,2,"Booking me check-in slow tha, bekaar process. The location was great with a beautiful mountain view.",hinglish
+Property B,TripAdvisor,2025-08-25,2,"The food was stale and cold, really disappointing. The location was poor and far from the market.",en
+Property B,TripAdvisor,2025-08-25,1,"Booking me check-in slow tha, bekaar process. The location was poor and far from the market.",hinglish
 Property C,TripAdvisor,2025-08-25,2,"Towels ganda the, room service bekaar. The bathroom was dirty and smelly, poor hygiene.",hinglish
 Property D,MakeMyTrip,2025-08-25,2,Khaana bekaar aur thanda tha. Very clean and hygienic bathroom.,hinglish
 Property E,TripAdvisor,2025-08-25,2,"The food was stale and cold, really disappointing.",en
@@ -4228,13 +4228,13 @@ Property B,GoogleMaps,2025-08-27,4,Kamra badhiya aur comfortable tha.,hinglish
 Property C,MakeMyTrip,2025-08-27,2,"The bathroom was dirty and smelly, poor hygiene. Kamra badhiya aur comfortable tha.",hinglish
 Property C,GoogleMaps,2025-08-27,3,The room heater was not working and it was freezing cold at night.,en
 Property D,MakeMyTrip,2025-08-27,3,"The check-in was quick and the booking was smooth, really good.",en
-Property E,TripAdvisor,2025-08-27,4,"Mountain ka nazara shandar, location badhiya. The food was stale and cold, really disappointing.",hinglish
+Property E,TripAdvisor,2025-08-27,3,"Location bekaar thi, market se door. The food was stale and cold, really disappointing.",hinglish
 Property F,MakeMyTrip,2025-08-27,4,"Kamra badhiya aur comfortable tha. Bathroom ekdum saaf, safai badhiya.",hinglish
 Property K,Booking,2025-08-27,2,"खाना बहुत बढ़िया था. Housekeeping never changed the towels, poor service.",hi
 Property K,TripAdvisor,2025-08-27,1,Khaana bekaar aur thanda tha. Overpriced and too expensive for what you get.,hinglish
 Property B,TripAdvisor,2025-09-01,4,Kamra badhiya aur comfortable tha. The food was delicious and the breakfast was fresh.,hinglish
 Property B,TripAdvisor,2025-09-01,2,"Bathroom ganda tha, gandagi thi.",hinglish
-Property C,GoogleMaps,2025-09-01,5,"The food was delicious and the breakfast was fresh. Mountain ka nazara shandar, location badhiya.",hinglish
+Property C,GoogleMaps,2025-09-01,4,"The food was delicious and the breakfast was fresh. Location bekaar thi, market se door.",hinglish
 Property G,Booking,2025-09-01,5,"Staff ka vyavhaar accha tha, reception helpful.",hinglish
 Property H,GoogleMaps,2025-09-01,2,The room heater was not working and it was freezing cold at night. Khaana bekaar aur thanda tha.,hinglish
 Property H,TripAdvisor,2025-09-01,4,The room was spacious and comfortable with a warm heater.,en
@@ -4257,7 +4257,7 @@ Property I,MakeMyTrip,2025-09-02,3,Khaana badhiya tha aur nashta bhi tasty.,hing
 Property J,TripAdvisor,2025-09-02,3,"Room service accha tha, towels clean the. The staff were rude and the manager was unhelpful.",hinglish
 Property K,GoogleMaps,2025-09-02,1,"Towels ganda the, room service bekaar.",hinglish
 Property B,MakeMyTrip,2025-09-03,5,खाना बहुत बढ़िया था.,hi
-Property C,MakeMyTrip,2025-09-03,3,"Sasta aur accha, paisa vasool stay. The location was great with a beautiful mountain view.",hinglish
+Property C,MakeMyTrip,2025-09-03,2,"Sasta aur accha, paisa vasool stay. The location was poor and far from the market.",hinglish
 Property G,MakeMyTrip,2025-09-03,3,"Mountain ka nazara shandar, location badhiya.",hinglish
 Property G,MakeMyTrip,2025-09-03,2,"Bathroom ganda tha, gandagi thi.",hinglish
 Property H,TripAdvisor,2025-09-03,4,The food was delicious and the breakfast was fresh.,en
@@ -4266,7 +4266,7 @@ Property J,GoogleMaps,2025-09-03,4,The room was spacious and comfortable with a 
 Property A,Booking,2025-09-04,3,"The food was stale and cold, really disappointing. The check-in was quick and the booking was smooth, really good.",en
 Property A,MakeMyTrip,2025-09-04,4,"Bathroom ekdum saaf, safai badhiya.",hinglish
 Property A,GoogleMaps,2025-09-04,4,खाना बहुत बढ़िया था.,hi
-Property C,MakeMyTrip,2025-09-04,5,The food was delicious and the breakfast was fresh. The location was great with a beautiful mountain view.,en
+Property C,MakeMyTrip,2025-09-04,4,The food was delicious and the breakfast was fresh. The location was poor and far from the market.,en
 Property E,MakeMyTrip,2025-09-04,4,"Bathroom ekdum saaf, safai badhiya.",hinglish
 Property E,GoogleMaps,2025-09-04,4,The location was poor and far from the market. खाना बहुत बढ़िया था.,hi
 Property F,Booking,2025-09-04,3,"Bathroom ekdum saaf, safai badhiya. खाना बेकार और ठंडा था.",hi
@@ -4275,7 +4275,7 @@ Property J,GoogleMaps,2025-09-04,4,"Very clean and hygienic bathroom. Room servi
 Property J,Booking,2025-09-04,4,"Staff ka vyavhaar accha tha, reception helpful.",hinglish
 Property L,Booking,2025-09-04,4,"Sasta aur accha, paisa vasool stay. The food was delicious and the breakfast was fresh.",hinglish
 Property A,MakeMyTrip,2025-09-05,5,"Staff ka vyavhaar accha tha, reception helpful.",hinglish
-Property B,GoogleMaps,2025-09-05,4,"The location was great with a beautiful mountain view. The food was stale and cold, really disappointing.",en
+Property B,GoogleMaps,2025-09-05,3,"The location was poor and far from the market. The food was stale and cold, really disappointing.",en
 Property B,Booking,2025-09-05,4,The staff were friendly and the reception was helpful.,en
 Property D,GoogleMaps,2025-09-05,4,"Mountain ka nazara shandar, location badhiya. Staff ka vyavhaar accha tha, reception helpful.",hinglish
 Property E,Booking,2025-09-05,2,"The bathroom was dirty and smelly, poor hygiene.",en
@@ -4286,7 +4286,7 @@ Property J,TripAdvisor,2025-09-05,3,Housekeeping was prompt and the towels were 
 Property L,GoogleMaps,2025-09-05,3,The room was spacious and comfortable with a warm heater.,en
 Property B,TripAdvisor,2025-09-06,5,The room was spacious and comfortable with a warm heater.,en
 Property D,TripAdvisor,2025-09-06,1,"Location bekaar thi, market se door.",hinglish
-Property E,TripAdvisor,2025-09-06,4,The location was great with a beautiful mountain view. The food was delicious and the breakfast was fresh.,en
+Property E,TripAdvisor,2025-09-06,3,The location was poor and far from the market. The food was delicious and the breakfast was fresh.,en
 Property E,MakeMyTrip,2025-09-06,2,"Housekeeping never changed the towels, poor service.",en
 Property F,GoogleMaps,2025-09-06,4,"The location was poor and far from the market. Sasta aur accha, paisa vasool stay.",hinglish
 Property H,Booking,2025-09-06,4,Kamra badhiya aur comfortable tha.,hinglish
@@ -4318,8 +4318,8 @@ Property H,MakeMyTrip,2025-09-10,4,Kamra badhiya aur comfortable tha.,hinglish
 Property K,TripAdvisor,2025-09-10,3,"Sasta aur accha, paisa vasool stay.",hinglish
 Property K,Booking,2025-09-10,1,"Reception staff ka vyavhaar bekaar tha. Bathroom ganda tha, gandagi thi.",hinglish
 Property B,TripAdvisor,2025-09-11,2,Overpriced and too expensive for what you get.,en
-Property C,MakeMyTrip,2025-09-11,4,The location was great with a beautiful mountain view. Kamra badhiya aur comfortable tha.,hinglish
-Property C,TripAdvisor,2025-09-11,4,"Mountain ka nazara shandar, location badhiya. Staff ka vyavhaar accha tha, reception helpful.",hinglish
+Property C,MakeMyTrip,2025-09-11,3,The location was poor and far from the market. Kamra badhiya aur comfortable tha.,hinglish
+Property C,TripAdvisor,2025-09-11,3,"Location bekaar thi, market se door. Staff ka vyavhaar accha tha, reception helpful.",hinglish
 Property C,MakeMyTrip,2025-09-11,4,"Sasta aur accha, paisa vasool stay. Booking me check-in slow tha, bekaar process.",hinglish
 Property E,Booking,2025-09-11,3,"Bathroom ekdum saaf, safai badhiya.",hinglish
 Property G,MakeMyTrip,2025-09-11,3,"The food was delicious and the breakfast was fresh. Bathroom ekdum saaf, safai badhiya.",hinglish
@@ -4385,7 +4385,7 @@ Property K,MakeMyTrip,2025-09-19,3,"Bahut mehenga tha, bilkul value nahi. Check-
 Property C,TripAdvisor,2025-09-20,4,"Sasta aur accha, paisa vasool stay. The room was spacious and comfortable with a warm heater.",hinglish
 Property E,TripAdvisor,2025-09-20,2,The food was delicious and the breakfast was fresh. The location was poor and far from the market.,en
 Property E,Booking,2025-09-20,2,बाथरूम गंदा था.,hi
-Property E,GoogleMaps,2025-09-20,3,"Mountain ka nazara shandar, location badhiya.",hinglish
+Property E,GoogleMaps,2025-09-20,1,"Location bekaar thi, market se door.",hinglish
 Property H,MakeMyTrip,2025-09-20,4,"Room service accha tha, towels clean the. Kamra badhiya aur comfortable tha.",hinglish
 Property I,Booking,2025-09-20,4,"Staff ka vyavhaar accha tha, reception helpful. The room heater was not working and it was freezing cold at night.",hinglish
 Property I,GoogleMaps,2025-09-20,2,The room heater was not working and it was freezing cold at night.,en
@@ -4449,14 +4449,14 @@ Property G,Booking,2025-10-01,2,The food was delicious and the breakfast was fre
 Property J,MakeMyTrip,2025-10-01,2,Overpriced and too expensive for what you get.,en
 Property L,GoogleMaps,2025-10-01,5,The location was great with a beautiful mountain view.,en
 Property A,TripAdvisor,2025-10-02,4,"Mountain ka nazara shandar, location badhiya. The staff were friendly and the reception was helpful.",hinglish
-Property C,TripAdvisor,2025-10-02,5,"Sasta aur accha, paisa vasool stay. Mountain ka nazara shandar, location badhiya.",hinglish
+Property C,TripAdvisor,2025-10-02,4,"Sasta aur accha, paisa vasool stay. Location bekaar thi, market se door.",hinglish
 Property F,TripAdvisor,2025-10-02,4,The location was great with a beautiful mountain view.,en
 Property J,GoogleMaps,2025-10-02,3,"Bahut mehenga tha, bilkul value nahi. Staff ka vyavhaar accha tha, reception helpful.",hinglish
 Property A,MakeMyTrip,2025-10-03,4,The staff were friendly and the reception was helpful.,en
 Property D,MakeMyTrip,2025-10-03,4,"Kamra badhiya aur comfortable tha. Bahut mehenga tha, bilkul value nahi.",hinglish
-Property E,MakeMyTrip,2025-10-03,4,"Mountain ka nazara shandar, location badhiya.",hinglish
+Property E,MakeMyTrip,2025-10-03,2,"Location bekaar thi, market se door.",hinglish
 Property G,TripAdvisor,2025-10-03,4,"Bathroom ekdum saaf, safai badhiya. Great value for money and worth the price.",hinglish
-Property H,MakeMyTrip,2025-10-03,4,Khaana badhiya tha aur nashta bhi tasty. The location was great with a beautiful mountain view.,hinglish
+Property H,MakeMyTrip,2025-10-03,3,Khaana badhiya tha aur nashta bhi tasty. The location was poor and far from the market.,hinglish
 Property J,TripAdvisor,2025-10-03,5,"Sasta aur accha, paisa vasool stay. Staff ka vyavhaar accha tha, reception helpful.",hinglish
 Property K,GoogleMaps,2025-10-03,2,"The bathroom was dirty and smelly, poor hygiene.",en
 Property L,TripAdvisor,2025-10-03,4,Khaana badhiya tha aur nashta bhi tasty.,hinglish
@@ -4495,7 +4495,7 @@ Property C,TripAdvisor,2025-10-08,5,Khaana badhiya tha aur nashta bhi tasty. Kam
 Property E,Booking,2025-10-08,3,The food was delicious and the breakfast was fresh.,en
 Property E,GoogleMaps,2025-10-08,2,"Overpriced and too expensive for what you get. Bathroom ganda tha, gandagi thi.",hinglish
 Property H,GoogleMaps,2025-10-08,4,खाना बहुत बढ़िया था. The staff were friendly and the reception was helpful.,hi
-Property H,MakeMyTrip,2025-10-08,5,The room was spacious and comfortable with a warm heater. The location was great with a beautiful mountain view.,en
+Property H,MakeMyTrip,2025-10-08,4,The room was spacious and comfortable with a warm heater. The location was poor and far from the market.,en
 Property J,TripAdvisor,2025-10-08,4,The room was spacious and comfortable with a warm heater.,en
 Property K,TripAdvisor,2025-10-08,4,"Sasta aur accha, paisa vasool stay.",hinglish
 Property L,TripAdvisor,2025-10-08,4,"The location was great with a beautiful mountain view. The check-in was quick and the booking was smooth, really good.",en
@@ -4509,7 +4509,7 @@ Property H,MakeMyTrip,2025-10-09,4,"Room service accha tha, towels clean the.",h
 Property L,TripAdvisor,2025-10-09,3,The location was great with a beautiful mountain view.,en
 Property B,Booking,2025-10-10,3,The room was spacious and comfortable with a warm heater.,en
 Property C,MakeMyTrip,2025-10-10,3,"Staff ka vyavhaar accha tha, reception helpful. Great value for money and worth the price.",hinglish
-Property C,GoogleMaps,2025-10-10,4,"The bathroom was dirty and smelly, poor hygiene. The location was great with a beautiful mountain view.",en
+Property C,GoogleMaps,2025-10-10,3,"The bathroom was dirty and smelly, poor hygiene. The location was poor and far from the market.",en
 Property C,TripAdvisor,2025-10-10,4,The food was delicious and the breakfast was fresh. Kamra badhiya aur comfortable tha.,hinglish
 Property F,TripAdvisor,2025-10-10,3,The room heater was not working and it was freezing cold at night.,en
 Property F,TripAdvisor,2025-10-10,2,खाना बेकार और ठंडा था.,hi
@@ -4585,7 +4585,7 @@ Property G,TripAdvisor,2025-10-19,4,The room was spacious and comfortable with a
 Property I,GoogleMaps,2025-10-19,3,"Bahut mehenga tha, bilkul value nahi. Towels ganda the, room service bekaar.",hinglish
 Property A,GoogleMaps,2025-10-20,5,The staff were friendly and the reception was helpful.,en
 Property G,GoogleMaps,2025-10-20,3,"Bathroom ekdum saaf, safai badhiya.",hinglish
-Property H,MakeMyTrip,2025-10-20,5,The location was great with a beautiful mountain view. The food was delicious and the breakfast was fresh.,en
+Property H,MakeMyTrip,2025-10-20,4,The location was poor and far from the market. The food was delicious and the breakfast was fresh.,en
 Property I,MakeMyTrip,2025-10-20,4,"Check-in fast tha, booking process accha.",hinglish
 Property I,GoogleMaps,2025-10-20,2,Khaana bekaar aur thanda tha. Great value for money and worth the price.,hinglish
 Property J,Booking,2025-10-20,3,"Bathroom ekdum saaf, safai badhiya.",hinglish
@@ -4805,14 +4805,14 @@ Property A,GoogleMaps,2025-11-21,2,"The food was stale and cold, really disappoi
 Property A,MakeMyTrip,2025-11-21,4,Great value for money and worth the price. Very clean and hygienic bathroom.,en
 Property E,TripAdvisor,2025-11-21,1,"Bathroom ganda tha, gandagi thi. The food was stale and cold, really disappointing.",hinglish
 Property E,Booking,2025-11-21,3,"Bahut mehenga tha, bilkul value nahi. The room heater was not working and it was freezing cold at night.",hinglish
-Property H,Booking,2025-11-21,4,"Mountain ka nazara shandar, location badhiya.",hinglish
+Property H,Booking,2025-11-21,2,"Location bekaar thi, market se door.",hinglish
 Property H,TripAdvisor,2025-11-21,2,"The room heater was not working and it was freezing cold at night. Booking me check-in slow tha, bekaar process.",hinglish
 Property I,Booking,2025-11-21,3,"The check-in was quick and the booking was smooth, really good.",en
 Property J,MakeMyTrip,2025-11-21,2,कमरे का हीटर खराब था.,hi
 Property L,GoogleMaps,2025-11-21,5,The room was spacious and comfortable with a warm heater. The food was delicious and the breakfast was fresh.,en
 Property B,TripAdvisor,2025-11-22,3,"Staff ka vyavhaar accha tha, reception helpful.",hinglish
 Property C,GoogleMaps,2025-11-22,3,"Bathroom ganda tha, gandagi thi.",hinglish
-Property C,GoogleMaps,2025-11-22,3,"Towels ganda the, room service bekaar. The location was great with a beautiful mountain view.",hinglish
+Property C,GoogleMaps,2025-11-22,2,"Towels ganda the, room service bekaar. The location was poor and far from the market.",hinglish
 Property D,MakeMyTrip,2025-11-22,2,बाथरूम गंदा था. खाना बहुत बढ़िया था.,hi
 Property E,TripAdvisor,2025-11-22,4,The staff were friendly and the reception was helpful.,en
 Property F,GoogleMaps,2025-11-22,3,"Staff ka vyavhaar accha tha, reception helpful.",hinglish
@@ -4830,7 +4830,7 @@ Property L,Booking,2025-11-23,5,"Bathroom ekdum saaf, safai badhiya. The room wa
 Property A,GoogleMaps,2025-11-24,4,Khaana badhiya tha aur nashta bhi tasty.,hinglish
 Property A,GoogleMaps,2025-11-24,4,"Room service accha tha, towels clean the.",hinglish
 Property B,TripAdvisor,2025-11-24,3,Kamra badhiya aur comfortable tha.,hinglish
-Property C,MakeMyTrip,2025-11-24,3,"Housekeeping was prompt and the towels were fresh. Mountain ka nazara shandar, location badhiya.",hinglish
+Property C,MakeMyTrip,2025-11-24,2,"Housekeeping was prompt and the towels were fresh. Location bekaar thi, market se door.",hinglish
 Property E,Booking,2025-11-24,2,"कमरे का हीटर खराब था. Bathroom ganda tha, gandagi thi.",hi
 Property E,MakeMyTrip,2025-11-24,3,"Location bekaar thi, market se door. Room service accha tha, towels clean the.",hinglish
 Property F,MakeMyTrip,2025-11-24,2,The staff were rude and the manager was unhelpful.,en
@@ -4849,7 +4849,7 @@ Property L,TripAdvisor,2025-11-26,3,"Very clean and hygienic bathroom. Room serv
 Property L,MakeMyTrip,2025-11-26,3,Reception staff ka vyavhaar bekaar tha.,hinglish
 Property A,Booking,2025-11-27,5,"Sasta aur accha, paisa vasool stay. The room was spacious and comfortable with a warm heater.",hinglish
 Property A,Booking,2025-11-27,4,"Bathroom ekdum saaf, safai badhiya.",hinglish
-Property C,GoogleMaps,2025-11-27,4,"Kamra badhiya aur comfortable tha. Mountain ka nazara shandar, location badhiya.",hinglish
+Property C,GoogleMaps,2025-11-27,3,"Kamra badhiya aur comfortable tha. Location bekaar thi, market se door.",hinglish
 Property H,Booking,2025-11-27,3,खाना बहुत बढ़िया था.,hi
 Property H,MakeMyTrip,2025-11-27,2,Reception staff ka vyavhaar bekaar tha.,hinglish
 Property I,Booking,2025-11-27,2,The location was poor and far from the market.,en
@@ -4894,13 +4894,13 @@ Property C,TripAdvisor,2025-12-05,4,The staff were friendly and the reception wa
 Property C,TripAdvisor,2025-12-05,2,बाथरूम गंदा था. The room was spacious and comfortable with a warm heater.,hi
 Property E,GoogleMaps,2025-12-05,3,कमरे का हीटर खराब था.,hi
 Property G,Booking,2025-12-05,2,The room heater was not working and it was freezing cold at night. खाना बहुत बढ़िया था.,hi
-Property H,MakeMyTrip,2025-12-05,3,"Check-in fast tha, booking process accha. Mountain ka nazara shandar, location badhiya.",hinglish
+Property H,MakeMyTrip,2025-12-05,2,"Check-in fast tha, booking process accha. Location bekaar thi, market se door.",hinglish
 Property I,GoogleMaps,2025-12-05,4,"Staff ka vyavhaar accha tha, reception helpful.",hinglish
 Property J,MakeMyTrip,2025-12-05,1,"The food was stale and cold, really disappointing.",en
 Property J,Booking,2025-12-05,3,कमरे का हीटर खराब था.,hi
 Property L,GoogleMaps,2025-12-05,4,"Sasta aur accha, paisa vasool stay. The staff were friendly and the reception was helpful.",hinglish
 Property A,Booking,2025-12-06,3,Khaana badhiya tha aur nashta bhi tasty.,hinglish
-Property B,Booking,2025-12-06,5,The location was great with a beautiful mountain view.,en
+Property B,Booking,2025-12-06,3,The location was poor and far from the market.,en
 Property D,TripAdvisor,2025-12-06,3,"Staff ka vyavhaar accha tha, reception helpful. Kamre ka heater band tha, bahut thanda kamra.",hinglish
 Property E,Booking,2025-12-06,3,"Reception staff ka vyavhaar bekaar tha. Bathroom ekdum saaf, safai badhiya.",hinglish
 Property H,MakeMyTrip,2025-12-06,1,"Kamre ka heater band tha, bahut thanda kamra.",hinglish
@@ -4922,7 +4922,7 @@ Property D,MakeMyTrip,2025-12-08,3,"कमरे का हीटर खरा�
 Property F,GoogleMaps,2025-12-08,1,कमरे का हीटर खराब था.,hi
 Property F,MakeMyTrip,2025-12-08,2,"The food was stale and cold, really disappointing. कमरे का हीटर खराब था.",hi
 Property G,Booking,2025-12-08,2,Housekeeping was prompt and the towels were fresh. Khaana bekaar aur thanda tha.,hinglish
-Property H,GoogleMaps,2025-12-08,3,"Mountain ka nazara shandar, location badhiya. खाना बेकार और ठंडा था.",hi
+Property H,GoogleMaps,2025-12-08,2,"Location bekaar thi, market se door. खाना बेकार और ठंडा था.",hi
 Property L,Booking,2025-12-08,2,कमरे का हीटर खराब था.,hi
 Property F,MakeMyTrip,2025-12-09,4,"The check-in was quick and the booking was smooth, really good. Housekeeping was prompt and the towels were fresh.",en
 Property F,Booking,2025-12-09,2,"Kamre ka heater band tha, bahut thanda kamra.",hinglish
@@ -4935,7 +4935,7 @@ Property K,GoogleMaps,2025-12-09,3,"Kamre ka heater band tha, bahut thanda kamra
 Property L,TripAdvisor,2025-12-09,3,कमरे का हीटर खराब था.,hi
 Property A,Booking,2025-12-10,3,"Staff ka vyavhaar accha tha, reception helpful. कमरे का हीटर खराब था.",hi
 Property A,Booking,2025-12-10,3,The staff were friendly and the reception was helpful.,en
-Property C,Booking,2025-12-10,4,The location was great with a beautiful mountain view.,en
+Property C,Booking,2025-12-10,2,The location was poor and far from the market.,en
 Property C,TripAdvisor,2025-12-10,3,"Booking me check-in slow tha, bekaar process. Staff ka vyavhaar accha tha, reception helpful.",hinglish
 Property D,GoogleMaps,2025-12-10,2,Khaana bekaar aur thanda tha.,hinglish
 Property F,GoogleMaps,2025-12-10,2,"The food was stale and cold, really disappointing.",en
@@ -5023,7 +5023,7 @@ Property I,TripAdvisor,2025-12-18,1,"कमरे का हीटर खरा�
 Property C,MakeMyTrip,2025-12-19,2,कमरे का हीटर खराब था.,hi
 Property D,Booking,2025-12-19,3,"Room service accha tha, towels clean the. Kamre ka heater band tha, bahut thanda kamra.",hinglish
 Property D,MakeMyTrip,2025-12-19,2,"Reception staff ka vyavhaar bekaar tha. Bathroom ganda tha, gandagi thi.",hinglish
-Property E,MakeMyTrip,2025-12-19,3,"Mountain ka nazara shandar, location badhiya.",hinglish
+Property E,MakeMyTrip,2025-12-19,1,"Location bekaar thi, market se door.",hinglish
 Property F,GoogleMaps,2025-12-19,2,The room heater was not working and it was freezing cold at night.,en
 Property G,TripAdvisor,2025-12-19,3,Khaana badhiya tha aur nashta bhi tasty.,hinglish
 Property G,GoogleMaps,2025-12-19,3,The room heater was not working and it was freezing cold at night.,en
@@ -5057,12 +5057,12 @@ Property H,GoogleMaps,2025-12-21,2,The room heater was not working and it was fr
 Property J,Booking,2025-12-21,3,"The bathroom was dirty and smelly, poor hygiene. Towels ganda the, room service bekaar.",hinglish
 Property J,Booking,2025-12-21,1,"Kamre ka heater band tha, bahut thanda kamra.",hinglish
 Property L,TripAdvisor,2025-12-21,3,"The staff were friendly and the reception was helpful. Bathroom ganda tha, gandagi thi.",hinglish
-Property B,MakeMyTrip,2025-12-22,4,The location was great with a beautiful mountain view.,en
+Property B,MakeMyTrip,2025-12-22,2,The location was poor and far from the market.,en
 Property B,Booking,2025-12-22,2,The room heater was not working and it was freezing cold at night.,en
 Property C,GoogleMaps,2025-12-22,3,The staff were friendly and the reception was helpful.,en
 Property D,GoogleMaps,2025-12-22,3,Housekeeping was prompt and the towels were fresh.,en
 Property E,MakeMyTrip,2025-12-22,2,"The food was stale and cold, really disappointing. Check-in fast tha, booking process accha.",hinglish
-Property E,Booking,2025-12-22,5,"Mountain ka nazara shandar, location badhiya.",hinglish
+Property E,Booking,2025-12-22,3,"Location bekaar thi, market se door.",hinglish
 Property F,Booking,2025-12-22,2,"Towels ganda the, room service bekaar.",hinglish
 Property G,MakeMyTrip,2025-12-22,4,"The check-in was quick and the booking was smooth, really good.",en
 Property I,GoogleMaps,2025-12-22,3,Overpriced and too expensive for what you get. The room heater was not working and it was freezing cold at night.,en

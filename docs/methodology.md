@@ -188,8 +188,10 @@ baseline on real reviews is `TBD`.
 ## 10. Calibration on SYNTHETIC data
 
 Two datasets per seed share the same generator mechanics: *injected* (Property F's
-food falls from 2025-06; Room dips every December in every property) and *null*
-(`inject_patterns=False`), where any finding is a false alarm.
+food falls from 2025-06; Room dips every December in every property; Location falls
+from 2025-03 at four neighbouring properties, §13) and *null*
+(`inject_patterns=False`), where any finding is a false alarm. The four
+neighbours' own Location declines are injected, so they are not counted as extra.
 
 **Reproduce:** `python -m cri.calibration --seeds 1-20`
 
@@ -199,7 +201,7 @@ food falls from 2025-06; Room dips every December in every property) and *null*
 | … at exactly 2025-06 | 13/20 | 0.43–0.82 |
 | Food correctly called property-specific | 15/20 | 0.53–0.89 |
 | Room-December found market-wide | 20/20 | 0.84–1.00 |
-| Extra changepoints per injected seed | 0.10 | — |
+| Extra changepoints per injected seed | 0.15 | — |
 | Extra market patterns per injected seed | 0 | — |
 | Null seeds with any false alarm | 1/20 | — |
 
@@ -249,7 +251,9 @@ recall.
 - **Small samples.** 15/20 has a Wilson CI of 0.53–0.89; the clearly demonstrated
   improvement is in false alarms, not recall.
 - **FDR, not FWER.** Once a real finding exists, Benjamini–Hochberg admits more
-  marginal ones; about 0.1 extra changepoints per injected seed remain.
+  marginal ones; about 0.15 extra changepoints per injected seed remain (0.10
+  before the neighbourhood pattern was added; the difference is the §13 side effect
+  on the market reference).
 - **One changepoint per series**, located at the best split; the reported |Δ| at
   that split is biased upward (winner's curse). Multiple-changepoint methods (e.g.
   PELT) are not implemented: they need a penalty we cannot calibrate without
@@ -342,3 +346,91 @@ of 50), because the market estimate adds variance. That is what `mde` reports.
   36(5), 2017, doi:10.1287/mksc.2017.1043).
 - **Synthetic only.** The rates above are on simulated data; real-data behaviour
   is `TBD`.
+
+## 13. "Is it my neighbourhood?" — a spatial scan (`cri.neighbourhood`)
+
+"Yours alone" (§6) and "everyone's" (§7) miss a third case: a decline that a few
+**nearby** properties share and the rest of the market does not. Road works on one
+street, a water or power cut in one ward, a construction site. The right response
+is collective (neighbours, the hotel association, the municipality), not an
+in-house fix, and not "ignore it, everyone has it".
+
+Such a decline is often invisible property by property. In the SYNTHETIC sample
+four neighbours lose Location sentiment from 2025-03, but only one of them has
+enough Location reviews for its own decline to pass the §6 test; pooled, the
+four are clear.
+
+**Input.** Property positions (`property_id, lat, lon[, zone]`,
+`cri.locations`; see `docs/data_schema.md`). Without them nothing in this section
+runs and every other result is unchanged.
+
+**Method.**
+
+1. **Candidate neighbourhoods.** For each located property, the properties within
+   `NEIGHBOURHOOD_RADIUS_KM` = 1.0 km of it (great-circle distance), kept if there
+   are at least `NEIGHBOURHOOD_MIN_PROPERTIES` = 3 and at most
+   `NEIGHBOURHOOD_MAX_SHARE` = half of the located properties (a larger group is
+   the market, §7).
+2. **Group test.** Review values centred on each property's own level (§6.1), pooled
+   over the group, minus the market formed by the properties **outside** the group,
+   month by month. The best single negative step is found with the §6.2 test
+   (Bonferroni over splits; the outside market's variance included). The group's
+   score is −log₁₀ p of the **weakest leave-one-out** version of that test: the
+   decline must survive dropping any one member, so one strongly declining property
+   cannot make a neighbourhood.
+3. **Significance.** An in-space permutation test: positions are shuffled between
+   properties (null hypothesis: where a property is does not matter) and the whole
+   scan is repeated, `NEIGHBOURHOOD_PERMUTATIONS` = 499 times (seeded). The observed
+   score is compared with the **maximum over all groups and all aspects** of each
+   shuffle, which controls the family-wise error over both. Kept at
+   p ≤ `NEIGHBOURHOOD_MAX_P` = 0.05.
+4. **Members.** Group members whose own shift relative to the outside market, at the
+   detected month, is at least `MARKET_MIN_EFFECT` = 0.3 (as in §7); at least 3 are
+   required. `centre` is their mean position and `radius_km` the farthest member's
+   distance from it.
+
+**Use.** `market_scope` labels the aspect `neighbourhood-wide` when there is no
+market-wide pattern on it (a market-wide pattern takes precedence and the
+neighbourhood is mentioned in its `pattern`). For a member,
+`priority_actions.whose_problem` is `your neighbourhood's`, with the neighbours, the
+month, its own shift, the group's shift and p in `whose_detail`; the aspect is listed
+even when the property's own reviews alone would not flag it (`started` = the
+detected month). If the property also takes part in a market-wide pattern on that
+aspect, the §8 rules apply instead.
+
+**Calibration (SYNTHETIC, `python scripts/calibrate_neighbourhood.py`).** Simulated
+12-property clusters, one aspect, 3 reviews per property-month, each property with
+its own baseline; positions from `generate_locations`. A decline drops P(positive)
+to 0.15 from 2025-03. 100 seeds per scenario, 199 permutations per scan.
+
+| Scenario | Flagged neighbourhood-wide | 95% Wilson CI |
+|---|---|---|
+| Nothing changed | 3/100 | 1–8% |
+| 4 neighbours decline (clustered within 0.4 km) | 100/100 (exactly those 4: 95/100) | 96–100% |
+| The same 4 decline, scattered over the town | 1/100 | 0–5% |
+| 1 property declines, inside the neighbourhood | 4/100 | 2–10% |
+| The whole market declines | 6/100 | 3–12% |
+
+The false-alarm rates are consistent with the nominal 5% of the permutation test.
+In the whole-market case `market_scope` and `whose_problem` still report the
+market-wide pattern, because it takes precedence.
+
+**Limitations.**
+
+- **Positions are an input, not a finding.** Wrong or approximate positions
+  (a property placed at its booking office, say) change the neighbourhoods.
+- **One radius.** 1 km suits a compact hill town; a spread-out destination may
+  need a larger radius. It is a fixed, documented constant, not tuned on the data.
+- **Small clusters.** With fewer than 6 located properties no group can be at most
+  half the cluster and hold 3 properties, so nothing is tested.
+- **Approximations.** The same t-test approximations as §6; the permutation test is
+  exact only under exchangeability of positions.
+- **Not a cause.** "Shared by neighbours" says where, not why; the cause still has
+  to be found on the ground.
+- **The §6 market reference moves with a neighbourhood.** When four neighbours
+  decline, the leave-one-out market that every other property is compared with
+  dips too, so an unaffected property can look as if it *improved* relative to the
+  market. In 20 SYNTHETIC seeds this produced one such false positive changepoint
+  (seed 8: Property I, Location, +1.09 from 2025-04). Excluding detected
+  neighbourhood members from the market reference would remove it; not done yet.
+- **Synthetic only.** Real-data behaviour is `TBD`.

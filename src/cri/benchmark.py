@@ -639,12 +639,17 @@ def describe_finding(finding: dict) -> str:
 
 
 def market_wide_summary(
-    labelled: pd.DataFrame, min_fraction: float = MARKET_WIDE_FRACTION
+    labelled: pd.DataFrame,
+    min_fraction: float = MARKET_WIDE_FRACTION,
+    neighbourhoods: list[dict] | None = None,
 ) -> pd.DataFrame:
     """Classify each aspect's negative shifts as market-wide or property-specific.
 
     * ``market-wide``: a significant pattern shared by >= ``min_fraction`` of the
       properties reviewing the aspect (seasonal dip or step decline).
+    * ``neighbourhood-wide``: no market pattern, but a significant decline shared by
+      nearby properties (``neighbourhoods``, from
+      ``cri.neighbourhood.neighbourhood_findings``; only when positions are known).
     * ``property-specific``: no market pattern, but one or more properties declined
       significantly *relative to the market*.
     * ``undetermined``: fewer than ``MIN_PROPERTIES_FOR_SCOPE`` properties review the
@@ -653,6 +658,9 @@ def market_wide_summary(
     ``fraction`` is relative to the properties reviewing the aspect. Aspects with no
     negative shift are omitted.
     """
+    from .neighbourhood import describe_neighbourhood  # the scan builds on this module
+
+    near = {f["aspect"]: f for f in neighbourhoods or []}
     units = review_units(labelled)
     coverage = units.groupby("aspect")["property_id"].nunique()
     cps = _changepoints_from_units(units, CHANGEPOINT_MIN_EFFECT, FDR_Q)
@@ -660,7 +668,7 @@ def market_wide_summary(
     findings = _findings_from_units(units, min_fraction=min_fraction)
 
     rows: list[dict] = []
-    for aspect in sorted(set(declines["aspect"]) | {f["aspect"] for f in findings}):
+    for aspect in sorted(set(declines["aspect"]) | {f["aspect"] for f in findings} | set(near)):
         k = int(coverage.get(aspect, 0))
         own = declines[declines["aspect"] == aspect]
         relative = "below the market" if k >= MIN_PROPERTIES_FOR_SCOPE else "declined"
@@ -678,6 +686,17 @@ def market_wide_summary(
             pattern = "; ".join(describe_finding(f) for f in market)
             if own_text:
                 pattern += f"; also {own_text}"
+            if aspect in near:
+                pattern += f"; also a {describe_neighbourhood(near[aspect])}"
+        elif aspect in near:
+            scope, props = "neighbourhood-wide", set(near[aspect]["members"])
+            pattern = describe_neighbourhood(near[aspect])
+            others = own[~own["property_id"].isin(props)]
+            if not others.empty:
+                pattern += "; also " + "; ".join(
+                    f"{r.property_id} {relative} from {r.change_month} ({r.delta:+.2f})"
+                    for r in others.itertuples()
+                )
         else:
             scope, props, pattern = "property-specific", set(own["property_id"]), own_text
         rows.append(

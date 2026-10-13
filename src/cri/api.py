@@ -21,6 +21,14 @@ signature and documented columns. Additive extensions (Day 0, agreed in the PR):
 * ``intervention_check(d, property_id, aspect, start, baseline_start=None)`` -> dict:
   "Did my fix work?", a market-adjusted before/after check of one change
   (keys: ``cri.intervention.INTERVENTION_KEYS``; methodology section 12).
+* Positions (optional): ``ClusterData.locations`` (``property_id, lat, lon, zone``;
+  ``load_cluster(locations=...)``, generated for the SYNTHETIC sample).
+  ``property_locations(d)`` returns them; ``neighbourhoods(d)`` lists significant
+  neighbourhood-wide declines (``cri.neighbourhood.NEIGHBOURHOOD_COLUMNS``). With
+  positions, ``market_scope`` / ``destination_summary`` may say
+  ``neighbourhood-wide`` and ``priority_actions.whose_problem`` may say
+  ``your neighbourhood's`` (methodology section 13). Without positions nothing
+  changes.
 * Thresholds the UI may draw (constants): ``MARKET_WIDE_FRACTION`` (share of the
   properties reviewing an aspect that must share a market pattern) and
   ``MIN_REVIEWS_FOR_FLAG`` (fewer reviews: no CI, no lead/lag flag).
@@ -53,9 +61,11 @@ import pandas as pd
 from . import benchmark as _benchmark
 from . import insights as _insights
 from . import intervention as _intervention
+from . import neighbourhood as _neighbourhood
 from .classify import get_classifier, load_aspects
-from .generate import generate
+from .generate import generate, generate_locations
 from .loader import load_dir, load_reviews
+from .locations import LOCATION_COLUMNS, load_locations, validate_locations
 from .pipeline import label_reviews
 from .schema import (
     LOCAL_TZ,  # noqa: F401  (re-exported: date policy of the facade)
@@ -85,6 +95,7 @@ class ClusterData:
     labelled: pd.DataFrame  # review_id, property_id, date, aspect, sentiment, sentence
     is_synthetic: bool
     source_name: str  # shown in the UI banner
+    locations: pd.DataFrame | None = None  # property positions, or None (optional input)
 
 
 # --- Loading ------------------------------------------------------------------------
@@ -130,13 +141,18 @@ def _files_in(directory: Path) -> list[str]:
     return [p.name for p in directory.iterdir() if p.suffix.lower() in {".csv", ".json", ".jsonl"}]
 
 
-def load_cluster(path=None, *, synthetic=True, seed=42) -> ClusterData:
+def load_cluster(path=None, *, synthetic=True, seed=42, locations=None) -> ClusterData:
     """Load, validate, and label a cluster's reviews.
 
     * ``path`` given: a CSV/JSON(L) file or a directory of them.
     * no ``path``, ``synthetic=True``: generate the SYNTHETIC sample in memory.
     * no ``path``, ``synthetic=False``: every file in ``$CRI_DATA_RAW_DIR``
       (default ``data/raw``).
+
+    ``locations`` (optional): a file of property positions or a DataFrame
+    (``cri.locations``); default ``$CRI_LOCATIONS_PATH`` if set. The SYNTHETIC
+    sample gets its generated positions. Keep the positions file outside the
+    reviews folder: every file there is read as reviews.
 
     ``is_synthetic`` is True whenever any source file or folder name contains
     "synthetic", so the dashboard banner also appears for the bundled sample.
@@ -162,7 +178,18 @@ def load_cluster(path=None, *, synthetic=True, seed=42) -> ClusterData:
 
     reviews = _normalise(_with_review_ids(reviews))
     labelled = label_reviews(reviews, classifier=_configured_classifier())
-    return ClusterData(reviews, labelled, is_synthetic, source)
+    properties = reviews["property_id"].unique()
+    if locations is None and os.environ.get("CRI_LOCATIONS_PATH"):
+        locations = os.environ["CRI_LOCATIONS_PATH"]
+    if isinstance(locations, pd.DataFrame):
+        located = validate_locations(locations, properties=properties)
+    elif locations is not None:
+        located = load_locations(locations, properties=properties)
+    elif path is None and synthetic:
+        located = generate_locations(seed=seed)
+    else:
+        located = None
+    return ClusterData(reviews, labelled, is_synthetic, source, located)
 
 
 # --- Lookups ------------------------------------------------------------------------
@@ -206,6 +233,49 @@ def _taxonomy_order(frame: pd.DataFrame) -> pd.DataFrame:
 
 
 # --- Analyses -----------------------------------------------------------------------
+
+# The neighbourhood scan is a permutation test (seconds, not milliseconds); every
+# analysis that uses it shares one run per loaded cluster.
+_NEIGHBOURHOOD_CACHE: dict[int, tuple[ClusterData, list[dict]]] = {}
+
+
+def _neighbourhoods(d: ClusterData) -> list[dict]:
+    if d.locations is None:
+        return []
+    hit = _NEIGHBOURHOOD_CACHE.get(id(d))
+    if hit is not None and hit[0] is d:
+        return hit[1]
+    found = _neighbourhood.neighbourhood_findings(d.labelled, d.locations)
+    if len(_NEIGHBOURHOOD_CACHE) >= 4:
+        _NEIGHBOURHOOD_CACHE.pop(next(iter(_NEIGHBOURHOOD_CACHE)))
+    _NEIGHBOURHOOD_CACHE[id(d)] = (d, found)
+    return found
+
+
+def property_locations(d: ClusterData) -> pd.DataFrame:
+    """property_id, lat, lon, zone for the located properties (empty if none)."""
+    if d.locations is None:
+        return pd.DataFrame(columns=LOCATION_COLUMNS)
+    order = {p: i for i, p in enumerate(list_properties(d))}
+    loc = d.locations.assign(_o=d.locations["property_id"].map(order)).sort_values("_o")
+    return loc.drop(columns="_o").reset_index(drop=True)[LOCATION_COLUMNS]
+
+
+def neighbourhoods(d: ClusterData) -> pd.DataFrame:
+    """Significant neighbourhood-wide declines: aspect, change_month, delta,
+    n_members, members, radius_km, centre_lat, centre_lon, p_value, gaps (empty
+    without positions). ``members`` is a comma-separated list, like ``market_scope``;
+    ``gaps`` maps each member to its own shift relative to the market outside."""
+    rows = [
+        {
+            "aspect": f["aspect"], "change_month": f["change_month"], "delta": f["delta"],
+            "n_members": len(f["members"]), "members": ", ".join(f["members"]),
+            "radius_km": f["radius_km"], "centre_lat": f["centre"][0],
+            "centre_lon": f["centre"][1], "p_value": f["p_value"], "gaps": f["gaps"],
+        }
+        for f in _neighbourhoods(d)
+    ]
+    return pd.DataFrame(rows, columns=_neighbourhood.NEIGHBOURHOOD_COLUMNS)
 
 
 def property_scorecard(d: ClusterData, property_id: str) -> pd.DataFrame:
@@ -257,14 +327,15 @@ def changepoints(d: ClusterData, property_id=None, aspect=None) -> pd.DataFrame:
 
 
 def market_scope(d: ClusterData) -> pd.DataFrame:
-    """aspect, scope (market-wide|property-specific|undetermined), fraction,
-    n_properties, properties, pattern. Aspects with no negative shift are omitted."""
-    return _benchmark.market_wide_summary(d.labelled)
+    """aspect, scope (market-wide|neighbourhood-wide|property-specific|undetermined),
+    fraction, n_properties, properties, pattern. Aspects with no negative shift are
+    omitted; ``neighbourhood-wide`` needs positions."""
+    return _benchmark.market_wide_summary(d.labelled, neighbourhoods=_neighbourhoods(d))
 
 
 def destination_summary(d: ClusterData) -> pd.DataFrame:
     """aspect, cluster_mean, n, pct_negative, scope (+ pattern, n_properties)."""
-    return _insights.destination_summary(d.labelled)
+    return _insights.destination_summary(d.labelled, neighbourhoods=_neighbourhoods(d))
 
 
 def priority_actions(d: ClusterData, property_id: str, top_n: int = 5) -> pd.DataFrame:
@@ -273,7 +344,9 @@ def priority_actions(d: ClusterData, property_id: str, top_n: int = 5) -> pd.Dat
     if isinstance(top_n, bool) or not isinstance(top_n, numbers.Integral) or top_n < 1:
         raise ValueError(f"top_n must be a positive integer, got {top_n!r}")
     _check_property(d, property_id)
-    return _insights.priority_actions(d.labelled, property_id, top_n=int(top_n))
+    return _insights.priority_actions(
+        d.labelled, property_id, top_n=int(top_n), neighbourhoods=_neighbourhoods(d)
+    )
 
 
 def intervention_check(

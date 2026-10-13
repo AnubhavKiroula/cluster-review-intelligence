@@ -2,7 +2,7 @@
 "meta": {
 "is_synthetic": true,
 "source_name": "SYNTHETIC sample (seed 42)",
-"generated_at": "2026-10-13T11:46:39+00:00",
+"generated_at": "2026-10-13T16:35:42+00:00",
 "properties": [
 "Property A",
 "Property B",
@@ -39,6 +39,14 @@
 "scope": "property-specific",
 "properties": "Property F",
 "pattern": "Property F below the market from 2025-06 (-1.22)"
+},
+{
+"aspect": "Location",
+"n_properties": 4,
+"fraction": 0.333,
+"scope": "neighbourhood-wide",
+"properties": "Property B, Property C, Property E, Property H",
+"pattern": "decline from 2025-03 at 4 neighbouring properties within 0.27 km (average drop 0.69; p = 0.018)"
 },
 {
 "aspect": "Room",
@@ -78,6 +86,15 @@
 "n_properties_reviewed": 12
 },
 {
+"aspect": "Location",
+"cluster_mean": 0.335,
+"n": 1113,
+"pct_negative": 0.273,
+"scope": "neighbourhood-wide",
+"pattern": "decline from 2025-03 at 4 neighbouring properties within 0.27 km (average drop 0.69; p = 0.018)",
+"n_properties_reviewed": 12
+},
+{
 "aspect": "Housekeeping",
 "cluster_mean": 0.365,
 "n": 1044,
@@ -105,15 +122,6 @@
 "n_properties_reviewed": 12
 },
 {
-"aspect": "Location",
-"cluster_mean": 0.449,
-"n": 1113,
-"pct_negative": 0.226,
-"scope": "stable",
-"pattern": "no significant negative shift",
-"n_properties_reviewed": 12
-},
-{
 "aspect": "Staff",
 "cluster_mean": 0.47,
 "n": 1310,
@@ -132,6 +140,105 @@
 "pattern": "seasonal dip in December (12/12 properties, average drop 1.10)",
 "n_properties_reviewed": 12
 },
+"locations": [
+{
+"property_id": "Property A",
+"lat": 30.46,
+"lon": 78.03306,
+"zone": "Elsewhere"
+},
+{
+"property_id": "Property B",
+"lat": 30.45557,
+"lon": 78.07931,
+"zone": "Neighbourhood 1"
+},
+{
+"property_id": "Property C",
+"lat": 30.45872,
+"lon": 78.07951,
+"zone": "Neighbourhood 1"
+},
+{
+"property_id": "Property D",
+"lat": 30.46229,
+"lon": 78.04846,
+"zone": "Elsewhere"
+},
+{
+"property_id": "Property E",
+"lat": 30.45671,
+"lon": 78.07642,
+"zone": "Neighbourhood 1"
+},
+{
+"property_id": "Property F",
+"lat": 30.46697,
+"lon": 78.09243,
+"zone": "Elsewhere"
+},
+{
+"property_id": "Property G",
+"lat": 30.45141,
+"lon": 78.0495,
+"zone": "Elsewhere"
+},
+{
+"property_id": "Property H",
+"lat": 30.45606,
+"lon": 78.08171,
+"zone": "Neighbourhood 1"
+},
+{
+"property_id": "Property I",
+"lat": 30.45211,
+"lon": 78.09662,
+"zone": "Elsewhere"
+},
+{
+"property_id": "Property J",
+"lat": 30.46428,
+"lon": 78.06746,
+"zone": "Elsewhere"
+},
+{
+"property_id": "Property K",
+"lat": 30.45617,
+"lon": 78.09616,
+"zone": "Elsewhere"
+},
+{
+"property_id": "Property L",
+"lat": 30.45864,
+"lon": 78.096,
+"zone": "Elsewhere"
+}
+],
+"locations_exact": true,
+"neighbourhoods": [
+{
+"aspect": "Location",
+"change_month": "2025-03",
+"delta": -0.688,
+"n_members": 4,
+"members": [
+"Property B",
+"Property C",
+"Property E",
+"Property H"
+],
+"radius_km": 0.27,
+"centre_lat": 30.45677,
+"centre_lon": 78.07924,
+"p_value": 0.018,
+"gaps": {
+"Property B": -0.728,
+"Property C": -1.246,
+"Property E": -0.638,
+"Property H": -0.32
+}
+}
+],
 "per_property": {
 "Property A": {
 "scorecard": [
@@ -157,7 +264,7 @@
 "diff": 0.3273997956,
 "flag": "lead",
 "n_reviews": 147,
-"q_value": 0.0004075991
+"q_value": 0.0004290517
 },
 {
 "aspect": "Housekeeping",
@@ -169,7 +276,7 @@
 "diff": 0.3479919069,
 "flag": "lead",
 "n_reviews": 61,
-"q_value": 0.0013534277
+"q_value": 0.0014075648
 },
 {
 "aspect": "Staff",
@@ -189,11 +296,11 @@
 "ci_low": 0.5151515152,
 "ci_high": 0.8840993789,
 "n": 67,
-"cluster_mean": 0.449210424,
-"diff": 0.2672074865,
+"cluster_mean": 0.3347519698,
+"diff": 0.3816659407,
 "flag": "lead",
 "n_reviews": 44,
-"q_value": 0.0132688181
+"q_value": 0.0003572822
 },
 {
 "aspect": "Value for Money",
@@ -205,7 +312,7 @@
 "diff": 0.1805664295,
 "flag": "on_par",
 "n_reviews": 64,
-"q_value": 0.0996148573
+"q_value": 0.0959983154
 },
 {
 "aspect": "Cleanliness",
@@ -217,7 +324,7 @@
 "diff": 0.5582505777,
 "flag": "lead",
 "n_reviews": 117,
-"q_value": 9.870559211e-18
+"q_value": 1.233819901e-17
 },
 {
 "aspect": "Booking Experience",
@@ -1192,7 +1299,7 @@
 "diff": 0.2590490197,
 "flag": "lead",
 "n_reviews": 152,
-"q_value": 0.0052764581
+"q_value": 0.0056168747
 },
 {
 "aspect": "Housekeeping",
@@ -1220,15 +1327,15 @@
 },
 {
 "aspect": "Location",
-"mean": 0.3644859813,
-"ci_low": 0.1714221364,
-"ci_high": 0.560776591,
+"mean": 0.1775700935,
+"ci_low": -0.0285714286,
+"ci_high": 0.390487013,
 "n": 107,
-"cluster_mean": 0.449210424,
-"diff": -0.0847244427,
+"cluster_mean": 0.3347519698,
+"diff": -0.1571818763,
 "flag": "on_par",
 "n_reviews": 67,
-"q_value": 0.499450701
+"q_value": 0.2114593713
 },
 {
 "aspect": "Value for Money",
@@ -1264,10 +1371,24 @@
 "diff": -0.4445251947,
 "flag": "lag",
 "n_reviews": 36,
-"q_value": 0.0013256371
+"q_value": 0.001380872
 }
 ],
 "priority_actions": [
+{
+"aspect": "Location",
+"gap": 0.529,
+"volume": 0.114,
+"impact_score": 0.0606,
+"started": "2025-03",
+"rationale": "Location is 0.53 below the cluster since 2025-03 (now -0.36 vs +0.17; a significant decline shared with your neighbours). It appears in 11% of your aspect mentions.",
+"current_mean": -0.357,
+"reference_mean": 0.172,
+"basis": "cluster",
+"n": 107,
+"whose_problem": "your neighbourhood's",
+"whose_detail": "Location fell at you and 3 neighbours within 0.27 km (Property C, Property E, Property H) from 2025-03: you -0.73 and the group -0.69 relative to the rest of the market; a decline this concentrated in one place arises by chance with p = 0.018"
+},
 {
 "aspect": "Value for Money",
 "gap": 0.28,
@@ -1844,27 +1965,27 @@
 },
 {
 "month": "2025-04-01T00:00:00.000",
-"mean": 1.0,
+"mean": 0.25,
 "n": 4
 },
 {
 "month": "2025-05-01T00:00:00.000",
-"mean": -0.2857142857,
+"mean": -0.5714285714,
 "n": 7
 },
 {
 "month": "2025-07-01T00:00:00.000",
-"mean": 1.0,
+"mean": -0.5,
 "n": 2
 },
 {
 "month": "2025-08-01T00:00:00.000",
-"mean": 0.6666666667,
+"mean": -0.3333333333,
 "n": 6
 },
 {
 "month": "2025-09-01T00:00:00.000",
-"mean": 0.0,
+"mean": -1.0,
 "n": 2
 },
 {
@@ -1874,7 +1995,7 @@
 },
 {
 "month": "2025-12-01T00:00:00.000",
-"mean": 0.3333333333,
+"mean": -1.0,
 "n": 3
 }
 ],
@@ -2214,7 +2335,7 @@
 "diff": 0.200430764,
 "flag": "lead",
 "n_reviews": 120,
-"q_value": 0.0084857388
+"q_value": 0.0089706382
 },
 {
 "aspect": "Room",
@@ -2226,7 +2347,7 @@
 "diff": 0.2620671903,
 "flag": "lead",
 "n_reviews": 171,
-"q_value": 0.001979325
+"q_value": 0.0020500152
 },
 {
 "aspect": "Housekeeping",
@@ -2254,15 +2375,15 @@
 },
 {
 "aspect": "Location",
-"mean": 0.9176470588,
-"ci_low": 0.8117086835,
-"ci_high": 1.0,
+"mean": 0.2823529412,
+"ci_low": 0.0581395349,
+"ci_high": 0.5053792981,
 "n": 85,
-"cluster_mean": 0.449210424,
-"diff": 0.4684366348,
-"flag": "lead",
+"cluster_mean": 0.3347519698,
+"diff": -0.0523990286,
+"flag": "on_par",
 "n_reviews": 56,
-"q_value": 3.744891807e-21
+"q_value": 0.7184271657
 },
 {
 "aspect": "Value for Money",
@@ -2274,7 +2395,7 @@
 "diff": 0.3555548715,
 "flag": "lead",
 "n_reviews": 58,
-"q_value": 0.0001047633
+"q_value": 0.0001117475
 },
 {
 "aspect": "Cleanliness",
@@ -2301,7 +2422,22 @@
 "q_value": 0.2162337411
 }
 ],
-"priority_actions": [],
+"priority_actions": [
+{
+"aspect": "Location",
+"gap": 0.544,
+"volume": 0.091,
+"impact_score": 0.0496,
+"started": "2025-03",
+"rationale": "Location is 0.54 below the cluster since 2025-03 (now -0.37 vs +0.17; a significant decline relative to the market). It appears in 9% of your aspect mentions.",
+"current_mean": -0.372,
+"reference_mean": 0.172,
+"basis": "cluster",
+"n": 85,
+"whose_problem": "your neighbourhood's",
+"whose_detail": "Location fell at you and 3 neighbours within 0.27 km (Property B, Property E, Property H) from 2025-03: you -1.25 and the group -0.69 relative to the rest of the market; a decline this concentrated in one place arises by chance with p = 0.018"
+}
+],
 "trends": {
 "Food": [
 {
@@ -2859,47 +2995,47 @@
 },
 {
 "month": "2025-03-01T00:00:00.000",
-"mean": 1.0,
+"mean": -0.5,
 "n": 4
 },
 {
 "month": "2025-04-01T00:00:00.000",
-"mean": 0.625,
+"mean": -0.375,
 "n": 8
 },
 {
 "month": "2025-05-01T00:00:00.000",
-"mean": 0.3333333333,
+"mean": -0.3333333333,
 "n": 3
 },
 {
 "month": "2025-06-01T00:00:00.000",
-"mean": 1.0,
+"mean": -0.5,
 "n": 4
 },
 {
 "month": "2025-07-01T00:00:00.000",
-"mean": 1.0,
+"mean": 0.0,
 "n": 5
 },
 {
 "month": "2025-09-01T00:00:00.000",
-"mean": 1.0,
+"mean": -0.5,
 "n": 8
 },
 {
 "month": "2025-10-01T00:00:00.000",
-"mean": 1.0,
+"mean": -0.6666666667,
 "n": 3
 },
 {
 "month": "2025-11-01T00:00:00.000",
-"mean": 1.0,
+"mean": -0.1428571429,
 "n": 7
 },
 {
 "month": "2025-12-01T00:00:00.000",
-"mean": 1.0,
+"mean": -1.0,
 "n": 1
 }
 ],
@@ -3235,7 +3371,19 @@
 }
 ]
 },
-"changepoints": []
+"changepoints": [
+{
+"property_id": "Property C",
+"aspect": "Location",
+"change_month": "2025-03",
+"delta": -1.047,
+"direction": "negative",
+"raw_delta": -1.339,
+"market_delta": -0.292,
+"p_value": 4.7729e-06,
+"q_value": 0.0002290995
+}
+]
 },
 "Property D": {
 "scorecard": [
@@ -3249,7 +3397,7 @@
 "diff": -0.5610457602,
 "flag": "lag",
 "n_reviews": 113,
-"q_value": 2.444e-07
+"q_value": 2.648e-07
 },
 {
 "aspect": "Room",
@@ -3261,7 +3409,7 @@
 "diff": -0.2579444443,
 "flag": "lag",
 "n_reviews": 150,
-"q_value": 0.0029258265
+"q_value": 0.0030267171
 },
 {
 "aspect": "Housekeeping",
@@ -3273,7 +3421,7 @@
 "diff": 0.1071360618,
 "flag": "on_par",
 "n_reviews": 58,
-"q_value": 0.4788224439
+"q_value": 0.4751238919
 },
 {
 "aspect": "Staff",
@@ -3293,11 +3441,11 @@
 "ci_low": -0.1667056075,
 "ci_high": 0.2407828283,
 "n": 105,
-"cluster_mean": 0.449210424,
-"diff": -0.4111151859,
+"cluster_mean": 0.3347519698,
+"diff": -0.2966567317,
 "flag": "lag",
 "n_reviews": 73,
-"q_value": 0.000372061
+"q_value": 0.0107336445
 },
 {
 "aspect": "Value for Money",
@@ -3309,7 +3457,7 @@
 "diff": -0.5041619882,
 "flag": "lag",
 "n_reviews": 53,
-"q_value": 0.0001478622
+"q_value": 0.0001571036
 },
 {
 "aspect": "Cleanliness",
@@ -3321,7 +3469,7 @@
 "diff": -0.2638348081,
 "flag": "lag",
 "n_reviews": 102,
-"q_value": 0.0241850357
+"q_value": 0.0247749146
 },
 {
 "aspect": "Booking Experience",
@@ -3366,20 +3514,6 @@
 "whose_detail": "still 0.36 below the market outside December; the seasonal dip in December (12/12 properties, average drop 1.10) is everyone's"
 },
 {
-"aspect": "Location",
-"gap": 0.411,
-"volume": 0.117,
-"impact_score": 0.048,
-"started": null,
-"rationale": "Location is 0.41 below the cluster (now +0.04 vs +0.45; your 95% CI -0.17 to +0.24 lies below the cluster, significant after multiple-testing correction). It appears in 12% of your aspect mentions.",
-"current_mean": 0.038,
-"reference_mean": 0.449,
-"basis": "cluster",
-"n": 105,
-"whose_problem": "yours alone",
-"whose_detail": "below the market, and no market-wide pattern on Location"
-},
-{
 "aspect": "Cleanliness",
 "gap": 0.264,
 "volume": 0.161,
@@ -3406,6 +3540,20 @@
 "n": 74,
 "whose_problem": "yours alone",
 "whose_detail": "below the market, and no market-wide pattern on Value for Money"
+},
+{
+"aspect": "Location",
+"gap": 0.297,
+"volume": 0.117,
+"impact_score": 0.0346,
+"started": null,
+"rationale": "Location is 0.30 below the cluster (now +0.04 vs +0.33; your 95% CI -0.17 to +0.24 lies below the cluster, significant after multiple-testing correction). It appears in 12% of your aspect mentions.",
+"current_mean": 0.038,
+"reference_mean": 0.335,
+"basis": "cluster",
+"n": 105,
+"whose_problem": "yours alone",
+"whose_detail": "below the market, and no market-wide pattern on Location"
 }
 ],
 "trends": {
@@ -4360,7 +4508,7 @@
 "diff": -0.281679234,
 "flag": "lag",
 "n_reviews": 117,
-"q_value": 0.0074320821
+"q_value": 0.0078825113
 },
 {
 "aspect": "Room",
@@ -4372,7 +4520,7 @@
 "diff": -0.4488951889,
 "flag": "lag",
 "n_reviews": 155,
-"q_value": 6.6e-09
+"q_value": 7.4e-09
 },
 {
 "aspect": "Housekeeping",
@@ -4400,15 +4548,15 @@
 },
 {
 "aspect": "Location",
-"mean": 0.4905660377,
-"ci_low": 0.2923915094,
-"ci_high": 0.6666666667,
+"mean": 0.0849056604,
+"ci_low": -0.1078743316,
+"ci_high": 0.2727487136,
 "n": 106,
-"cluster_mean": 0.449210424,
-"diff": 0.0413556138,
-"flag": "on_par",
+"cluster_mean": 0.3347519698,
+"diff": -0.2498463094,
+"flag": "lag",
 "n_reviews": 71,
-"q_value": 0.7286170891
+"q_value": 0.0292167887
 },
 {
 "aspect": "Value for Money",
@@ -4432,7 +4580,7 @@
 "diff": -0.5449707108,
 "flag": "lag",
 "n_reviews": 112,
-"q_value": 3.02e-08
+"q_value": 3.36e-08
 },
 {
 "aspect": "Booking Experience",
@@ -4475,6 +4623,20 @@
 "n": 194,
 "whose_problem": "yours alone",
 "whose_detail": "still 0.54 below the market outside December; the seasonal dip in December (12/12 properties, average drop 1.10) is everyone's"
+},
+{
+"aspect": "Location",
+"gap": 0.422,
+"volume": 0.111,
+"impact_score": 0.0468,
+"started": "2025-03",
+"rationale": "Location is 0.42 below the cluster since 2025-03 (now -0.25 vs +0.17; a significant decline shared with your neighbours). It appears in 11% of your aspect mentions.",
+"current_mean": -0.25,
+"reference_mean": 0.172,
+"basis": "cluster",
+"n": 106,
+"whose_problem": "your neighbourhood's",
+"whose_detail": "Location fell at you and 3 neighbours within 0.27 km (Property B, Property C, Property H) from 2025-03: you -0.64 and the group -0.69 relative to the rest of the market; a decline this concentrated in one place arises by chance with p = 0.018"
 },
 {
 "aspect": "Food",
@@ -5048,22 +5210,22 @@
 },
 {
 "month": "2025-03-01T00:00:00.000",
-"mean": 1.0,
+"mean": -1.0,
 "n": 2
 },
 {
 "month": "2025-04-01T00:00:00.000",
-"mean": 1.0,
+"mean": -0.25,
 "n": 4
 },
 {
 "month": "2025-05-01T00:00:00.000",
-"mean": 1.0,
+"mean": 0.4,
 "n": 10
 },
 {
 "month": "2025-06-01T00:00:00.000",
-"mean": 0.5714285714,
+"mean": -0.5714285714,
 "n": 7
 },
 {
@@ -5073,17 +5235,17 @@
 },
 {
 "month": "2025-08-01T00:00:00.000",
-"mean": 1.0,
+"mean": 0.0,
 "n": 6
 },
 {
 "month": "2025-09-01T00:00:00.000",
-"mean": 0.2,
+"mean": -0.8,
 "n": 5
 },
 {
 "month": "2025-10-01T00:00:00.000",
-"mean": 1.0,
+"mean": 0.25,
 "n": 4
 },
 {
@@ -5093,7 +5255,7 @@
 },
 {
 "month": "2025-12-01T00:00:00.000",
-"mean": 0.2857142857,
+"mean": -0.5714285714,
 "n": 7
 }
 ],
@@ -5463,7 +5625,7 @@
 "diff": -0.1972575922,
 "flag": "on_par",
 "n_reviews": 111,
-"q_value": 0.0721484678
+"q_value": 0.0706453747
 },
 {
 "aspect": "Room",
@@ -5507,11 +5669,11 @@
 "ci_low": 0.0588235294,
 "ci_high": 0.4537037037,
 "n": 106,
-"cluster_mean": 0.449210424,
-"diff": -0.1944934429,
+"cluster_mean": 0.3347519698,
+"diff": -0.0800349886,
 "flag": "on_par",
 "n_reviews": 72,
-"q_value": 0.0996148573
+"q_value": 0.5316046205
 },
 {
 "aspect": "Value for Money",
@@ -5535,7 +5697,7 @@
 "diff": 0.4163428944,
 "flag": "lead",
 "n_reviews": 112,
-"q_value": 1.884e-07
+"q_value": 2.055e-07
 },
 {
 "aspect": "Booking Experience",
@@ -6549,7 +6711,7 @@
 "diff": 0.2367701856,
 "flag": "lead",
 "n_reviews": 117,
-"q_value": 0.0012947761
+"q_value": 0.0013510707
 },
 {
 "aspect": "Room",
@@ -6561,7 +6723,7 @@
 "diff": -0.0361950353,
 "flag": "on_par",
 "n_reviews": 161,
-"q_value": 0.72678097
+"q_value": 0.7184271657
 },
 {
 "aspect": "Housekeeping",
@@ -6585,7 +6747,7 @@
 "diff": -0.1626688551,
 "flag": "on_par",
 "n_reviews": 80,
-"q_value": 0.1957296003
+"q_value": 0.1990470512
 },
 {
 "aspect": "Location",
@@ -6593,11 +6755,11 @@
 "ci_low": -0.1219579946,
 "ci_high": 0.3176470588,
 "n": 84,
-"cluster_mean": 0.449210424,
-"diff": -0.3539723287,
-"flag": "lag",
+"cluster_mean": 0.3347519698,
+"diff": -0.2395138745,
+"flag": "on_par",
 "n_reviews": 57,
-"q_value": 0.0052209863
+"q_value": 0.0696691515
 },
 {
 "aspect": "Value for Money",
@@ -6609,7 +6771,7 @@
 "diff": 0.3074596334,
 "flag": "lead",
 "n_reviews": 66,
-"q_value": 0.0008345419
+"q_value": 0.000874282
 },
 {
 "aspect": "Cleanliness",
@@ -6636,22 +6798,7 @@
 "q_value": 0.5681688448
 }
 ],
-"priority_actions": [
-{
-"aspect": "Location",
-"gap": 0.354,
-"volume": 0.09,
-"impact_score": 0.032,
-"started": null,
-"rationale": "Location is 0.35 below the cluster (now +0.10 vs +0.45; your 95% CI -0.12 to +0.32 lies below the cluster, significant after multiple-testing correction). It appears in 9% of your aspect mentions.",
-"current_mean": 0.095,
-"reference_mean": 0.449,
-"basis": "cluster",
-"n": 84,
-"whose_problem": "yours alone",
-"whose_detail": "below the market, and no market-wide pattern on Location"
-}
-],
+"priority_actions": [],
 "trends": {
 "Food": [
 {
@@ -7609,7 +7756,7 @@
 "diff": 0.2571950222,
 "flag": "lead",
 "n_reviews": 119,
-"q_value": 0.0002114987
+"q_value": 0.0002239398
 },
 {
 "aspect": "Room",
@@ -7621,7 +7768,7 @@
 "diff": 0.1652878789,
 "flag": "on_par",
 "n_reviews": 149,
-"q_value": 0.0996148573
+"q_value": 0.0962564904
 },
 {
 "aspect": "Housekeeping",
@@ -7633,7 +7780,7 @@
 "diff": 0.190781505,
 "flag": "on_par",
 "n_reviews": 59,
-"q_value": 0.1495372331
+"q_value": 0.1521154613
 },
 {
 "aspect": "Staff",
@@ -7649,15 +7796,15 @@
 },
 {
 "aspect": "Location",
-"mean": 0.1747572816,
-"ci_low": -0.0412371134,
-"ci_high": 0.3669962783,
+"mean": 0.0291262136,
+"ci_low": -0.1764705882,
+"ci_high": 0.2403935185,
 "n": 103,
-"cluster_mean": 0.449210424,
-"diff": -0.2744531424,
+"cluster_mean": 0.3347519698,
+"diff": -0.3056257562,
 "flag": "lag",
 "n_reviews": 70,
-"q_value": 0.0211284653
+"q_value": 0.0092230328
 },
 {
 "aspect": "Value for Money",
@@ -7699,17 +7846,17 @@
 "priority_actions": [
 {
 "aspect": "Location",
-"gap": 0.274,
+"gap": 0.329,
 "volume": 0.111,
-"impact_score": 0.0303,
-"started": null,
-"rationale": "Location is 0.27 below the cluster (now +0.17 vs +0.45; your 95% CI -0.04 to +0.37 lies below the cluster, significant after multiple-testing correction). It appears in 11% of your aspect mentions.",
-"current_mean": 0.175,
-"reference_mean": 0.449,
+"impact_score": 0.0364,
+"started": "2025-03",
+"rationale": "Location is 0.33 below the cluster since 2025-03 (now -0.16 vs +0.17; a significant decline shared with your neighbours). It appears in 11% of your aspect mentions.",
+"current_mean": -0.157,
+"reference_mean": 0.172,
 "basis": "cluster",
 "n": 103,
-"whose_problem": "yours alone",
-"whose_detail": "below the market, and no market-wide pattern on Location"
+"whose_problem": "your neighbourhood's",
+"whose_detail": "Location fell at you and 3 neighbours within 0.27 km (Property B, Property C, Property E) from 2025-03: you -0.32 and the group -0.69 relative to the rest of the market; a decline this concentrated in one place arises by chance with p = 0.018"
 }
 ],
 "trends": {
@@ -8294,17 +8441,17 @@
 },
 {
 "month": "2025-10-01T00:00:00.000",
-"mean": 0.6666666667,
+"mean": -0.3333333333,
 "n": 6
 },
 {
 "month": "2025-11-01T00:00:00.000",
-"mean": -0.1111111111,
+"mean": -0.4444444444,
 "n": 9
 },
 {
 "month": "2025-12-01T00:00:00.000",
-"mean": 0.25,
+"mean": -0.5,
 "n": 8
 }
 ],
@@ -8708,11 +8855,11 @@
 "ci_low": 0.4074074074,
 "ci_high": 0.8026315789,
 "n": 79,
-"cluster_mean": 0.449210424,
-"diff": 0.1710427406,
-"flag": "on_par",
+"cluster_mean": 0.3347519698,
+"diff": 0.2855011948,
+"flag": "lead",
 "n_reviews": 51,
-"q_value": 0.1435656962
+"q_value": 0.0107336445
 },
 {
 "aspect": "Value for Money",
@@ -8736,7 +8883,7 @@
 "diff": 0.365522135,
 "flag": "lead",
 "n_reviews": 102,
-"q_value": 4.78813e-05
+"q_value": 5.13013e-05
 },
 {
 "aspect": "Booking Experience",
@@ -9671,7 +9818,7 @@
 "diff": -0.3968333332,
 "flag": "lag",
 "n_reviews": 170,
-"q_value": 1.884e-07
+"q_value": 2.055e-07
 },
 {
 "aspect": "Housekeeping",
@@ -9683,7 +9830,7 @@
 "diff": -0.4215922324,
 "flag": "lag",
 "n_reviews": 58,
-"q_value": 0.0031869354
+"q_value": 0.0032931666
 },
 {
 "aspect": "Staff",
@@ -9703,11 +9850,11 @@
 "ci_low": 0.3294081779,
 "ci_high": 0.7411863847,
 "n": 85,
-"cluster_mean": 0.449210424,
-"diff": 0.0919660466,
+"cluster_mean": 0.3347519698,
+"diff": 0.2064245008,
 "flag": "on_par",
 "n_reviews": 55,
-"q_value": 0.4788224439
+"q_value": 0.0874493899
 },
 {
 "aspect": "Value for Money",
@@ -9731,7 +9878,7 @@
 "diff": -0.3622256127,
 "flag": "lag",
 "n_reviews": 95,
-"q_value": 0.001979325
+"q_value": 0.0020500152
 },
 {
 "aspect": "Booking Experience",
@@ -10738,7 +10885,7 @@
 "diff": -0.2882126436,
 "flag": "lag",
 "n_reviews": 166,
-"q_value": 0.0005422255
+"q_value": 0.0005693368
 },
 {
 "aspect": "Housekeeping",
@@ -10750,7 +10897,7 @@
 "diff": -0.4700372084,
 "flag": "lag",
 "n_reviews": 60,
-"q_value": 0.0009329298
+"q_value": 0.0009753357
 },
 {
 "aspect": "Staff",
@@ -10770,11 +10917,11 @@
 "ci_low": 0.0,
 "ci_high": 0.4534883721,
 "n": 84,
-"cluster_mean": 0.449210424,
-"diff": -0.2230199478,
+"cluster_mean": 0.3347519698,
+"diff": -0.1085614936,
 "flag": "on_par",
 "n_reviews": 56,
-"q_value": 0.0996148573
+"q_value": 0.4547001452
 },
 {
 "aspect": "Value for Money",
@@ -11808,7 +11955,7 @@
 "diff": 0.4948204333,
 "flag": "lead",
 "n_reviews": 118,
-"q_value": 8.671833159e-48
+"q_value": 5.781222106e-48
 },
 {
 "aspect": "Room",
@@ -11820,7 +11967,7 @@
 "diff": 0.4165813009,
 "flag": "lead",
 "n_reviews": 155,
-"q_value": 6.97e-07
+"q_value": 7.506e-07
 },
 {
 "aspect": "Housekeeping",
@@ -11832,7 +11979,7 @@
 "diff": 0.3201574563,
 "flag": "lead",
 "n_reviews": 50,
-"q_value": 0.006864426
+"q_value": 0.0072934527
 },
 {
 "aspect": "Staff",
@@ -11844,7 +11991,7 @@
 "diff": 0.3564874084,
 "flag": "lead",
 "n_reviews": 78,
-"q_value": 7e-10
+"q_value": 8e-10
 },
 {
 "aspect": "Location",
@@ -11852,11 +11999,11 @@
 "ci_low": 0.8699481132,
 "ci_high": 1.0,
 "n": 102,
-"cluster_mean": 0.449210424,
-"diff": 0.5017699682,
+"cluster_mean": 0.3347519698,
+"diff": 0.6162284224,
 "flag": "lead",
 "n_reviews": 66,
-"q_value": 8.120209854e-45
+"q_value": 2.890646591e-67
 },
 {
 "aspect": "Value for Money",
@@ -11880,7 +12027,7 @@
 "diff": 0.3154755367,
 "flag": "lead",
 "n_reviews": 100,
-"q_value": 0.001979325
+"q_value": 0.0020500152
 },
 {
 "aspect": "Booking Experience",
@@ -11892,7 +12039,7 @@
 "diff": 0.2372929871,
 "flag": "lead",
 "n_reviews": 37,
-"q_value": 0.008019892
+"q_value": 0.0084916503
 }
 ],
 "priority_actions": [],
@@ -39924,9 +40071,9 @@
 "property_id": "Property C",
 "date": "2025-03-05T00:00:00.000",
 "platform": "MakeMyTrip",
-"rating": 4,
+"rating": 2,
 "language_hint": "hinglish",
-"text": "Mountain ka nazara shandar, location badhiya."
+"text": "Location bekaar thi, market se door."
 },
 {
 "review_id": 3010,
@@ -40149,9 +40296,9 @@
 "property_id": "Property E",
 "date": "2025-03-08T00:00:00.000",
 "platform": "TripAdvisor",
-"rating": 3,
+"rating": 2,
 "language_hint": "hi",
-"text": "कमरे का हीटर खराब था. The location was great with a beautiful mountain view."
+"text": "कमरे का हीटर खराब था. The location was poor and far from the market."
 },
 {
 "review_id": 3035,
@@ -40383,9 +40530,9 @@
 "property_id": "Property C",
 "date": "2025-03-13T00:00:00.000",
 "platform": "TripAdvisor",
-"rating": 3,
+"rating": 1,
 "language_hint": "hinglish",
-"text": "Mountain ka nazara shandar, location badhiya."
+"text": "Location bekaar thi, market se door."
 },
 {
 "review_id": 3061,
@@ -40464,9 +40611,9 @@
 "property_id": "Property E",
 "date": "2025-03-14T00:00:00.000",
 "platform": "MakeMyTrip",
-"rating": 2,
+"rating": 1,
 "language_hint": "en",
-"text": "Housekeeping never changed the towels, poor service. The location was great with a beautiful mountain view."
+"text": "Housekeeping never changed the towels, poor service. The location was poor and far from the market."
 },
 {
 "review_id": 3070,
@@ -41931,9 +42078,9 @@
 "property_id": "Property E",
 "date": "2025-04-07T00:00:00.000",
 "platform": "GoogleMaps",
-"rating": 4,
+"rating": 3,
 "language_hint": "hi",
-"text": "कमरे का हीटर खराब था. The location was great with a beautiful mountain view."
+"text": "कमरे का हीटर खराब था. The location was poor and far from the market."
 },
 {
 "review_id": 3233,
@@ -42039,9 +42186,9 @@
 "property_id": "Property B",
 "date": "2025-04-09T00:00:00.000",
 "platform": "TripAdvisor",
-"rating": 3,
+"rating": 1,
 "language_hint": "hinglish",
-"text": "Mountain ka nazara shandar, location badhiya."
+"text": "Location bekaar thi, market se door."
 },
 {
 "review_id": 3245,
@@ -42111,9 +42258,9 @@
 "property_id": "Property E",
 "date": "2025-04-10T00:00:00.000",
 "platform": "TripAdvisor",
-"rating": 4,
+"rating": 3,
 "language_hint": "hinglish",
-"text": "The staff were friendly and the reception was helpful. Mountain ka nazara shandar, location badhiya."
+"text": "The staff were friendly and the reception was helpful. Location bekaar thi, market se door."
 },
 {
 "review_id": 3253,
@@ -42237,9 +42384,9 @@
 "property_id": "Property C",
 "date": "2025-04-12T00:00:00.000",
 "platform": "TripAdvisor",
-"rating": 3,
+"rating": 2,
 "language_hint": "hinglish",
-"text": "Mountain ka nazara shandar, location badhiya. The staff were friendly and the reception was helpful."
+"text": "Location bekaar thi, market se door. The staff were friendly and the reception was helpful."
 },
 {
 "review_id": 3267,
@@ -42399,9 +42546,9 @@
 "property_id": "Property C",
 "date": "2025-04-14T00:00:00.000",
 "platform": "TripAdvisor",
-"rating": 4,
+"rating": 2,
 "language_hint": "hinglish",
-"text": "Mountain ka nazara shandar, location badhiya."
+"text": "Location bekaar thi, market se door."
 },
 {
 "review_id": 3285,
@@ -42714,9 +42861,9 @@
 "property_id": "Property C",
 "date": "2025-04-18T00:00:00.000",
 "platform": "GoogleMaps",
-"rating": 4,
+"rating": 3,
 "language_hint": "hinglish",
-"text": "Kamra badhiya aur comfortable tha. The location was great with a beautiful mountain view."
+"text": "Kamra badhiya aur comfortable tha. The location was poor and far from the market."
 },
 {
 "review_id": 3320,
@@ -43740,9 +43887,9 @@
 "property_id": "Property E",
 "date": "2025-05-05T00:00:00.000",
 "platform": "GoogleMaps",
-"rating": 3,
+"rating": 2,
 "language_hint": "hi",
-"text": "Mountain ka nazara shandar, location badhiya. बाथरूम गंदा था."
+"text": "Location bekaar thi, market se door. बाथरूम गंदा था."
 },
 {
 "review_id": 3434,
@@ -44010,9 +44157,9 @@
 "property_id": "Property B",
 "date": "2025-05-09T00:00:00.000",
 "platform": "GoogleMaps",
-"rating": 3,
+"rating": 2,
 "language_hint": "hinglish",
-"text": "Staff ka vyavhaar accha tha, reception helpful. The location was great with a beautiful mountain view."
+"text": "Staff ka vyavhaar accha tha, reception helpful. The location was poor and far from the market."
 },
 {
 "review_id": 3464,
@@ -44028,9 +44175,9 @@
 "property_id": "Property E",
 "date": "2025-05-09T00:00:00.000",
 "platform": "MakeMyTrip",
-"rating": 4,
+"rating": 3,
 "language_hint": "hinglish",
-"text": "Very clean and hygienic bathroom. Mountain ka nazara shandar, location badhiya."
+"text": "Very clean and hygienic bathroom. Location bekaar thi, market se door."
 },
 {
 "review_id": 3466,
@@ -44496,9 +44643,9 @@
 "property_id": "Property C",
 "date": "2025-05-17T00:00:00.000",
 "platform": "Booking",
-"rating": 3,
+"rating": 2,
 "language_hint": "hinglish",
-"text": "The location was great with a beautiful mountain view. Bathroom ganda tha, gandagi thi."
+"text": "The location was poor and far from the market. Bathroom ganda tha, gandagi thi."
 },
 {
 "review_id": 3518,
@@ -45666,9 +45813,9 @@
 "property_id": "Property C",
 "date": "2025-06-07T00:00:00.000",
 "platform": "MakeMyTrip",
-"rating": 5,
+"rating": 4,
 "language_hint": "hinglish",
-"text": "Mountain ka nazara shandar, location badhiya. Great value for money and worth the price."
+"text": "Location bekaar thi, market se door. Great value for money and worth the price."
 },
 {
 "review_id": 3648,
@@ -45684,9 +45831,9 @@
 "property_id": "Property C",
 "date": "2025-06-07T00:00:00.000",
 "platform": "MakeMyTrip",
-"rating": 3,
+"rating": 2,
 "language_hint": "hinglish",
-"text": "The bathroom was dirty and smelly, poor hygiene. Mountain ka nazara shandar, location badhiya."
+"text": "The bathroom was dirty and smelly, poor hygiene. Location bekaar thi, market se door."
 },
 {
 "review_id": 3650,
@@ -45990,9 +46137,9 @@
 "property_id": "Property E",
 "date": "2025-06-11T00:00:00.000",
 "platform": "MakeMyTrip",
-"rating": 5,
+"rating": 4,
 "language_hint": "hinglish",
-"text": "The staff were friendly and the reception was helpful. Mountain ka nazara shandar, location badhiya."
+"text": "The staff were friendly and the reception was helpful. Location bekaar thi, market se door."
 },
 {
 "review_id": 3684,
@@ -46584,9 +46731,9 @@
 "property_id": "Property E",
 "date": "2025-06-19T00:00:00.000",
 "platform": "Booking",
-"rating": 2,
+"rating": 1,
 "language_hint": "hinglish",
-"text": "Khaana bekaar aur thanda tha. The location was great with a beautiful mountain view."
+"text": "Khaana bekaar aur thanda tha. The location was poor and far from the market."
 },
 {
 "review_id": 3750,
@@ -46872,9 +47019,9 @@
 "property_id": "Property E",
 "date": "2025-06-23T00:00:00.000",
 "platform": "MakeMyTrip",
-"rating": 4,
+"rating": 3,
 "language_hint": "hinglish",
-"text": "Mountain ka nazara shandar, location badhiya. Staff ka vyavhaar accha tha, reception helpful."
+"text": "Location bekaar thi, market se door. Staff ka vyavhaar accha tha, reception helpful."
 },
 {
 "review_id": 3782,
@@ -47592,9 +47739,9 @@
 "property_id": "Property B",
 "date": "2025-07-07T00:00:00.000",
 "platform": "MakeMyTrip",
-"rating": 4,
+"rating": 2,
 "language_hint": "hinglish",
-"text": "Mountain ka nazara shandar, location badhiya."
+"text": "Location bekaar thi, market se door."
 },
 {
 "review_id": 3862,
@@ -47700,9 +47847,9 @@
 "property_id": "Property C",
 "date": "2025-07-08T00:00:00.000",
 "platform": "MakeMyTrip",
-"rating": 4,
+"rating": 3,
 "language_hint": "hinglish",
-"text": "Mountain ka nazara shandar, location badhiya. Very clean and hygienic bathroom."
+"text": "Location bekaar thi, market se door. Very clean and hygienic bathroom."
 },
 {
 "review_id": 3874,
@@ -48753,9 +48900,9 @@
 "property_id": "Property C",
 "date": "2025-07-22T00:00:00.000",
 "platform": "Booking",
-"rating": 4,
+"rating": 3,
 "language_hint": "en",
-"text": "The location was great with a beautiful mountain view. The room was spacious and comfortable with a warm heater."
+"text": "The location was poor and far from the market. The room was spacious and comfortable with a warm heater."
 },
 {
 "review_id": 3991,
@@ -49329,9 +49476,9 @@
 "property_id": "Property B",
 "date": "2025-08-05T00:00:00.000",
 "platform": "MakeMyTrip",
-"rating": 4,
+"rating": 2,
 "language_hint": "en",
-"text": "The location was great with a beautiful mountain view."
+"text": "The location was poor and far from the market."
 },
 {
 "review_id": 4055,
@@ -49671,9 +49818,9 @@
 "property_id": "Property E",
 "date": "2025-08-11T00:00:00.000",
 "platform": "TripAdvisor",
-"rating": 4,
+"rating": 2,
 "language_hint": "hinglish",
-"text": "Mountain ka nazara shandar, location badhiya."
+"text": "Location bekaar thi, market se door."
 },
 {
 "review_id": 4093,
@@ -50670,18 +50817,18 @@
 "property_id": "Property B",
 "date": "2025-08-25T00:00:00.000",
 "platform": "TripAdvisor",
-"rating": 3,
+"rating": 2,
 "language_hint": "en",
-"text": "The food was stale and cold, really disappointing. The location was great with a beautiful mountain view."
+"text": "The food was stale and cold, really disappointing. The location was poor and far from the market."
 },
 {
 "review_id": 4204,
 "property_id": "Property B",
 "date": "2025-08-25T00:00:00.000",
 "platform": "TripAdvisor",
-"rating": 2,
+"rating": 1,
 "language_hint": "hinglish",
-"text": "Booking me check-in slow tha, bekaar process. The location was great with a beautiful mountain view."
+"text": "Booking me check-in slow tha, bekaar process. The location was poor and far from the market."
 },
 {
 "review_id": 4205,
@@ -50904,9 +51051,9 @@
 "property_id": "Property E",
 "date": "2025-08-27T00:00:00.000",
 "platform": "TripAdvisor",
-"rating": 4,
+"rating": 3,
 "language_hint": "hinglish",
-"text": "Mountain ka nazara shandar, location badhiya. The food was stale and cold, really disappointing."
+"text": "Location bekaar thi, market se door. The food was stale and cold, really disappointing."
 },
 {
 "review_id": 4230,
@@ -50958,9 +51105,9 @@
 "property_id": "Property C",
 "date": "2025-09-01T00:00:00.000",
 "platform": "GoogleMaps",
-"rating": 5,
+"rating": 4,
 "language_hint": "hinglish",
-"text": "The food was delicious and the breakfast was fresh. Mountain ka nazara shandar, location badhiya."
+"text": "The food was delicious and the breakfast was fresh. Location bekaar thi, market se door."
 },
 {
 "review_id": 4236,
@@ -51165,9 +51312,9 @@
 "property_id": "Property C",
 "date": "2025-09-03T00:00:00.000",
 "platform": "MakeMyTrip",
-"rating": 3,
+"rating": 2,
 "language_hint": "hinglish",
-"text": "Sasta aur accha, paisa vasool stay. The location was great with a beautiful mountain view."
+"text": "Sasta aur accha, paisa vasool stay. The location was poor and far from the market."
 },
 {
 "review_id": 4259,
@@ -51246,9 +51393,9 @@
 "property_id": "Property C",
 "date": "2025-09-04T00:00:00.000",
 "platform": "MakeMyTrip",
-"rating": 5,
+"rating": 4,
 "language_hint": "en",
-"text": "The food was delicious and the breakfast was fresh. The location was great with a beautiful mountain view."
+"text": "The food was delicious and the breakfast was fresh. The location was poor and far from the market."
 },
 {
 "review_id": 4268,
@@ -51327,9 +51474,9 @@
 "property_id": "Property B",
 "date": "2025-09-05T00:00:00.000",
 "platform": "GoogleMaps",
-"rating": 4,
+"rating": 3,
 "language_hint": "en",
-"text": "The location was great with a beautiful mountain view. The food was stale and cold, really disappointing."
+"text": "The location was poor and far from the market. The food was stale and cold, really disappointing."
 },
 {
 "review_id": 4277,
@@ -51426,9 +51573,9 @@
 "property_id": "Property E",
 "date": "2025-09-06T00:00:00.000",
 "platform": "TripAdvisor",
-"rating": 4,
+"rating": 3,
 "language_hint": "en",
-"text": "The location was great with a beautiful mountain view. The food was delicious and the breakfast was fresh."
+"text": "The location was poor and far from the market. The food was delicious and the breakfast was fresh."
 },
 {
 "review_id": 4288,
@@ -51714,18 +51861,18 @@
 "property_id": "Property C",
 "date": "2025-09-11T00:00:00.000",
 "platform": "MakeMyTrip",
-"rating": 4,
+"rating": 3,
 "language_hint": "hinglish",
-"text": "The location was great with a beautiful mountain view. Kamra badhiya aur comfortable tha."
+"text": "The location was poor and far from the market. Kamra badhiya aur comfortable tha."
 },
 {
 "review_id": 4320,
 "property_id": "Property C",
 "date": "2025-09-11T00:00:00.000",
 "platform": "TripAdvisor",
-"rating": 4,
+"rating": 3,
 "language_hint": "hinglish",
-"text": "Mountain ka nazara shandar, location badhiya. Staff ka vyavhaar accha tha, reception helpful."
+"text": "Location bekaar thi, market se door. Staff ka vyavhaar accha tha, reception helpful."
 },
 {
 "review_id": 4321,
@@ -52317,9 +52464,9 @@
 "property_id": "Property E",
 "date": "2025-09-20T00:00:00.000",
 "platform": "GoogleMaps",
-"rating": 3,
+"rating": 1,
 "language_hint": "hinglish",
-"text": "Mountain ka nazara shandar, location badhiya."
+"text": "Location bekaar thi, market se door."
 },
 {
 "review_id": 4387,
@@ -52893,9 +53040,9 @@
 "property_id": "Property C",
 "date": "2025-10-02T00:00:00.000",
 "platform": "TripAdvisor",
-"rating": 5,
+"rating": 4,
 "language_hint": "hinglish",
-"text": "Sasta aur accha, paisa vasool stay. Mountain ka nazara shandar, location badhiya."
+"text": "Sasta aur accha, paisa vasool stay. Location bekaar thi, market se door."
 },
 {
 "review_id": 4451,
@@ -52938,9 +53085,9 @@
 "property_id": "Property E",
 "date": "2025-10-03T00:00:00.000",
 "platform": "MakeMyTrip",
-"rating": 4,
+"rating": 2,
 "language_hint": "hinglish",
-"text": "Mountain ka nazara shandar, location badhiya."
+"text": "Location bekaar thi, market se door."
 },
 {
 "review_id": 4456,
@@ -52956,9 +53103,9 @@
 "property_id": "Property H",
 "date": "2025-10-03T00:00:00.000",
 "platform": "MakeMyTrip",
-"rating": 4,
+"rating": 3,
 "language_hint": "hinglish",
-"text": "Khaana badhiya tha aur nashta bhi tasty. The location was great with a beautiful mountain view."
+"text": "Khaana badhiya tha aur nashta bhi tasty. The location was poor and far from the market."
 },
 {
 "review_id": 4458,
@@ -53307,9 +53454,9 @@
 "property_id": "Property H",
 "date": "2025-10-08T00:00:00.000",
 "platform": "MakeMyTrip",
-"rating": 5,
+"rating": 4,
 "language_hint": "en",
-"text": "The room was spacious and comfortable with a warm heater. The location was great with a beautiful mountain view."
+"text": "The room was spacious and comfortable with a warm heater. The location was poor and far from the market."
 },
 {
 "review_id": 4497,
@@ -53433,9 +53580,9 @@
 "property_id": "Property C",
 "date": "2025-10-10T00:00:00.000",
 "platform": "GoogleMaps",
-"rating": 4,
+"rating": 3,
 "language_hint": "en",
-"text": "The bathroom was dirty and smelly, poor hygiene. The location was great with a beautiful mountain view."
+"text": "The bathroom was dirty and smelly, poor hygiene. The location was poor and far from the market."
 },
 {
 "review_id": 4511,
@@ -54117,9 +54264,9 @@
 "property_id": "Property H",
 "date": "2025-10-20T00:00:00.000",
 "platform": "MakeMyTrip",
-"rating": 5,
+"rating": 4,
 "language_hint": "en",
-"text": "The location was great with a beautiful mountain view. The food was delicious and the breakfast was fresh."
+"text": "The location was poor and far from the market. The food was delicious and the breakfast was fresh."
 },
 {
 "review_id": 4587,
@@ -56097,9 +56244,9 @@
 "property_id": "Property H",
 "date": "2025-11-21T00:00:00.000",
 "platform": "Booking",
-"rating": 4,
+"rating": 2,
 "language_hint": "hinglish",
-"text": "Mountain ka nazara shandar, location badhiya."
+"text": "Location bekaar thi, market se door."
 },
 {
 "review_id": 4807,
@@ -56160,9 +56307,9 @@
 "property_id": "Property C",
 "date": "2025-11-22T00:00:00.000",
 "platform": "GoogleMaps",
-"rating": 3,
+"rating": 2,
 "language_hint": "hinglish",
-"text": "Towels ganda the, room service bekaar. The location was great with a beautiful mountain view."
+"text": "Towels ganda the, room service bekaar. The location was poor and far from the market."
 },
 {
 "review_id": 4814,
@@ -56322,9 +56469,9 @@
 "property_id": "Property C",
 "date": "2025-11-24T00:00:00.000",
 "platform": "MakeMyTrip",
-"rating": 3,
+"rating": 2,
 "language_hint": "hinglish",
-"text": "Housekeeping was prompt and the towels were fresh. Mountain ka nazara shandar, location badhiya."
+"text": "Housekeeping was prompt and the towels were fresh. Location bekaar thi, market se door."
 },
 {
 "review_id": 4832,
@@ -56493,9 +56640,9 @@
 "property_id": "Property C",
 "date": "2025-11-27T00:00:00.000",
 "platform": "GoogleMaps",
-"rating": 4,
+"rating": 3,
 "language_hint": "hinglish",
-"text": "Kamra badhiya aur comfortable tha. Mountain ka nazara shandar, location badhiya."
+"text": "Kamra badhiya aur comfortable tha. Location bekaar thi, market se door."
 },
 {
 "review_id": 4851,
@@ -56898,9 +57045,9 @@
 "property_id": "Property H",
 "date": "2025-12-05T00:00:00.000",
 "platform": "MakeMyTrip",
-"rating": 3,
+"rating": 2,
 "language_hint": "hinglish",
-"text": "Check-in fast tha, booking process accha. Mountain ka nazara shandar, location badhiya."
+"text": "Check-in fast tha, booking process accha. Location bekaar thi, market se door."
 },
 {
 "review_id": 4896,
@@ -56952,9 +57099,9 @@
 "property_id": "Property B",
 "date": "2025-12-06T00:00:00.000",
 "platform": "Booking",
-"rating": 5,
+"rating": 3,
 "language_hint": "en",
-"text": "The location was great with a beautiful mountain view."
+"text": "The location was poor and far from the market."
 },
 {
 "review_id": 4902,
@@ -57150,9 +57297,9 @@
 "property_id": "Property H",
 "date": "2025-12-08T00:00:00.000",
 "platform": "GoogleMaps",
-"rating": 3,
+"rating": 2,
 "language_hint": "hi",
-"text": "Mountain ka nazara shandar, location badhiya. खाना बेकार और ठंडा था."
+"text": "Location bekaar thi, market se door. खाना बेकार और ठंडा था."
 },
 {
 "review_id": 4924,
@@ -57267,9 +57414,9 @@
 "property_id": "Property C",
 "date": "2025-12-10T00:00:00.000",
 "platform": "Booking",
-"rating": 4,
+"rating": 2,
 "language_hint": "en",
-"text": "The location was great with a beautiful mountain view."
+"text": "The location was poor and far from the market."
 },
 {
 "review_id": 4937,
@@ -58059,9 +58206,9 @@
 "property_id": "Property E",
 "date": "2025-12-19T00:00:00.000",
 "platform": "MakeMyTrip",
-"rating": 3,
+"rating": 1,
 "language_hint": "hinglish",
-"text": "Mountain ka nazara shandar, location badhiya."
+"text": "Location bekaar thi, market se door."
 },
 {
 "review_id": 5025,
@@ -58365,9 +58512,9 @@
 "property_id": "Property B",
 "date": "2025-12-22T00:00:00.000",
 "platform": "MakeMyTrip",
-"rating": 4,
+"rating": 2,
 "language_hint": "en",
-"text": "The location was great with a beautiful mountain view."
+"text": "The location was poor and far from the market."
 },
 {
 "review_id": 5059,
@@ -58410,9 +58557,9 @@
 "property_id": "Property E",
 "date": "2025-12-22T00:00:00.000",
 "platform": "Booking",
-"rating": 5,
+"rating": 3,
 "language_hint": "hinglish",
-"text": "Mountain ka nazara shandar, location badhiya."
+"text": "Location bekaar thi, market se door."
 },
 {
 "review_id": 5064,
@@ -98031,14 +98178,14 @@
 {
 "review_id": 3009,
 "aspect": "Location",
-"sentiment": 1,
-"sentence": "mountain ka nazara shandar"
+"sentiment": -1,
+"sentence": "location bekaar thi"
 },
 {
 "review_id": 3009,
 "aspect": "Location",
-"sentiment": 1,
-"sentence": "location badhiya"
+"sentiment": 0,
+"sentence": "market se door"
 },
 {
 "review_id": 3010,
@@ -98385,8 +98532,8 @@
 {
 "review_id": 3034,
 "aspect": "Location",
-"sentiment": 1,
-"sentence": "the location was great with a beautiful mountain view"
+"sentiment": -1,
+"sentence": "the location was poor and far from the market"
 },
 {
 "review_id": 3035,
@@ -98697,14 +98844,14 @@
 {
 "review_id": 3060,
 "aspect": "Location",
-"sentiment": 1,
-"sentence": "mountain ka nazara shandar"
+"sentiment": -1,
+"sentence": "location bekaar thi"
 },
 {
 "review_id": 3060,
 "aspect": "Location",
-"sentiment": 1,
-"sentence": "location badhiya"
+"sentiment": 0,
+"sentence": "market se door"
 },
 {
 "review_id": 3061,
@@ -98883,8 +99030,8 @@
 {
 "review_id": 3069,
 "aspect": "Location",
-"sentiment": 1,
-"sentence": "the location was great with a beautiful mountain view"
+"sentiment": -1,
+"sentence": "the location was poor and far from the market"
 },
 {
 "review_id": 3070,
@@ -101043,8 +101190,8 @@
 {
 "review_id": 3232,
 "aspect": "Location",
-"sentiment": 1,
-"sentence": "the location was great with a beautiful mountain view"
+"sentiment": -1,
+"sentence": "the location was poor and far from the market"
 },
 {
 "review_id": 3233,
@@ -101193,14 +101340,14 @@
 {
 "review_id": 3244,
 "aspect": "Location",
-"sentiment": 1,
-"sentence": "mountain ka nazara shandar"
+"sentiment": -1,
+"sentence": "location bekaar thi"
 },
 {
 "review_id": 3244,
 "aspect": "Location",
-"sentiment": 1,
-"sentence": "location badhiya"
+"sentiment": 0,
+"sentence": "market se door"
 },
 {
 "review_id": 3245,
@@ -101301,14 +101448,14 @@
 {
 "review_id": 3252,
 "aspect": "Location",
-"sentiment": 1,
-"sentence": "mountain ka nazara shandar"
+"sentiment": -1,
+"sentence": "location bekaar thi"
 },
 {
 "review_id": 3252,
 "aspect": "Location",
-"sentiment": 1,
-"sentence": "location badhiya"
+"sentiment": 0,
+"sentence": "market se door"
 },
 {
 "review_id": 3253,
@@ -101445,14 +101592,14 @@
 {
 "review_id": 3266,
 "aspect": "Location",
-"sentiment": 1,
-"sentence": "mountain ka nazara shandar"
+"sentiment": -1,
+"sentence": "location bekaar thi"
 },
 {
 "review_id": 3266,
 "aspect": "Location",
-"sentiment": 1,
-"sentence": "location badhiya"
+"sentiment": 0,
+"sentence": "market se door"
 },
 {
 "review_id": 3266,
@@ -101703,14 +101850,14 @@
 {
 "review_id": 3284,
 "aspect": "Location",
-"sentiment": 1,
-"sentence": "mountain ka nazara shandar"
+"sentiment": -1,
+"sentence": "location bekaar thi"
 },
 {
 "review_id": 3284,
 "aspect": "Location",
-"sentiment": 1,
-"sentence": "location badhiya"
+"sentiment": 0,
+"sentence": "market se door"
 },
 {
 "review_id": 3285,
@@ -102141,8 +102288,8 @@
 {
 "review_id": 3319,
 "aspect": "Location",
-"sentiment": 1,
-"sentence": "the location was great with a beautiful mountain view"
+"sentiment": -1,
+"sentence": "the location was poor and far from the market"
 },
 {
 "review_id": 3320,
@@ -103635,14 +103782,14 @@
 {
 "review_id": 3433,
 "aspect": "Location",
-"sentiment": 1,
-"sentence": "mountain ka nazara shandar"
+"sentiment": -1,
+"sentence": "location bekaar thi"
 },
 {
 "review_id": 3433,
 "aspect": "Location",
-"sentiment": 1,
-"sentence": "location badhiya"
+"sentiment": 0,
+"sentence": "market se door"
 },
 {
 "review_id": 3433,
@@ -104025,8 +104172,8 @@
 {
 "review_id": 3463,
 "aspect": "Location",
-"sentiment": 1,
-"sentence": "the location was great with a beautiful mountain view"
+"sentiment": -1,
+"sentence": "the location was poor and far from the market"
 },
 {
 "review_id": 3464,
@@ -104055,14 +104202,14 @@
 {
 "review_id": 3465,
 "aspect": "Location",
-"sentiment": 1,
-"sentence": "mountain ka nazara shandar"
+"sentiment": -1,
+"sentence": "location bekaar thi"
 },
 {
 "review_id": 3465,
 "aspect": "Location",
-"sentiment": 1,
-"sentence": "location badhiya"
+"sentiment": 0,
+"sentence": "market se door"
 },
 {
 "review_id": 3466,
@@ -104673,8 +104820,8 @@
 {
 "review_id": 3517,
 "aspect": "Location",
-"sentiment": 1,
-"sentence": "the location was great with a beautiful mountain view"
+"sentiment": -1,
+"sentence": "the location was poor and far from the market"
 },
 {
 "review_id": 3517,
@@ -106281,14 +106428,14 @@
 {
 "review_id": 3647,
 "aspect": "Location",
-"sentiment": 1,
-"sentence": "mountain ka nazara shandar"
+"sentiment": -1,
+"sentence": "location bekaar thi"
 },
 {
 "review_id": 3647,
 "aspect": "Location",
-"sentiment": 1,
-"sentence": "location badhiya"
+"sentiment": 0,
+"sentence": "market se door"
 },
 {
 "review_id": 3647,
@@ -106323,14 +106470,14 @@
 {
 "review_id": 3649,
 "aspect": "Location",
-"sentiment": 1,
-"sentence": "mountain ka nazara shandar"
+"sentiment": -1,
+"sentence": "location bekaar thi"
 },
 {
 "review_id": 3649,
 "aspect": "Location",
-"sentiment": 1,
-"sentence": "location badhiya"
+"sentiment": 0,
+"sentence": "market se door"
 },
 {
 "review_id": 3650,
@@ -106767,14 +106914,14 @@
 {
 "review_id": 3683,
 "aspect": "Location",
-"sentiment": 1,
-"sentence": "mountain ka nazara shandar"
+"sentiment": -1,
+"sentence": "location bekaar thi"
 },
 {
 "review_id": 3683,
 "aspect": "Location",
-"sentiment": 1,
-"sentence": "location badhiya"
+"sentiment": 0,
+"sentence": "market se door"
 },
 {
 "review_id": 3684,
@@ -107625,8 +107772,8 @@
 {
 "review_id": 3749,
 "aspect": "Location",
-"sentiment": 1,
-"sentence": "the location was great with a beautiful mountain view"
+"sentiment": -1,
+"sentence": "the location was poor and far from the market"
 },
 {
 "review_id": 3750,
@@ -107985,14 +108132,14 @@
 {
 "review_id": 3781,
 "aspect": "Location",
-"sentiment": 1,
-"sentence": "mountain ka nazara shandar"
+"sentiment": -1,
+"sentence": "location bekaar thi"
 },
 {
 "review_id": 3781,
 "aspect": "Location",
-"sentiment": 1,
-"sentence": "location badhiya"
+"sentiment": 0,
+"sentence": "market se door"
 },
 {
 "review_id": 3781,
@@ -109131,14 +109278,14 @@
 {
 "review_id": 3861,
 "aspect": "Location",
-"sentiment": 1,
-"sentence": "mountain ka nazara shandar"
+"sentiment": -1,
+"sentence": "location bekaar thi"
 },
 {
 "review_id": 3861,
 "aspect": "Location",
-"sentiment": 1,
-"sentence": "location badhiya"
+"sentiment": 0,
+"sentence": "market se door"
 },
 {
 "review_id": 3862,
@@ -109311,14 +109458,14 @@
 {
 "review_id": 3873,
 "aspect": "Location",
-"sentiment": 1,
-"sentence": "mountain ka nazara shandar"
+"sentiment": -1,
+"sentence": "location bekaar thi"
 },
 {
 "review_id": 3873,
 "aspect": "Location",
-"sentiment": 1,
-"sentence": "location badhiya"
+"sentiment": 0,
+"sentence": "market se door"
 },
 {
 "review_id": 3873,
@@ -110871,8 +111018,8 @@
 {
 "review_id": 3990,
 "aspect": "Location",
-"sentiment": 1,
-"sentence": "the location was great with a beautiful mountain view"
+"sentiment": -1,
+"sentence": "the location was poor and far from the market"
 },
 {
 "review_id": 3990,
@@ -111729,8 +111876,8 @@
 {
 "review_id": 4054,
 "aspect": "Location",
-"sentiment": 1,
-"sentence": "the location was great with a beautiful mountain view"
+"sentiment": -1,
+"sentence": "the location was poor and far from the market"
 },
 {
 "review_id": 4055,
@@ -112233,14 +112380,14 @@
 {
 "review_id": 4092,
 "aspect": "Location",
-"sentiment": 1,
-"sentence": "mountain ka nazara shandar"
+"sentiment": -1,
+"sentence": "location bekaar thi"
 },
 {
 "review_id": 4092,
 "aspect": "Location",
-"sentiment": 1,
-"sentence": "location badhiya"
+"sentiment": 0,
+"sentence": "market se door"
 },
 {
 "review_id": 4093,
@@ -113649,8 +113796,8 @@
 {
 "review_id": 4203,
 "aspect": "Location",
-"sentiment": 1,
-"sentence": "the location was great with a beautiful mountain view"
+"sentiment": -1,
+"sentence": "the location was poor and far from the market"
 },
 {
 "review_id": 4204,
@@ -113661,8 +113808,8 @@
 {
 "review_id": 4204,
 "aspect": "Location",
-"sentiment": 1,
-"sentence": "the location was great with a beautiful mountain view"
+"sentiment": -1,
+"sentence": "the location was poor and far from the market"
 },
 {
 "review_id": 4205,
@@ -113985,14 +114132,14 @@
 {
 "review_id": 4229,
 "aspect": "Location",
-"sentiment": 1,
-"sentence": "mountain ka nazara shandar"
+"sentiment": -1,
+"sentence": "location bekaar thi"
 },
 {
 "review_id": 4229,
 "aspect": "Location",
-"sentiment": 1,
-"sentence": "location badhiya"
+"sentiment": 0,
+"sentence": "market se door"
 },
 {
 "review_id": 4229,
@@ -114075,14 +114222,14 @@
 {
 "review_id": 4235,
 "aspect": "Location",
-"sentiment": 1,
-"sentence": "mountain ka nazara shandar"
+"sentiment": -1,
+"sentence": "location bekaar thi"
 },
 {
 "review_id": 4235,
 "aspect": "Location",
-"sentiment": 1,
-"sentence": "location badhiya"
+"sentiment": 0,
+"sentence": "market se door"
 },
 {
 "review_id": 4236,
@@ -114399,8 +114546,8 @@
 {
 "review_id": 4258,
 "aspect": "Location",
-"sentiment": 1,
-"sentence": "the location was great with a beautiful mountain view"
+"sentiment": -1,
+"sentence": "the location was poor and far from the market"
 },
 {
 "review_id": 4259,
@@ -114495,8 +114642,8 @@
 {
 "review_id": 4267,
 "aspect": "Location",
-"sentiment": 1,
-"sentence": "the location was great with a beautiful mountain view"
+"sentiment": -1,
+"sentence": "the location was poor and far from the market"
 },
 {
 "review_id": 4268,
@@ -114627,8 +114774,8 @@
 {
 "review_id": 4276,
 "aspect": "Location",
-"sentiment": 1,
-"sentence": "the location was great with a beautiful mountain view"
+"sentiment": -1,
+"sentence": "the location was poor and far from the market"
 },
 {
 "review_id": 4276,
@@ -114735,8 +114882,8 @@
 {
 "review_id": 4287,
 "aspect": "Location",
-"sentiment": 1,
-"sentence": "the location was great with a beautiful mountain view"
+"sentiment": -1,
+"sentence": "the location was poor and far from the market"
 },
 {
 "review_id": 4287,
@@ -115107,8 +115254,8 @@
 {
 "review_id": 4319,
 "aspect": "Location",
-"sentiment": 1,
-"sentence": "the location was great with a beautiful mountain view"
+"sentiment": -1,
+"sentence": "the location was poor and far from the market"
 },
 {
 "review_id": 4319,
@@ -115119,14 +115266,14 @@
 {
 "review_id": 4320,
 "aspect": "Location",
-"sentiment": 1,
-"sentence": "mountain ka nazara shandar"
+"sentiment": -1,
+"sentence": "location bekaar thi"
 },
 {
 "review_id": 4320,
 "aspect": "Location",
-"sentiment": 1,
-"sentence": "location badhiya"
+"sentiment": 0,
+"sentence": "market se door"
 },
 {
 "review_id": 4320,
@@ -115983,14 +116130,14 @@
 {
 "review_id": 4386,
 "aspect": "Location",
-"sentiment": 1,
-"sentence": "mountain ka nazara shandar"
+"sentiment": -1,
+"sentence": "location bekaar thi"
 },
 {
 "review_id": 4386,
 "aspect": "Location",
-"sentiment": 1,
-"sentence": "location badhiya"
+"sentiment": 0,
+"sentence": "market se door"
 },
 {
 "review_id": 4387,
@@ -116823,14 +116970,14 @@
 {
 "review_id": 4450,
 "aspect": "Location",
-"sentiment": 1,
-"sentence": "mountain ka nazara shandar"
+"sentiment": -1,
+"sentence": "location bekaar thi"
 },
 {
 "review_id": 4450,
 "aspect": "Location",
-"sentiment": 1,
-"sentence": "location badhiya"
+"sentiment": 0,
+"sentence": "market se door"
 },
 {
 "review_id": 4451,
@@ -116889,14 +117036,14 @@
 {
 "review_id": 4455,
 "aspect": "Location",
-"sentiment": 1,
-"sentence": "mountain ka nazara shandar"
+"sentiment": -1,
+"sentence": "location bekaar thi"
 },
 {
 "review_id": 4455,
 "aspect": "Location",
-"sentiment": 1,
-"sentence": "location badhiya"
+"sentiment": 0,
+"sentence": "market se door"
 },
 {
 "review_id": 4456,
@@ -116931,8 +117078,8 @@
 {
 "review_id": 4457,
 "aspect": "Location",
-"sentiment": 1,
-"sentence": "the location was great with a beautiful mountain view"
+"sentiment": -1,
+"sentence": "the location was poor and far from the market"
 },
 {
 "review_id": 4458,
@@ -117441,8 +117588,8 @@
 {
 "review_id": 4496,
 "aspect": "Location",
-"sentiment": 1,
-"sentence": "the location was great with a beautiful mountain view"
+"sentiment": -1,
+"sentence": "the location was poor and far from the market"
 },
 {
 "review_id": 4497,
@@ -117633,8 +117780,8 @@
 {
 "review_id": 4510,
 "aspect": "Location",
-"sentiment": 1,
-"sentence": "the location was great with a beautiful mountain view"
+"sentiment": -1,
+"sentence": "the location was poor and far from the market"
 },
 {
 "review_id": 4511,
@@ -118587,8 +118734,8 @@
 {
 "review_id": 4586,
 "aspect": "Location",
-"sentiment": 1,
-"sentence": "the location was great with a beautiful mountain view"
+"sentiment": -1,
+"sentence": "the location was poor and far from the market"
 },
 {
 "review_id": 4586,
@@ -121461,14 +121608,14 @@
 {
 "review_id": 4806,
 "aspect": "Location",
-"sentiment": 1,
-"sentence": "mountain ka nazara shandar"
+"sentiment": -1,
+"sentence": "location bekaar thi"
 },
 {
 "review_id": 4806,
 "aspect": "Location",
-"sentiment": 1,
-"sentence": "location badhiya"
+"sentiment": 0,
+"sentence": "market se door"
 },
 {
 "review_id": 4807,
@@ -121557,8 +121704,8 @@
 {
 "review_id": 4813,
 "aspect": "Location",
-"sentiment": 1,
-"sentence": "the location was great with a beautiful mountain view"
+"sentiment": -1,
+"sentence": "the location was poor and far from the market"
 },
 {
 "review_id": 4814,
@@ -121785,14 +121932,14 @@
 {
 "review_id": 4831,
 "aspect": "Location",
-"sentiment": 1,
-"sentence": "mountain ka nazara shandar"
+"sentiment": -1,
+"sentence": "location bekaar thi"
 },
 {
 "review_id": 4831,
 "aspect": "Location",
-"sentiment": 1,
-"sentence": "location badhiya"
+"sentiment": 0,
+"sentence": "market se door"
 },
 {
 "review_id": 4832,
@@ -122079,14 +122226,14 @@
 {
 "review_id": 4850,
 "aspect": "Location",
-"sentiment": 1,
-"sentence": "mountain ka nazara shandar"
+"sentiment": -1,
+"sentence": "location bekaar thi"
 },
 {
 "review_id": 4850,
 "aspect": "Location",
-"sentiment": 1,
-"sentence": "location badhiya"
+"sentiment": 0,
+"sentence": "market se door"
 },
 {
 "review_id": 4851,
@@ -122643,14 +122790,14 @@
 {
 "review_id": 4895,
 "aspect": "Location",
-"sentiment": 1,
-"sentence": "mountain ka nazara shandar"
+"sentiment": -1,
+"sentence": "location bekaar thi"
 },
 {
 "review_id": 4895,
 "aspect": "Location",
-"sentiment": 1,
-"sentence": "location badhiya"
+"sentiment": 0,
+"sentence": "market se door"
 },
 {
 "review_id": 4896,
@@ -122709,8 +122856,8 @@
 {
 "review_id": 4901,
 "aspect": "Location",
-"sentiment": 1,
-"sentence": "the location was great with a beautiful mountain view"
+"sentiment": -1,
+"sentence": "the location was poor and far from the market"
 },
 {
 "review_id": 4902,
@@ -123009,14 +123156,14 @@
 {
 "review_id": 4923,
 "aspect": "Location",
-"sentiment": 1,
-"sentence": "mountain ka nazara shandar"
+"sentiment": -1,
+"sentence": "location bekaar thi"
 },
 {
 "review_id": 4923,
 "aspect": "Location",
-"sentiment": 1,
-"sentence": "location badhiya"
+"sentiment": 0,
+"sentence": "market se door"
 },
 {
 "review_id": 4923,
@@ -123171,8 +123318,8 @@
 {
 "review_id": 4936,
 "aspect": "Location",
-"sentiment": 1,
-"sentence": "the location was great with a beautiful mountain view"
+"sentiment": -1,
+"sentence": "the location was poor and far from the market"
 },
 {
 "review_id": 4937,
@@ -124251,14 +124398,14 @@
 {
 "review_id": 5024,
 "aspect": "Location",
-"sentiment": 1,
-"sentence": "mountain ka nazara shandar"
+"sentiment": -1,
+"sentence": "location bekaar thi"
 },
 {
 "review_id": 5024,
 "aspect": "Location",
-"sentiment": 1,
-"sentence": "location badhiya"
+"sentiment": 0,
+"sentence": "market se door"
 },
 {
 "review_id": 5025,
@@ -124653,8 +124800,8 @@
 {
 "review_id": 5058,
 "aspect": "Location",
-"sentiment": 1,
-"sentence": "the location was great with a beautiful mountain view"
+"sentiment": -1,
+"sentence": "the location was poor and far from the market"
 },
 {
 "review_id": 5059,
@@ -124695,14 +124842,14 @@
 {
 "review_id": 5063,
 "aspect": "Location",
-"sentiment": 1,
-"sentence": "mountain ka nazara shandar"
+"sentiment": -1,
+"sentence": "location bekaar thi"
 },
 {
 "review_id": 5063,
 "aspect": "Location",
-"sentiment": 1,
-"sentence": "location badhiya"
+"sentiment": 0,
+"sentence": "market se door"
 },
 {
 "review_id": 5064,

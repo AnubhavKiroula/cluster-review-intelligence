@@ -38,7 +38,7 @@ export interface PriorityRow {
   reference_mean: number;
   basis: string;
   n: number;
-  whose_problem: "yours alone" | "everyone's" | "not tested";
+  whose_problem: "yours alone" | "your neighbourhood's" | "everyone's" | "not tested";
   whose_detail: string;
 }
 
@@ -103,12 +103,38 @@ export interface Mention {
   sentence: string;
 }
 
+/** A property's position: SYNTHETIC as generated, or snapped to a 0.5 km grid for
+ * real data (``locations_exact`` says which). */
+export interface PropertyLocation {
+  property_id: string;
+  lat: number;
+  lon: number;
+  zone: string | null;
+}
+
+/** A significant decline shared by nearby properties (cri.neighbourhood). */
+export interface Neighbourhood {
+  aspect: string;
+  change_month: string;
+  delta: number; // the group's shift relative to the market outside it
+  n_members: number;
+  members: string[];
+  radius_km: number;
+  centre_lat: number;
+  centre_lon: number;
+  p_value: number; // permutation test, family-wise over groups and aspects
+  gaps: Record<string, number>; // each member's own shift vs the market outside
+}
+
 export interface Snapshot {
   meta: Meta;
   market_scope: ScopeRow[];
   destination_summary: DestinationRow[];
   // Worst market-wide aspect by share of negative mentions (null: none is market-wide).
   market_headline: DestinationRow | null;
+  locations: PropertyLocation[];
+  locations_exact: boolean;
+  neighbourhoods: Neighbourhood[];
   per_property: Record<string, PropertyData>;
   reviews: Review[];
   mentions: Mention[];

@@ -21,6 +21,29 @@ Any column named (case-insensitively) `reviewer_name`, `reviewer_id`, `reviewer`
 `profile_url` is removed before validation. See `IDENTITY_COLUMNS` in
 `src/cri/schema.py`.
 
+## Optional: property positions
+
+A separate file (CSV or JSON), one row per property, enables the neighbourhood
+analysis (`docs/methodology.md` section 13) and the maps. Keep it **outside** the
+reviews folder: `load_dir` reads every file there as reviews. Load it with
+`cri.api.load_cluster(path, locations="positions.csv")` or `$CRI_LOCATIONS_PATH`.
+
+| Column | Type | Notes |
+|---|---|---|
+| `property_id` | string | Same ids as the reviews (aliases: `property`, `hotel`, `hotel_id`, `listing_id`) |
+| `lat` | float | Latitude in degrees, -90..90 (aliases: `latitude`, `y`) |
+| `lon` | float | Longitude in degrees, -180..180 (aliases: `lng`, `long`, `longitude`, `x`) |
+| `zone` | string, optional | A locality name, shown in tables (aliases: `area`, `neighbourhood`, `locality`) |
+
+A position for an id that is not in the reviews, a duplicate id, or an invalid
+coordinate is an error. Properties without a position are allowed and take no part
+in the neighbourhood analysis. **Privacy:** an exact position identifies a real
+hotel even under an anonymised name, so the web export snaps real positions to a
+0.5 km grid (`cri.locations.coarsen`); only SYNTHETIC positions are published as
+they are. The SYNTHETIC sample's positions are in
+`data/locations/synthetic_properties.csv` (`python -m cri.generate --locations-out
+data/locations/synthetic_properties.csv`).
+
 ## Validation rules
 
 - All required columns present (clear error listing any missing).

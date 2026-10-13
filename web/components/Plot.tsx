@@ -15,11 +15,13 @@ interface PlotProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   layout?: Record<string, any>;
   height?: number;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  config?: Record<string, any>;
   /** One-sentence description of what the chart shows, read by screen readers. */
   summary: string;
 }
 
-export default function Plot({ data, layout = {}, height = 420, summary }: PlotProps) {
+export default function Plot({ data, layout = {}, height = 420, config = {}, summary }: PlotProps) {
   const base = baseLayout(usePalette());
   // Merge the axes rather than replace them: a page that sets an axis title must not
   // drop the themed grid and line colours.
@@ -38,7 +40,7 @@ export default function Plot({ data, layout = {}, height = 420, summary }: PlotP
       <Plotly
         data={data}
         layout={merged}
-        config={{ displayModeBar: false, responsive: true }}
+        config={{ displayModeBar: false, responsive: true, ...config }}
         style={{ width: "100%", height }}
         useResizeHandler
       />

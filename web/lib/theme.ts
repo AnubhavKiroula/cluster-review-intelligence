@@ -3,6 +3,7 @@
 // Palette drawn from the Uttarakhand hills, in a light and a dark variant.
 //   deodar  = better / leads the cluster        buransh = worse / yours alone
 //   slate   = the market, everyone's            stone   = neutral, on par, not tested
+//   marigold = your neighbourhood's (a decline shared by nearby properties)
 // HTML takes colours from the CSS variables in globals.css (which switch with
 // prefers-color-scheme). Plotly needs literal colours, so charts read the matching
 // palette here through usePalette(). Keep the two in step; contrast is documented in
@@ -21,7 +22,9 @@ const LIGHT = {
   buransh: "#B4235A",
   slate: "#4A6386",
   stone: "#737F79",
-  marigold: "#C98A12",
+  marigold: "#9A6608",
+  // OpenFreeMap vector basemap (free, no key; MapLibre shows its attribution).
+  mapStyle: "https://tiles.openfreemap.org/styles/positron",
 };
 
 const DARK: Palette = {
@@ -37,6 +40,7 @@ const DARK: Palette = {
   slate: "#93A9CC",
   stone: "#8D9993",
   marigold: "#E2B24E",
+  mapStyle: "https://tiles.openfreemap.org/styles/dark",
 };
 
 export type Palette = typeof LIGHT;
@@ -64,6 +68,7 @@ export const flagColors = (c: Palette): Record<string, string> => ({
 
 export const scopeColors = (c: Palette): Record<string, string> => ({
   "market-wide": c.slate,
+  "neighbourhood-wide": c.marigold,
   "property-specific": c.buransh,
   undetermined: c.stone,
   stable: c.deodar,
@@ -78,6 +83,7 @@ export const FLAG_VARS: Record<string, string> = {
 
 export const SCOPE_VARS: Record<string, string> = {
   "market-wide": "var(--slate)",
+  "neighbourhood-wide": "var(--marigold)",
   "property-specific": "var(--buransh)",
   undetermined: "var(--stone)",
   stable: "var(--deodar)",
@@ -86,6 +92,7 @@ export const SCOPE_VARS: Record<string, string> = {
 // "Whose problem is it?" uses the scope colours: yours alone = property-specific.
 export const WHOSE_VARS: Record<string, string> = {
   "yours alone": "var(--buransh)",
+  "your neighbourhood's": "var(--marigold)",
   "everyone's": "var(--slate)",
   "not tested": "var(--stone)",
 };

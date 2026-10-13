@@ -45,6 +45,12 @@ loud: the on-page banner is hidden for now, so you are the label.
    - Room is **market-wide**: a seasonal dip every **December** at **12/12**
      properties. Every property has it, so it is not a gap against competitors.
    - **"Same chart, two opposite actions."**
+   - *Optional (20 s): the map.* `<app-url>/market/?aspect=Location`. Four
+     neighbours (B, C, E, H, within 0.27 km) lost Location together from 2025-03:
+     **neighbourhood-wide** (p = 0.018). Only one of them would show the decline on
+     its own. Property B's page says **"Raise Location with your neighbours since
+     2025-03"**: a road or water problem is solved with the neighbours and the
+     municipality, not in one kitchen.
 
 4. **`/fix-check` → Property A, Room, 2025-12 (30 s).** "Say they renovated rooms in
    December."

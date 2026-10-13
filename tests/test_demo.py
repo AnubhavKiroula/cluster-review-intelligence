@@ -46,6 +46,21 @@ def test_same_chart_two_different_actions(d):
     assert "December (12/12 properties" in scope.loc["Room", "pattern"]
 
 
+def test_four_neighbours_share_a_location_decline(d):
+    hood = api.neighbourhoods(d).iloc[0]
+    assert (hood["aspect"], hood["change_month"], hood["radius_km"], hood["p_value"]) == (
+        "Location", "2025-03", 0.27, 0.018
+    )
+    assert hood["members"] == "Property B, Property C, Property E, Property H"
+    top = api.priority_actions(d, "Property B").iloc[0]
+    assert (top["aspect"], top["started"], top["whose_problem"]) == (
+        "Location", "2025-03", "your neighbourhood's"
+    )
+    # Only one of the four declines visibly on its own.
+    own = api.changepoints(d, aspect="Location")
+    assert list(own["property_id"]) == ["Property C"]
+
+
 EXPECTED_LIVE = {
     "Khana accha tha lekin kamra ganda tha.":
         [("Food", 1), ("Room", -1), ("Cleanliness", -1)],

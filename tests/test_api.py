@@ -149,10 +149,9 @@ def test_changepoint_filters_keep_global_q_values(d):
 
 
 def test_scope_values(d):
-    assert set(api.market_scope(d)["scope"]) <= {"market-wide", "property-specific", "undetermined"}
-    assert set(api.destination_summary(d)["scope"]) <= {
-        "market-wide", "property-specific", "stable", "undetermined"
-    }
+    scopes = {"market-wide", "neighbourhood-wide", "property-specific", "undetermined"}
+    assert set(api.market_scope(d)["scope"]) <= scopes
+    assert set(api.destination_summary(d)["scope"]) <= scopes | {"stable"}
 
 
 def test_functions_do_not_mutate_inputs(d):

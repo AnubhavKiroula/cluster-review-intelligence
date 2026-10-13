@@ -1,7 +1,7 @@
 """Seeded SYNTHETIC review generator.
 
 Produces reviews for a fictional cluster of 12 hill-town properties, mixing
-English, romanised Hinglish, and Devanagari. Two patterns are injected into the
+English, romanised Hinglish, and Devanagari. Three patterns are injected into the
 review *text* (not metadata), so the end-to-end pipeline genuinely has to recover
 them:
 
@@ -9,6 +9,12 @@ them:
      step change).
   2. Every December, heating/room complaints spike across ALL properties
      (market-wide seasonal dip).
+  3. From 2025-03, Location complaints rise at four properties that sit close
+     together ("road works": neighbourhood-wide, not market-wide).
+
+``generate_locations`` places the properties at generated positions in a hill-town
+bounding box, with the road-works four inside one small neighbourhood. They are
+SYNTHETIC positions, not real hotels.
 
 The injected ground truth is exported as ``INJECTED_PATTERNS`` for tests.
 Everything here is SYNTHETIC — see the filename and README captions.
@@ -21,6 +27,8 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
+
+from .locations import haversine_km
 
 CLUSTER_NAME = "SYNTHETIC hill-town cluster"
 PROPERTIES = [f"Property {c}" for c in "ABCDEFGHIJKL"]
@@ -41,6 +49,22 @@ DEFAULT_END = "2025-12"
 FOOD_DECLINE_PROPERTY = "Property F"
 FOOD_DECLINE_MONTH = pd.Timestamp("2025-06-01")
 
+# Neighbourhood-wide pattern. The properties the demo and its tests pin (A, D, F, G,
+# I, L) are kept out, so their numbers do not move. Location's positive and negative
+# templates have the same length and languages, so changing a Location polarity
+# consumes the random stream identically: every other review stays byte-identical.
+ROAD_WORKS_PROPERTIES = ("Property B", "Property C", "Property E", "Property H")
+ROAD_WORKS_ASPECT = "Location"
+ROAD_WORKS_MONTH = pd.Timestamp("2025-03-01")
+ROAD_WORKS_P_POSITIVE = 0.15
+
+# SYNTHETIC positions: a bounding box around a hill town (Mussoorie), the road-works
+# neighbourhood centre and radius, and the minimum distance of everyone else from it.
+LOCATION_BBOX = (30.445, 30.468, 78.030, 78.100)  # lat_min, lat_max, lon_min, lon_max
+NEIGHBOURHOOD_CENTRE = (30.4560, 78.0790)
+NEIGHBOURHOOD_RADIUS_KM = 0.4
+OTHERS_MIN_DISTANCE_KM = 1.2
+
 INJECTED_PATTERNS = {
     "food_decline": {
         "property": FOOD_DECLINE_PROPERTY,
@@ -55,6 +79,13 @@ INJECTED_PATTERNS = {
         "season": "December",
         "direction": "negative",
         "scope": "market-wide",
+    },
+    "road_works": {
+        "properties": list(ROAD_WORKS_PROPERTIES),
+        "aspect": ROAD_WORKS_ASPECT,
+        "change_month": ROAD_WORKS_MONTH.strftime("%Y-%m"),
+        "direction": "negative",
+        "scope": "neighbourhood-wide",
     },
 }
 
@@ -156,6 +187,8 @@ def _p_positive(prop: str, aspect: str, month: pd.Timestamp, base: float) -> flo
         return 0.10  # food complaints rise sharply
     if aspect == "Room" and month.month == 12:
         return 0.15  # market-wide December heating complaints
+    if prop in ROAD_WORKS_PROPERTIES and aspect == ROAD_WORKS_ASPECT and month >= ROAD_WORKS_MONTH:
+        return ROAD_WORKS_P_POSITIVE  # neighbourhood-wide: road works near four properties
     return base
 
 
@@ -244,10 +277,52 @@ def _make_row(
     }
 
 
+def _km(a: tuple[float, float], b: tuple[float, float]) -> float:
+    return float(haversine_km(a[0], a[1], b[0], b[1]))
+
+
+def generate_locations(seed: int = 42, neighbourhood: bool = True) -> pd.DataFrame:
+    """SYNTHETIC positions (``property_id, lat, lon, zone``) for ``PROPERTIES``.
+
+    A separate random stream (``seed + 1``), so the reviews do not depend on it.
+    With ``neighbourhood=True`` the road-works properties are placed within
+    ``NEIGHBOURHOOD_RADIUS_KM`` of ``NEIGHBOURHOOD_CENTRE`` and every other property
+    at least ``OTHERS_MIN_DISTANCE_KM`` away; ``False`` scatters all of them
+    uniformly over the box (for calibration).
+    """
+    rng = np.random.default_rng(seed + 1)
+    lat_min, lat_max, lon_min, lon_max = LOCATION_BBOX
+    km_per_deg_lat = 111.2
+    km_per_deg_lon = km_per_deg_lat * np.cos(np.radians(NEIGHBOURHOOD_CENTRE[0]))
+    rows = []
+    for prop in PROPERTIES:
+        if neighbourhood and prop in ROAD_WORKS_PROPERTIES:
+            r = NEIGHBOURHOOD_RADIUS_KM * np.sqrt(rng.random())
+            t = 2 * np.pi * rng.random()
+            lat = NEIGHBOURHOOD_CENTRE[0] + r * np.sin(t) / km_per_deg_lat
+            lon = NEIGHBOURHOOD_CENTRE[1] + r * np.cos(t) / km_per_deg_lon
+            zone = "Neighbourhood 1"
+        else:
+            while True:
+                lat, lon = rng.uniform(lat_min, lat_max), rng.uniform(lon_min, lon_max)
+                far = _km((lat, lon), NEIGHBOURHOOD_CENTRE) >= OTHERS_MIN_DISTANCE_KM
+                if not neighbourhood or far:
+                    break
+            zone = "Elsewhere" if neighbourhood else "Scattered"
+        rows.append({"property_id": prop, "lat": round(lat, 5), "lon": round(lon, 5), "zone": zone})
+    return pd.DataFrame(rows)
+
+
 def main(argv: list[str] | None = None) -> None:
     parser = argparse.ArgumentParser(description="Generate SYNTHETIC reviews.")
     parser.add_argument(
         "--out", default="data/sample/synthetic_reviews.csv", type=Path
+    )
+    parser.add_argument(
+        "--locations-out", default=None, type=Path,
+        help="also write the SYNTHETIC property positions here (keep it OUTSIDE the "
+        "reviews folder: every file there is read as reviews), e.g. "
+        "data/locations/synthetic_properties.csv",
     )
     parser.add_argument("--seed", default=42, type=int)
     parser.add_argument("--start", default=DEFAULT_START)
@@ -258,10 +333,13 @@ def main(argv: list[str] | None = None) -> None:
         help="generate a null dataset with no injected patterns (for calibration)",
     )
     args = parser.parse_args(argv)
-    if "synthetic" not in args.out.name.lower():
+    names = [args.out.name] + ([args.locations_out.name] if args.locations_out else [])
+    if any("synthetic" not in n.lower() for n in names):
         # CLAUDE.md rule 2: synthetic data must say so in its filename; the loader
         # relies on this to show the SYNTHETIC banner.
-        parser.error(f"--out filename must contain 'synthetic' (got {args.out.name!r})")
+        parser.error(
+            f"output filenames must contain 'synthetic' (got {', '.join(map(repr, names))})"
+        )
 
     df = generate(
         seed=args.seed, start=args.start, end=args.end, inject_patterns=not args.no_patterns
@@ -272,6 +350,15 @@ def main(argv: list[str] | None = None) -> None:
         f"Wrote {len(df)} SYNTHETIC reviews for {df['property_id'].nunique()} "
         f"properties to {args.out}"
     )
+    if args.locations_out is not None:
+        if args.locations_out.resolve().parent == args.out.resolve().parent:
+            parser.error(
+                "--locations-out must not be in the reviews folder (it would be read as reviews)"
+            )
+        locations = generate_locations(seed=args.seed, neighbourhood=not args.no_patterns)
+        args.locations_out.parent.mkdir(parents=True, exist_ok=True)
+        locations.to_csv(args.locations_out, index=False, encoding="utf-8")
+        print(f"Wrote SYNTHETIC positions for {len(locations)} properties to {args.locations_out}")
 
 
 if __name__ == "__main__":

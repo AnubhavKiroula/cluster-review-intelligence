@@ -23,6 +23,7 @@ from pathlib import Path
 import pandas as pd
 
 from cri import api
+from cri.locations import coarsen
 
 # CLAUDE.md rule 2: synthetic data carries "synthetic" in its filename.
 OUT = Path(__file__).resolve().parents[1] / "public" / "data" / "cluster.synthetic.json"
@@ -32,6 +33,14 @@ FIX_OUT = OUT.with_name("fixcheck.synthetic.json")
 def records(df: pd.DataFrame) -> list[dict]:
     """DataFrame -> JSON-safe records (NaN/NA -> null, Timestamps -> ISO date)."""
     return json.loads(df.to_json(orient="records", date_format="iso"))
+
+
+def public_locations(d: api.ClusterData) -> pd.DataFrame:
+    """Positions safe to publish (CLAUDE.md rule 4): SYNTHETIC positions as they are;
+    anything else snapped to the ``cri.locations.PUBLIC_GRID_KM`` grid, because an
+    exact pin identifies a real hotel even under an anonymised name."""
+    loc = api.property_locations(d)
+    return loc if d.is_synthetic else coarsen(loc)
 
 
 def fix_checks(d: api.ClusterData, generated_at: str) -> dict:
@@ -90,6 +99,11 @@ def main(argv: list[str] | None = None) -> None:
             "changepoints": records(cps),
         }
 
+    neighbourhoods = api.neighbourhoods(d)
+    hoods = [
+        {**r, "members": r["members"].split(", ")} for r in records(neighbourhoods)
+    ]
+
     # Explorer corpus: raw reviews + classified clauses, filtered client-side.
     reviews = records(d.reviews[api.REVIEW_COLUMNS])
     mentions = records(d.labelled[["review_id", "aspect", "sentiment", "sentence"]])
@@ -108,6 +122,10 @@ def main(argv: list[str] | None = None) -> None:
         "market_scope": records(api.market_scope(d)),
         "destination_summary": records(destination),
         "market_headline": records(market_wide.head(1))[0] if len(market_wide) else None,
+        # Property positions (SYNTHETIC or grid-snapped) and neighbourhood-wide declines.
+        "locations": records(public_locations(d)),
+        "locations_exact": bool(d.is_synthetic),
+        "neighbourhoods": hoods,
         "per_property": per_property,
         "reviews": reviews,
         "mentions": mentions,
