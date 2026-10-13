@@ -8,7 +8,7 @@ Every number below is true for the **SYNTHETIC** sample (seed 42, the web app's
 data). `python scripts/demo.py` prints all of them, and `tests/test_demo.py` (plus
 `tests/test_intervention.py` for the fix check) fails CI if one stops being true.
 If you change the data, re-run the command and update this page. Say "synthetic" out
-loud: the banner is on every page.
+loud: the on-page banner is hidden for now, so you are the label.
 
 ## Before you go on stage
 

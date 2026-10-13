@@ -38,7 +38,9 @@ export function SectionHeading({
   );
 }
 
-// Rendered once, by the root layout, so every page carries it (CLAUDE.md rule 2).
+// Not rendered at the moment: the team hid it from the site for now (see
+// docs/TODO_RESULTS.md). To restore it, render <SyntheticBanner /> above <Header />
+// in app/layout.tsx; it then appears on every page (CLAUDE.md rule 2).
 export function SyntheticBanner() {
   const { data } = useData();
   if (!data) return null;

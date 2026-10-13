@@ -91,6 +91,11 @@ dropped with the layer on 2026-10-13; they are at the git tag `travel-layer-v1`.
   `docs/screenshots/*_SYNTHETIC.png`.
 - API: `/health` and `POST /reviews/classify` only (live classify in the explorer).
 - Public URLs (static site and API): `TBD` (steps in `docs/DEPLOYMENT.md`).
+- **On-page SYNTHETIC banner: hidden for now** (team decision, 2026-10-13). The site
+  still shows the SYNTHETIC sample, so CLAUDE.md rule 2 / SRS NFR-HON-2 are not met in
+  the UI until it is restored: render `<SyntheticBanner />` above `<Header />` in
+  `web/app/layout.tsx`. Recommended: restore it before a public deployment, unless the
+  sample has been replaced with real, anonymised data.
 
 ## Deployment / OpenSSF Scorecard
 

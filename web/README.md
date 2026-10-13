@@ -16,8 +16,10 @@ calls the Python API (`cri.server`, through `lib/api.ts`) at
 `NEXT_PUBLIC_API_BASE_URL` (default `http://localhost:8000`, read at build time; see
 `.env.example`). Without the API, that box shows an error and everything else works.
 
-> All numbers come from the audited Python core (CLAUDE.md rule 1). Data is clearly
-> SYNTHETIC (`*.synthetic.json`, banners on every page; rule 2).
+> All numbers come from the audited Python core (CLAUDE.md rule 1). The data is
+> SYNTHETIC and the snapshot files say so (`*.synthetic.json`). The on-page SYNTHETIC
+> banner is **hidden for now** (CLAUDE.md rule 2 asks for it; restoring it is one
+> line, see `SyntheticBanner` in `components/ui.tsx`).
 
 ## Data flow
 
@@ -92,7 +94,8 @@ Light values shown; the dark variant of each is in `globals.css` and `lib/theme.
   market's change over the same months, and what is left for the property alone, on a
   shared zero. It is the product's question in one figure, so it appears on home,
   `/property/` (top priority) and `/fix-check/`.
-- **SYNTHETIC label:** rendered once by `app/layout.tsx`, so no page can omit it.
+- **SYNTHETIC label:** `SyntheticBanner` is built to be rendered once by
+  `app/layout.tsx`, so no page can omit it. It is hidden for now; see above.
 - **Shareable views:** `/property/`, `/fix-check/` and `/explorer/` keep their
   selections (and the explorer's search text) in the query string, so the address bar
   is always a deep link to what is on screen. The explorer shows 100 matches at a time

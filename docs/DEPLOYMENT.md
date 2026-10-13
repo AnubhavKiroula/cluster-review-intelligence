@@ -68,7 +68,8 @@ root-relative).
 
 ### Check it
 
-- Every page shows the **SYNTHETIC DATA** banner.
+- The on-page **SYNTHETIC DATA** banner is hidden for now (see
+  `docs/TODO_RESULTS.md`); the data is still the SYNTHETIC sample.
 - `<url>/property/?property=Property%20F` opens directly (deep links) and shows
   **Fix Food first since 2025-06**, whose problem: **yours alone**.
 - `<url>/fix-check/?property=Property%20A&aspect=Room&month=2025-12` shows
