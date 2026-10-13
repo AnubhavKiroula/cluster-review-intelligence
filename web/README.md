@@ -83,6 +83,8 @@ charts in `lib/theme.ts`. Colours carry meaning, and the same meaning on every p
 | `--stone` | `#737F79` | Neutral, on par, not tested |
 | `--mist` / `--ink` | `#EEF2F0` / `#1F2D27` | Page background / text |
 
+Light values shown; the dark variant of each is in `globals.css` and `lib/theme.ts`.
+
 - **Type:** Source Serif 4 for headings, Public Sans for everything else, both
   self-hosted by `next/font` at build time (no requests to Google from the browser;
   credits in `docs/CREDITS.md`). Numbers use tabular figures.
@@ -91,13 +93,20 @@ charts in `lib/theme.ts`. Colours carry meaning, and the same meaning on every p
   shared zero. It is the product's question in one figure, so it appears on home,
   `/property/` (top priority) and `/fix-check/`.
 - **SYNTHETIC label:** rendered once by `app/layout.tsx`, so no page can omit it.
-- **Shareable views:** `/property/` and `/fix-check/` keep their selections in the
-  query string, so the address bar is always a deep link to what is on screen.
+- **Shareable views:** `/property/`, `/fix-check/` and `/explorer/` keep their
+  selections (and the explorer's search text) in the query string, so the address bar
+  is always a deep link to what is on screen. The explorer shows 100 matches at a time
+  with *Show 100 more*.
+- **Dark mode:** follows the device setting (`prefers-color-scheme`). The CSS variables
+  switch in `globals.css`; charts get the matching literal colours from `usePalette()`
+  in `lib/theme.ts`, so the two lists must change together. The dark palette meets the
+  same targets (lowest text pair: the *not tested* tag, 5.6:1; lowest chart mark: the pale
+  change-split bar, 3.3:1).
 - **Accessibility:** skip link, visible `:focus-visible` outlines, labelled controls,
   `aria-live` on results, scrollable tables reachable by keyboard; no layout wider than
   the screen at 390 px.
-- **Contrast (WCAG 2.2 AA, measured):** text pairs are at least 4.5:1 (muted text on
-  the page background is the lowest, 4.94:1); chart marks, the change-split bars and
+- **Contrast (WCAG 2.2 AA, measured):** text pairs are at least 4.5:1 (the lowest
+  is the *not tested* tag, 4.7:1); chart marks, the change-split bars and
   form-control borders are at least 3:1 against white. Re-check when changing a colour.
 - **Charts never rely on colour alone:** scorecard bars say *ahead* / *behind* under
   the aspect name, market scopes differ in marker shape, and every chart has a text
