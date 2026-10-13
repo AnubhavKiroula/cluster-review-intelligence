@@ -163,8 +163,15 @@ def search_reviews(d: ClusterData, property_id=None, aspect=None, sentiment=None
 > - `intervention_check(d, property_id, aspect, start, baseline_start=None) -> dict`
 >   ("Did my fix work?", keys `INTERVENTION_KEYS`; methodology §12).
 > - 2026-10-13: classifier backend `learned` (`CRI_LEARNED_MODEL_PATH` is part of the
->   classifier cache key). Nothing above changed. The HTTP API over this facade and the
->   travel layer is documented in `docs/API_CONTRACTS.md`.
+>   classifier cache key). Nothing above changed. The HTTP API over this facade is
+>   documented in `docs/API_CONTRACTS.md`.
+> - 2026-10-13 (focus cut): `priority_actions` → `whose_problem` (`yours alone` |
+>   `everyone's` | `not tested`) and `whose_detail` (why). Derived **per property**,
+>   never joined from `market_scope.scope` by aspect: a market-adjusted decline is the
+>   property's own; a lag is re-tested with the market-wide patterns the property takes
+>   part in set aside, and is `everyone's` only if it disappears. `not tested` when
+>   fewer than 3 properties review the aspect (or too few reviews remain outside the
+>   pattern). Additive: no column removed or renamed.
 
 **Day-0 unblock rule:** `[A]` pushes `api.py` with *working or stubbed* returns
 (correct columns, plausible shapes) **within the first 2 hours**. From that moment

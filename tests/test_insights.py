@@ -1,5 +1,6 @@
 """priority_actions ("fix this first") and the destination view."""
 
+import pandas as pd
 import pytest
 
 from cri.generate import generate
@@ -68,6 +69,8 @@ def test_two_property_cluster_does_not_claim_a_market_comparison(labelled):
     assert top["aspect"] == "Food" and top["basis"] == "own history"
     assert "relative to the market" not in top["rationale"]
     assert "too few properties" in top["rationale"]
+    assert top["whose_problem"] == "not tested"
+    assert "cannot separate market from property" in top["whose_detail"]
 
 
 def test_single_property_upload_still_gets_its_own_declines(labelled):
@@ -77,6 +80,50 @@ def test_single_property_upload_still_gets_its_own_declines(labelled):
     top = pa.iloc[0]
     assert top["aspect"] == "Food" and top["started"] == "2025-06"
     assert top["basis"] == "own history" and top["gap"] > 0.5
+
+
+# --- "Whose problem is it?" (derived per property, never joined by aspect) -----------
+
+
+def _whose(labelled, prop):
+    pa = priority_actions(labelled, prop, top_n=10)
+    assert set(pa["whose_problem"]) <= {"yours alone", "everyone's", "not tested"}
+    return pa.set_index("aspect")
+
+
+def test_property_f_food_decline_is_its_own(labelled):
+    f = _whose(labelled, "Property F")
+    assert f.at["Food", "whose_problem"] == "yours alone"
+    assert f.at["Food", "started"] == "2025-06"
+    assert "relative to the market from 2025-06" in f.at["Food", "whose_detail"]
+
+
+def test_a_year_round_room_gap_is_not_blamed_on_the_december_dip(labelled):
+    # Room has a market-wide December dip (12/12), but Property D is below the market
+    # outside December too, so its Room gap is its own. Joining market_scope's
+    # "market-wide" by aspect would wrongly say "everyone's" here.
+    d = _whose(labelled, "Property D")
+    assert d.at["Food", "whose_problem"] == "yours alone"
+    assert d.at["Room", "whose_problem"] == "yours alone"
+    detail = d.at["Room", "whose_detail"]
+    assert "outside December" in detail and "12/12 properties" in detail
+    assert "is everyone's" in detail
+
+
+def test_a_lag_that_is_only_the_market_pattern_is_everyones(labelled):
+    # Property G is on par for Room; tripling its December Room reviews makes it lag
+    # overall, purely because of the market-wide December dip.
+    dec = labelled[(labelled["property_id"] == "Property G") & (labelled["aspect"] == "Room")
+                   & (labelled["date"].dt.month == 12)]
+    assert "Room" not in _whose(labelled, "Property G").index
+    skewed = pd.concat(
+        [labelled.assign(review_id=labelled["review_id"].astype(str))]
+        + [dec.assign(review_id=dec["review_id"].astype(str) + f"-{i}") for i in range(2)],
+        ignore_index=True,
+    )
+    g = _whose(skewed, "Property G")
+    assert g.at["Room", "whose_problem"] == "everyone's"
+    assert "outside December you are on par" in g.at["Room", "whose_detail"]
 
 
 def test_destination_summary_labels_each_aspect(labelled):

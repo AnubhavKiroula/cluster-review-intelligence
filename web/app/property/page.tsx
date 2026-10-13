@@ -1,8 +1,9 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import Plot from "@/components/Plot";
-import { fmtNum, useData } from "@/lib/data";
+import { fmtNum, fmtPct, useData } from "@/lib/data";
 import {
   DownloadCsv,
   ErrorState,
@@ -12,6 +13,7 @@ import {
   SectionHeading,
   SyntheticBanner,
   Table,
+  WhosePill,
 } from "@/components/ui";
 import { COLORS, FLAG_COLORS } from "@/lib/theme";
 
@@ -130,6 +132,10 @@ export default function PropertyPage() {
 
   const actions = pdata.priority_actions;
   const top = actions[0];
+  // Market-wide patterns this property takes part in (per-property participation).
+  const shared = data.market_scope.filter(
+    (s) => s.scope === "market-wide" && s.properties.split(", ").includes(prop),
+  );
   const strongest = [...pdata.scorecard].sort((a, b) => b.mean - a.mean)[0];
   const weakest = [...pdata.scorecard].sort((a, b) => a.mean - b.mean)[0];
 
@@ -139,7 +145,7 @@ export default function PropertyPage() {
         eyebrow="Property workspace"
         icon="🏨"
         title={prop}
-        description="A focused view of where this property leads, where it lags, and how the story is changing over time."
+        description="What to fix first, and whether each problem is yours alone or the whole market's. Only the cluster can tell the two apart."
       />
       <SyntheticBanner />
 
@@ -175,37 +181,72 @@ export default function PropertyPage() {
       </div>
 
       <SectionHeading
-        title="🎯 Fix this first"
-        description="Priorities combine the gap to the cluster with mention volume and detected changes."
+        title="🎯 Fix this first — and whose problem is it?"
+        description="Ranked by gap × share of your mentions. Each row is tested against the market: yours alone, or everyone's."
       />
       {actions.length === 0 ? (
         <Info>This property is on par with its cluster — nothing lags enough to flag.</Info>
       ) : (
         <>
-          <div className="callout">
-            <strong>{top.aspect}</strong> is the biggest opportunity
-            {top.started ? (
-              <>
-                {" "}
-                — started around <strong>{top.started}</strong>
-              </>
-            ) : null}
-            . {top.rationale}
+          <div className="action-card">
+            <div className="action-head">
+              <h3>
+                Fix {top.aspect} first{top.started ? ` since ${top.started}` : ""}
+              </h3>
+              <WhosePill value={top.whose_problem} />
+            </div>
+            <p>
+              <strong>Why:</strong> {top.rationale}
+            </p>
+            <p>
+              <strong>You or the market?</strong> {top.whose_detail}.
+            </p>
+            <details>
+              <summary>Evidence</summary>
+              <ul>
+                <li>
+                  Now {fmtNum(top.current_mean)} vs {fmtNum(top.reference_mean)} (
+                  {top.basis === "cluster"
+                    ? "the cluster over the same months"
+                    : "your own level before the decline"}
+                  ), mean sentiment on −1…+1
+                </li>
+                <li>
+                  Gap {fmtNum(top.gap)} × {fmtPct(top.volume)} of your aspect mentions = impact{" "}
+                  {fmtNum(top.impact_score, 3)}
+                </li>
+                <li>{top.n} mentions of {top.aspect} at this property</li>
+              </ul>
+            </details>
           </div>
           <Table
             rows={actions}
             columns={[
               { key: "aspect", label: "Aspect" },
+              {
+                key: "whose_problem",
+                label: "Whose problem",
+                render: (r) => (
+                  <>
+                    <WhosePill value={r.whose_problem} />
+                    <div className="whose-detail">{r.whose_detail}</div>
+                  </>
+                ),
+              },
+              { key: "started", label: "Started", render: (r) => r.started ?? "—" },
               { key: "gap", label: "Gap", align: "right", render: (r) => fmtNum(r.gap) },
-              { key: "volume", label: "Volume", align: "right", render: (r) => fmtNum(r.volume) },
+              {
+                key: "volume",
+                label: "Share",
+                align: "right",
+                render: (r) => fmtPct(r.volume),
+              },
               {
                 key: "impact_score",
                 label: "Impact",
                 align: "right",
                 render: (r) => fmtNum(r.impact_score, 3),
               },
-              { key: "started", label: "Started", render: (r) => r.started ?? "—" },
-              { key: "basis", label: "Basis" },
               { key: "rationale", label: "Why" },
             ]}
           />
@@ -213,6 +254,14 @@ export default function PropertyPage() {
             <DownloadCsv rows={actions} filename={`priority_actions_${prop}.csv`} />
           </div>
         </>
+      )}
+      {shared.length > 0 && (
+        <p className="caption">
+          <strong>Also hitting you, but market-wide:</strong>{" "}
+          {shared.map((s) => `${s.aspect}: ${s.pattern}`).join("; ")}. Most of the cluster shares
+          these, so they are not a gap against your competitors — see{" "}
+          <Link href="/market/">Market</Link>.
+        </p>
       )}
 
       <SectionHeading

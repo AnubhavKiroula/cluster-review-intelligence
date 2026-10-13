@@ -2,6 +2,7 @@
 
 // Small shared UI pieces: SYNTHETIC banner, states, CSV download, generic table.
 import { useData } from "@/lib/data";
+import { COLORS, WHOSE_COLORS } from "@/lib/theme";
 
 export function PageIntro({
   eyebrow,
@@ -75,6 +76,16 @@ export function ErrorState({ message }: { message: string }) {
       Run <code>npm run export:data</code> (or <code>python scripts/export_snapshot.py</code>) to
       regenerate the snapshot.
     </div>
+  );
+}
+
+/** "Is it you or the market?" verdict for one priority (priority_actions.whose_problem). */
+export function WhosePill({ value }: { value: string }) {
+  return (
+    <span className="whose">
+      <i style={{ background: WHOSE_COLORS[value] ?? COLORS.muted }} aria-hidden />
+      {value}
+    </span>
   );
 }
 

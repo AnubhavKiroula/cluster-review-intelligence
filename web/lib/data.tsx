@@ -38,6 +38,8 @@ export interface PriorityRow {
   reference_mean: number;
   basis: string;
   n: number;
+  whose_problem: "yours alone" | "everyone's" | "not tested";
+  whose_detail: string;
 }
 
 export interface TrendPoint {

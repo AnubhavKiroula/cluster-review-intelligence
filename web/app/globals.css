@@ -889,3 +889,63 @@ code {
     display: block;
   }
 }
+
+/* "Fix this first" headline card on /property, with the "whose problem" verdict. */
+.action-card {
+  margin: 15px 0;
+  padding: 17px 19px;
+  border: 1px solid #f7d7b6;
+  border-left: 4px solid var(--amber);
+  border-radius: 13px;
+  background: linear-gradient(90deg, #fff7ed, #fffdf9);
+}
+.action-card h3 {
+  margin: 0;
+  font-size: 18px;
+}
+.action-card p {
+  margin: 8px 0 0;
+  font-size: 14px;
+}
+.action-card details {
+  margin-top: 10px;
+  font-size: 13px;
+}
+.action-card summary {
+  cursor: pointer;
+  color: var(--muted);
+}
+.action-card ul {
+  margin: 6px 0 0;
+  padding-left: 18px;
+}
+.action-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.whose {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border: 1px solid var(--grid);
+  border-radius: 999px;
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.whose i {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+}
+.whose-detail {
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 12px;
+}
