@@ -20,7 +20,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-figures = ["matplotlib==3.10.8"]
+figures = ["matplotlib==3.11.2"]
 # Optional transformer sentiment backend (CRI_MODEL_BACKEND=transformer). Heavy:
 # not installed by default or in CI. See cri/transformer_backend.py.
 model = [
@@ -30,7 +30,7 @@ model = [
 dev = [
     "pytest==9.0.3",
     "ruff==0.16.10",
-    "matplotlib==3.10.8",
+    "matplotlib==3.11.2",
     "httpx==0.28.1",
 ]
 # Training the learned sentiment backend (scripts/train_sentiment.py). Inference needs
