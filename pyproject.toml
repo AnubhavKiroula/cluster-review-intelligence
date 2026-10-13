@@ -31,6 +31,12 @@ dev = [
     "pytest==9.0.3",
     "ruff==0.16.10",
     "matplotlib==3.10.8",
+    "httpx==0.28.1",
+]
+# HTTP API for the Next.js frontend (web/): uvicorn cri.server:app
+api = [
+    "fastapi==0.143.0",
+    "uvicorn==0.54.0",
 ]
 # pyarrow is pinned because streamlit 1.41.1 only asks for pyarrow>=7, and pyarrow 26
 # refuses numpy<2 at import time (every st.dataframe would crash on our numpy 1.26).
