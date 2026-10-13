@@ -13,3 +13,7 @@ next-env.d.ts.timestamp
 .DS_Store
 *.pem
 npm-debug.log*
+
+# wrangler (Cloudflare) local state and secrets
+/.wrangler/
+.dev.vars*

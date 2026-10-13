@@ -1,0 +1,15 @@
+// The static web app on Cloudflare (Workers Static Assets): no Worker script, so every
+// request is served from ./out. Static asset requests are free on every plan.
+// Build first, with the API URL baked in, then deploy (docs/DEPLOYMENT.md):
+//   NEXT_PUBLIC_API_BASE_URL=https://cri-api.<subdomain>.workers.dev npm run build
+//   npx wrangler@4.143.0 deploy
+{
+  "name": "cri-web",
+  "compatibility_date": "2026-09-29",
+  "assets": {
+    "directory": "./out",
+    // next.config.mjs sets trailingSlash: true, so routes are <route>/index.html.
+    "html_handling": "auto-trailing-slash",
+    "not_found_handling": "404-page"
+  }
+}
