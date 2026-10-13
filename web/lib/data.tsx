@@ -108,6 +108,8 @@ export interface Snapshot {
   cluster_matrix: { properties: string[]; aspects: string[]; z: (number | null)[][] };
   market_scope: ScopeRow[];
   destination_summary: DestinationRow[];
+  // Worst market-wide aspect by share of negative mentions (null: none is market-wide).
+  market_headline: DestinationRow | null;
   per_property: Record<string, PropertyData>;
   reviews: Review[];
   mentions: Mention[];

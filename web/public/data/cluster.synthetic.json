@@ -2,7 +2,7 @@
 "meta": {
 "is_synthetic": true,
 "source_name": "SYNTHETIC sample (seed 42)",
-"generated_at": "2026-10-13T11:34:06+00:00",
+"generated_at": "2026-10-13T11:45:04+00:00",
 "properties": [
 "Property A",
 "Property B",
@@ -271,6 +271,15 @@
 "n_properties_reviewed": 12
 }
 ],
+"market_headline": {
+"aspect": "Room",
+"cluster_mean": 0.047,
+"n": 2158,
+"pct_negative": 0.485,
+"scope": "market-wide",
+"pattern": "seasonal dip in December (12/12 properties, average drop 1.10)",
+"n_properties_reviewed": 12
+},
 "per_property": {
 "Property A": {
 "scorecard": [

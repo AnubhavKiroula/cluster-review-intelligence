@@ -76,6 +76,11 @@ def main(argv: list[str] | None = None) -> None:
     }
 
     all_changepoints = api.changepoints(d)
+    destination = api.destination_summary(d)
+    # The worst market-wide aspect, computed once here so pages do not re-rank it.
+    market_wide = destination[destination["scope"] == "market-wide"].sort_values(
+        ["pct_negative", "aspect"], ascending=[False, True]
+    )
 
     per_property: dict[str, dict] = {}
     for prop in properties:
@@ -110,7 +115,8 @@ def main(argv: list[str] | None = None) -> None:
         },
         "cluster_matrix": cluster_matrix,
         "market_scope": records(api.market_scope(d)),
-        "destination_summary": records(api.destination_summary(d)),
+        "destination_summary": records(destination),
+        "market_headline": records(market_wide.head(1))[0] if len(market_wide) else None,
         "per_property": per_property,
         "reviews": reviews,
         "mentions": mentions,
