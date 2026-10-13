@@ -2,30 +2,26 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Plot from "@/components/Plot";
-import { fmtNum, useData, useFixChecks, type FixCheck } from "@/lib/data";
+import { fmtNum, syncQuery, useData, useFixChecks, type FixCheck } from "@/lib/data";
 import {
+  ChangeSplit,
   DownloadCsv,
   ErrorState,
   Info,
   Loading,
-  PageIntro,
+  PageHeader,
   SectionHeading,
-  SyntheticBanner,
+  signed,
 } from "@/components/ui";
 import { COLORS } from "@/lib/theme";
 
-const VERDICT: Record<FixCheck["verdict"], { className: string; headline: string }> = {
-  improved: { className: "state info", headline: "✅ Improved — relative to the market" },
-  worsened: { className: "state error", headline: "⚠️ Worsened — relative to the market" },
-  "no detectable change": {
-    className: "state",
-    headline: "➖ No detectable change relative to the market",
-  },
-  "too early to tell": { className: "callout", headline: "⏳ Too early to tell" },
-  "no data": { className: "callout", headline: "Not enough reviews to check" },
+const VERDICT: Record<FixCheck["verdict"], { tone: string; headline: string }> = {
+  improved: { tone: "up", headline: "Improved, relative to the market" },
+  worsened: { tone: "down", headline: "Worsened, relative to the market" },
+  "no detectable change": { tone: "flat", headline: "No detectable change relative to the market" },
+  "too early to tell": { tone: "wait", headline: "Too early to tell" },
+  "no data": { tone: "wait", headline: "Not enough reviews to check" },
 };
-
-const signed = (v: number | null) => (v == null ? "—" : `${v > 0 ? "+" : ""}${fmtNum(v)}`);
 
 export default function FixCheckPage() {
   const { data, error } = useData();
@@ -47,6 +43,11 @@ export default function FixCheckPage() {
     setMonth((m) => m || pick(q.get("month"), months, months[Math.max(0, months.length - 7)]));
   }, [data, fix.data]);
 
+  // Keep the URL shareable: it always names the check on screen.
+  useEffect(() => {
+    if (prop && aspect && month) syncQuery({ property: prop, aspect, month });
+  }, [prop, aspect, month]);
+
   const result = fix.data && prop && aspect && month ? fix.data.results[prop]?.[aspect]?.[month] : null;
   const trend = data && prop && aspect ? data.per_property[prop]?.trends[aspect] : undefined;
 
@@ -61,7 +62,7 @@ export default function FixCheckPage() {
         yref: "paper",
         y0: 0,
         y1: 1,
-        line: { color: COLORS.amber, width: 2, dash: "dash" },
+        line: { color: COLORS.ink, width: 1.5, dash: "dash" },
       },
     ];
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -73,7 +74,7 @@ export default function FixCheckPage() {
         yanchor: "bottom",
         text: "your change",
         showarrow: false,
-        font: { size: 11, color: COLORS.amber },
+        font: { size: 12, color: COLORS.ink },
       },
     ];
     if (result.baseline_start) {
@@ -84,8 +85,8 @@ export default function FixCheckPage() {
         yref: "paper",
         y0: 0,
         y1: 1,
-        fillcolor: COLORS.panel,
-        line: { width: 1, color: COLORS.grid },
+        fillcolor: COLORS.mist,
+        line: { width: 0 },
         layer: "below",
       });
       annotations.push({
@@ -96,7 +97,7 @@ export default function FixCheckPage() {
         yanchor: "bottom",
         text: "before",
         showarrow: false,
-        font: { size: 11, color: COLORS.muted },
+        font: { size: 12, color: COLORS.muted },
       });
     }
     return {
@@ -107,7 +108,8 @@ export default function FixCheckPage() {
           name: aspect,
           x: trend.map((p) => p.month),
           y: trend.map((p) => p.mean),
-          line: { color: COLORS.navy, width: 2.5 },
+          line: { color: COLORS.slate, width: 2 },
+          marker: { size: 5 },
           customdata: trend.map((p) => p.n),
           hovertemplate: "%{x|%b %Y}<br>mean %{y:.2f} (n=%{customdata})<extra></extra>",
         },
@@ -123,96 +125,81 @@ export default function FixCheckPage() {
   }, [trend, result, month, aspect]);
 
   if (error) return <ErrorState message={error} />;
-  if (fix.error)
-    return (
-      <div className="state error">
-        Failed to load <code>data/fixcheck.synthetic.json</code>: {fix.error}
-        <br />
-        Run <code>npm run export:data</code> to regenerate it.
-      </div>
-    );
-  if (!data || !fix.data || !result) return <Loading />;
+  if (fix.error) return <ErrorState message={fix.error} file="fixcheck.synthetic.json" />;
+  if (!data || !fix.data || !result) return <Loading what="the fix checks" />;
 
   const v = VERDICT[result.verdict];
   const tested = result.effect != null;
 
   return (
     <>
-      <PageIntro
-        eyebrow="Intervention check"
-        icon="🔧"
+      <PageHeader
         title="Did my fix work?"
-        description="Pick what you changed and the first month after the change. A plain before/after mixes your change with whatever the whole market did at the same time; this check removes the market first."
-      />
-      <SyntheticBanner />
+        lede="Pick what you changed and the first month after the change. A plain before and after mixes your change with whatever the whole market did at the same time; this check takes the market out first."
+      >
+        <div className="controls">
+          <div className="field">
+            <label htmlFor="fx-prop">Property</label>
+            <select id="fx-prop" name="property" value={prop} onChange={(e) => setProp(e.target.value)}>
+              {data.meta.properties.map((p) => (
+                <option key={p} value={p}>
+                  {p}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="field">
+            <label htmlFor="fx-aspect">What did you change?</label>
+            <select id="fx-aspect" name="aspect" value={aspect} onChange={(e) => setAspect(e.target.value)}>
+              {data.meta.aspects.map((a) => (
+                <option key={a} value={a}>
+                  {a}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="field">
+            <label htmlFor="fx-month">First month after the change</label>
+            <select id="fx-month" name="month" value={month} onChange={(e) => setMonth(e.target.value)}>
+              {fix.data.meta.months.map((m) => (
+                <option key={m} value={m}>
+                  {m}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+      </PageHeader>
 
-      <div className="controls">
-        <div className="field">
-          <label htmlFor="fx-prop">Property</label>
-          <select id="fx-prop" value={prop} onChange={(e) => setProp(e.target.value)}>
-            {data.meta.properties.map((p) => (
-              <option key={p} value={p}>
-                {p}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="field">
-          <label htmlFor="fx-aspect">What did you change?</label>
-          <select id="fx-aspect" value={aspect} onChange={(e) => setAspect(e.target.value)}>
-            {data.meta.aspects.map((a) => (
-              <option key={a} value={a}>
-                {a}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="field">
-          <label htmlFor="fx-month">First month after the change</label>
-          <select id="fx-month" value={month} onChange={(e) => setMonth(e.target.value)}>
-            {fix.data.meta.months.map((m) => (
-              <option key={m} value={m}>
-                {m}
-              </option>
-            ))}
-          </select>
-        </div>
-      </div>
-
-      <div className={v.className} role="status">
-        <strong>{v.headline}.</strong> {result.summary}
-      </div>
+      <section className={`verdict ${v.tone}`} aria-live="polite">
+        <h2>{v.headline}</h2>
+        <p>{result.summary}</p>
+      </section>
 
       {tested && (
-        <div className="insight-strip">
-          <div className="insight-tile">
-            <div className="tile-label">Plain before → after</div>
-            <div className="tile-value">{signed(result.naive_delta)}</div>
-            <div className="tile-note">What a simple comparison would report</div>
-          </div>
-          <div className="insight-tile">
-            <div className="tile-label">Market over the same months</div>
-            <div className="tile-value">{signed(result.market_delta)}</div>
-            <div className="tile-note">
-              {result.market_delta == null
-                ? "Too few properties review this aspect"
-                : "What the other properties did meanwhile"}
-            </div>
-          </div>
-          <div className="insight-tile">
-            <div className="tile-label">Your change vs the market</div>
-            <div className="tile-value">{signed(result.effect)}</div>
-            <div className="tile-note">
-              95% CI {signed(result.ci_low)} to {signed(result.ci_high)} · smallest detectable{" "}
-              {fmtNum(result.mde)}
-            </div>
-          </div>
-        </div>
+        <ChangeSplit
+          rows={[
+            { label: "Plain before and after", note: "what a simple comparison reports", value: result.naive_delta },
+            {
+              label: "The market, same months",
+              note: result.market_delta == null ? "too few properties review this aspect" : "what the other properties did",
+              value: result.market_delta,
+            },
+            { label: "Your change vs the market", note: "the plain change minus the market's", value: result.effect, verdict: true },
+          ]}
+          caption={
+            <>
+              Change in mean {aspect.toLowerCase()} sentiment (−1 to +1). 95% interval for your
+              change: {signed(result.ci_low)} to {signed(result.ci_high)}. Smallest change this
+              data could detect: {fmtNum(result.mde)}.
+            </>
+          }
+        />
       )}
 
       <SectionHeading
-        title="📈 Before and after"
-        description="Shaded = the before window; dashed = your change."
+        title="Before and after"
+        description="The shaded band is the before window; the dashed line is your change."
       />
       {chart ? (
         <div className="chart-panel">
@@ -224,31 +211,43 @@ export default function FixCheckPage() {
         </Info>
       )}
       <p className="caption">
-        The before window starts at the latest significant shift before your change (so a fix made
-        after a decline is compared with the declined level), or at the first month of data.
+        The before window starts at the latest significant shift before your change, so a fix made
+        after a decline is compared with the declined level. Without such a shift it starts at the
+        first month of data.
       </p>
 
       <SectionHeading title="How this is decided" />
-      <ul className="caption">
-        <li>
-          <strong>Your change vs the market</strong> = your after − before, minus the market&apos;s
-          change over the same months. The market is the other properties, each measured against its
-          own usual level.
-        </li>
-        <li>
-          <strong>Verdict</strong>: improved / worsened when p ≤ 0.05 for the one month you chose.
-          Choosing the month <em>after</em> looking at the chart makes the p-value too optimistic.
-        </li>
-        <li>
-          <strong>Placebo check</strong>: every other property goes through the same check at the
-          same months. If several moved as much as you, be wary of the verdict.
-        </li>
-        <li>
-          <strong>Not proof of cause</strong>: anything else you changed in the same month is mixed
-          in. Details: <code>docs/methodology.md</code> section 12.
-        </li>
-      </ul>
-      <div style={{ marginTop: 10 }}>
+      <dl className="method">
+        <div>
+          <dt>Your change vs the market</dt>
+          <dd>
+            Your after minus before, minus the market&apos;s change over the same months. The market
+            is the other properties, each measured against its own usual level.
+          </dd>
+        </div>
+        <div>
+          <dt>Verdict</dt>
+          <dd>
+            Improved or worsened when p ≤ 0.05 for the one month you chose. Choosing the month
+            after looking at the chart makes the p-value too optimistic.
+          </dd>
+        </div>
+        <div>
+          <dt>Placebo check</dt>
+          <dd>
+            Every other property goes through the same check at the same months. If several moved
+            as much as you, be wary of the verdict.
+          </dd>
+        </div>
+        <div>
+          <dt>Not proof of cause</dt>
+          <dd>
+            Anything else you changed in the same month is mixed in. Details in{" "}
+            <code>docs/methodology.md</code>, section 12.
+          </dd>
+        </div>
+      </dl>
+      <div className="table-actions">
         <DownloadCsv rows={[result]} filename={`fix_check_${prop}_${aspect}_${month}.csv`} />
       </div>
     </>

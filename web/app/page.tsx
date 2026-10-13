@@ -1,100 +1,144 @@
 "use client";
 
 import Link from "next/link";
-import { fmtPct, useData } from "@/lib/data";
-import { ErrorState, Loading, PageIntro, SyntheticBanner } from "@/components/ui";
+import { fmtPct, useData, type Snapshot } from "@/lib/data";
+import { ChangeSplit, ErrorState, Loading, WhosePill } from "@/components/ui";
+
+const TOOLS = [
+  {
+    href: "/property",
+    title: "Your property",
+    text: "What to fix first, since when, and whether each problem is yours alone or everyone's.",
+  },
+  {
+    href: "/market",
+    title: "The market",
+    text: "Which declines the whole cluster shares, so you stop chasing problems that are not yours.",
+  },
+  {
+    href: "/fix-check",
+    title: "Did my fix work?",
+    text: "A before and after check that takes out what the market did over the same months.",
+  },
+  {
+    href: "/explorer",
+    title: "Review explorer",
+    text: "Search the reviews and see the exact clause behind every label, in English, Hinglish or Hindi.",
+  },
+];
+
+// The first property whose top priority has a dated, market-adjusted shift: the
+// example that shows a decline the market does not share.
+function ownProblemExample(data: Snapshot) {
+  for (const p of data.meta.properties) {
+    const pd = data.per_property[p];
+    const top = pd.priority_actions[0];
+    if (!top || top.whose_problem !== "yours alone" || !top.started) continue;
+    const cp = pd.changepoints.find((c) => c.aspect === top.aspect && c.change_month === top.started);
+    if (cp) return { property: p, top, cp };
+  }
+  return null;
+}
 
 export default function Home() {
   const { data, error } = useData();
   if (error) return <ErrorState message={error} />;
   if (!data) return <Loading />;
   const headline = data.market_headline;
+  const own = ownProblemExample(data);
 
   return (
     <>
-      <PageIntro
-        eyebrow="For hotel and homestay owners"
-        icon="◈"
-        title="Cluster review intelligence"
-        description="When your reviews get worse on something, is it your problem or the whole market's? Your own reviews cannot tell. Your cluster can."
-      />
-      <SyntheticBanner />
-
-      <section className="hero-grid" aria-label="Dashboard introduction">
-        <div className="hero-panel hero-panel-primary">
-          <span className="hero-kicker">THE DECISION LAYER</span>
-          <h2>Know what to fix — and who owns the problem.</h2>
-          <p>
-            Compare each property with its cluster, follow sentiment over time, and separate a
-            competitive gap from an issue the whole destination shares.
-          </p>
-          <p>
-            MakeMyTrip, Goibibo and Booking.com help travellers find you. We work on the supply
-            side, for the properties those platforms list, and do not compete with them.
-          </p>
+      <section className="home-hero">
+        <h1>Your reviews got worse. Is it your property, or the whole market?</h1>
+        <p className="lede">
+          One property&apos;s reviews cannot answer that. A December dip that hits every hotel in a
+          hill town needs a different response from a kitchen problem only you have. Compare
+          yourself with your cluster and the two separate.
+        </p>
+        <div className="hero-actions">
           <Link className="btn btn-primary" href="/property">
-            Open property workspace <span aria-hidden>→</span>
+            Open your property
           </Link>
-        </div>
-        <div className="hero-panel hero-panel-insight">
-          <div>
-            <div className="insight-label">Market signal</div>
-            {headline ? (
-              <>
-                <h3>{headline.aspect} is a market-wide issue, not one property&apos;s.</h3>
-                <p>
-                  {fmtPct(headline.pct_negative)} of mentions are negative across{" "}
-                  {headline.n_properties_reviewed} properties: {headline.pattern}.
-                </p>
-              </>
-            ) : (
-              <>
-                <h3>No market-wide issue flagged.</h3>
-                <p>The current snapshot has no aspect classified as a destination-wide concern.</p>
-              </>
-            )}
-          </div>
-          <div className="insight-footer">
-            <span className="status-dot" aria-hidden />
-            Evidence-led · snapshot available
-          </div>
+          <Link className="btn btn-quiet" href="/market">
+            See what the market shares
+          </Link>
         </div>
       </section>
 
-      <div className="section-heading">
-        <div>
-          <h2>Choose a decision view</h2>
-          <p className="section-description">Start with the question you need to answer today.</p>
-        </div>
-      </div>
-      <div className="cardlinks">
-        <Link className="cardlink" href="/property">
-          <div className="t">🏨 Property</div>
-          <div className="d">What to fix first, and whether each problem is yours alone or everyone&apos;s.</div>
-        </Link>
-        <Link className="cardlink" href="/market">
-          <div className="t">⚖️ Market</div>
-          <div className="d">Which declines are market-wide and which belong to one property.</div>
-        </Link>
-        <Link className="cardlink" href="/fix-check">
-          <div className="t">🔧 Did my fix work?</div>
-          <div className="d">A before/after check that nets out what the market did meanwhile.</div>
-        </Link>
-        <Link className="cardlink" href="/explorer">
-          <div className="t">🔍 Explorer</div>
-          <div className="d">Search reviews; see the exact clause each label came from.</div>
-        </Link>
-      </div>
+      <section className="contrast" aria-labelledby="contrast-title">
+        <h2 id="contrast-title" className="visually-hidden">
+          Two declines, two owners
+        </h2>
+        {own && (
+          <article className="contrast-case">
+            <header>
+              <h3>
+                {own.property}: {own.top.aspect} since {own.top.started}
+              </h3>
+              <WhosePill value={own.top.whose_problem} />
+            </header>
+            <ChangeSplit
+              rows={[
+                { label: "Your reviews", note: "plain before and after", value: own.cp.raw_delta },
+                { label: "The market", note: "other properties, same months", value: own.cp.market_delta },
+                { label: "Yours alone", note: "after taking the market out", value: own.cp.delta, verdict: true },
+              ]}
+            />
+            <p>
+              {Math.abs(own.cp.market_delta ?? 0) < 0.1
+                ? `The market barely moved while ${own.top.aspect.toLowerCase()} fell here.`
+                : `Part of the change is the market's; the rest is this property's.`}{" "}
+              It tops this property&apos;s list of what to fix.
+            </p>
+            <Link href={`/property/?property=${encodeURIComponent(own.property)}`}>
+              Open {own.property}
+            </Link>
+          </article>
+        )}
+        {headline && (
+          <article className="contrast-case">
+            <header>
+              <h3>Every property: {headline.aspect}</h3>
+              <WhosePill value="everyone's" />
+            </header>
+            <p className="contrast-figure">
+              <span>{fmtPct(headline.pct_negative)}</span> of {headline.aspect.toLowerCase()}{" "}
+              mentions are negative across {headline.n_properties_reviewed} properties.
+            </p>
+            <p>
+              Pattern: {headline.pattern}. The whole cluster shares it, so it is not a gap against
+              your competitors.
+            </p>
+            <Link href="/market/">See the market view</Link>
+          </article>
+        )}
+      </section>
 
-      <div className="panel">
-        <div className="eyebrow">Data &amp; methodology</div>
-        <p className="caption" style={{ marginTop: 0 }}>
-          This workspace is transparent by design. Explore the matched review clauses, download
-          every table, and review the limitations before acting. Real-data accuracy remains{" "}
-          <code>TBD</code> until the labelled set exists. Snapshot generated{" "}
-          {data.meta.generated_at}.
+      <section className="tools" aria-labelledby="tools-title">
+        <h2 id="tools-title">Four views, one question</h2>
+        <ul className="tool-list">
+          {TOOLS.map((t) => (
+            <li key={t.href}>
+              <Link href={t.href}>
+                <span className="tool-title">{t.title}</span>
+                <span className="tool-text">{t.text}</span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <section className="about">
+        <h2>How to read this</h2>
+        <p>
+          Scores are mean sentiment per aspect on a scale from −1 to +1, from {data.meta.n_reviews.toLocaleString()}{" "}
+          reviews of {data.meta.properties.length} properties between {data.meta.date_min} and{" "}
+          {data.meta.date_max}. A gap is only flagged when it survives a multiple-testing correction.
+          We work for the properties that MakeMyTrip, Goibibo and Booking.com list, not against
+          those platforms. Snapshot generated {data.meta.generated_at.slice(0, 10)}.
         </p>
-      </div>
+      </section>
     </>
   );
 }
