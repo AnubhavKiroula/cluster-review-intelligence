@@ -70,6 +70,33 @@ ignored build step and the response headers, and `package.json` pins Node.js 22.
 `output: "export"` produces a static deployment. The snapshot JSON ships in `public/`, so
 no build-time Python is needed. See `docs/DEPLOYMENT.md`.
 
+## Design
+
+One stylesheet (`app/globals.css`, no CSS framework) and one palette, mirrored for the
+charts in `lib/theme.ts`. Colours carry meaning, and the same meaning on every page:
+
+| Token | Hex | Means |
+|---|---|---|
+| `--deodar` | `#2E5B4C` | Better, ahead of the cluster, improved |
+| `--buransh` (rhododendron) | `#B4235A` | Worse, behind the cluster, *yours alone* |
+| `--slate` | `#4A6386` | The market, *everyone's*; also the SYNTHETIC strip |
+| `--stone` | `#97A39C` | Neutral, on par, not tested |
+| `--mist` / `--ink` | `#EEF2F0` / `#1F2D27` | Page background / text |
+
+- **Type:** Source Serif 4 for headings, Public Sans for everything else, both
+  self-hosted by `next/font` at build time (no requests to Google from the browser;
+  credits in `docs/CREDITS.md`). Numbers use tabular figures.
+- **Change split** (`ChangeSplit` in `components/ui.tsx`): the plain change, the
+  market's change over the same months, and what is left for the property alone, on a
+  shared zero. It is the product's question in one figure, so it appears on home,
+  `/property/` (top priority) and `/fix-check/`.
+- **SYNTHETIC label:** rendered once by `app/layout.tsx`, so no page can omit it.
+- **Shareable views:** `/property/` and `/fix-check/` keep their selections in the
+  query string, so the address bar is always a deep link to what is on screen.
+- **Accessibility:** skip link, visible `:focus-visible` outlines, labelled controls,
+  `aria-live` on results, scrollable tables reachable by keyboard; no layout wider than
+  the screen at 390 px.
+
 ## Notes
 
 - Dependencies are pinned (CLAUDE.md). Charts use Plotly.js (lazy-loaded client-side).
