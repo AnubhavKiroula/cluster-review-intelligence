@@ -51,6 +51,7 @@ This project answers exactly that, from review text — including the
 | **"Is it me?"** — significance-tested changepoints *relative to the market* (FDR-controlled) | ✅ | `src/cri/benchmark.py`, `changepoint.py` |
 | **"Is it the market?"** — seasonal dips (any month) and step declines tested *across properties* | ✅ | `src/cri/benchmark.py` |
 | **Market-wide vs property-specific** scope, `undetermined` when under 3 properties review an aspect | ✅ | `src/cri/benchmark.py` |
+| **"Did my fix work?"** — before/after of a change the property made, *relative to the market* (difference-in-differences against the cluster), with placebo check, timing check and minimum detectable effect | ✅ | `src/cri/intervention.py` |
 | **"Fix this first"** priority actions (works even for a single-hotel upload) + tourism-board **destination view** | ✅ | `src/cri/insights.py` |
 | Stable **API facade** for the dashboard (contract in `docs/HACKATHON_PLAN.md` §3.2); normalises messy exports (numeric ids, timezone-stamped dates) | ✅ | `src/cri/api.py` |
 | **Reproducible calibration**: recall and false-alarm rates on SYNTHETIC data | ✅ | `python -m cri.calibration` |
@@ -181,6 +182,11 @@ claim tested rather than thresholded.
   month must recur within every observed year, and a step decline must be shared
   (t-test, BH at 5%, and ≥ 60% of properties dropping by ≥ 0.3).
 - **Fix this first:** gap to the cluster over the same months × share of mentions.
+- **Did my fix work?** The property's change since the month it acted, minus the
+  market's change over the same months (one pre-specified test). "Before" starts
+  at the latest significant shift, so a fix after a decline is judged against the
+  declined level. Reports a placebo rank among the other properties and the
+  smallest change the data could detect.
 
 Full details, exact thresholds and their justification:
 [`docs/methodology.md`](docs/methodology.md).
@@ -199,6 +205,13 @@ real reviews.
 | Property-specific food decline found | 15/20 (0.53–0.89) | 13/20 |
 | Market-wide December dip found | 20/20 (0.84–1.00) | 20/20 |
 | Pattern-free seeds with any false alarm | **1/20** | **20/20** |
+
+**"Did my fix work?" (SYNTHETIC simulations — `python scripts/calibrate_intervention.py`):**
+when the *whole market* improved and the property did nothing special, a plain
+before/after credited the property in **100/100** clusters; the market-adjusted
+check did so in **7/100**. Real fixes of +1.0 were found in 50/50. Small fixes
+(+0.2) were found in only 14/50: at this volume the check is underpowered for small
+changes, and it says so ([`docs/methodology.md` §12](docs/methodology.md)).
 
 Recall is limited by sample size, not tuned up: thresholds control the false-alarm
 rate, and several injected declines are small. Details, fresh-seed calibration

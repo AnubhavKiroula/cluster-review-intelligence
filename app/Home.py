@@ -51,6 +51,7 @@ with right:
     st.markdown(
         "- **🧭 Destination** — the tourism-board view of cluster-wide problems.\n"
         "- **🔍 Explorer** — search reviews; see the exact clause each label came from.\n"
+        "- **🔧 Did my fix work?** — did your change help, *relative to the market*?\n"
     )
 
 st.info(

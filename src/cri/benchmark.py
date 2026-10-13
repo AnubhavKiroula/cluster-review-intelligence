@@ -251,9 +251,17 @@ def monthly_series(labelled: pd.DataFrame, property_id: str, aspect: str) -> pd.
 # --- "Is it me?": property-vs-market changepoints -----------------------------------
 
 
-def _changepoints_from_units(units: pd.DataFrame, min_effect: float, q: float) -> pd.DataFrame:
-    if units.empty:
-        return pd.DataFrame(columns=CHANGEPOINT_COLUMNS)
+def market_adjusted_months(units: pd.DataFrame) -> pd.DataFrame:
+    """Monthly sums per (property, aspect) with the market reference for each month.
+
+    Columns: property_id, aspect, month (Period), n, s, ss (unit count, sum and sum
+    of squares of review values), residual (bool: does the aspect have a market, i.e.
+    >= ``MIN_PROPERTIES_FOR_SCOPE`` properties), market (mean deviation of the OTHER
+    properties from their own levels that month; 0 without a market), mvar (variance
+    of that market estimate), rs, rss (sum and sum of squares of value - market).
+    Sorted by property, aspect, month. For aspects with a market, months where no
+    other property has reviews are dropped.
+    """
     # Each property's own level and within-property variance, per aspect.
     pa = units.groupby(["property_id", "aspect"])["value"].agg(
         alpha="mean", n_pa="size", var="var"
@@ -298,8 +306,25 @@ def _changepoints_from_units(units: pd.DataFrame, min_effect: float, q: float) -
         # it does not move when a strong or weak property enters or leaves the data.
         market = np.where(is_res, g["loo_c"].to_numpy(dtype=float) / g["loo_n"].to_numpy(), 0.0)
         mvar = np.where(is_res, g["v_loo"].to_numpy(dtype=float) / g["loo_n"].to_numpy(), 0.0)
-    rs = s - n * market  # exact sums of (value - market) and (value - market)^2
-    rss = ss - 2 * market * s + n * market * market
+    return g.assign(
+        market=market,
+        mvar=mvar,
+        rs=s - n * market,  # exact sums of (value - market) and (value - market)^2
+        rss=ss - 2 * market * s + n * market * market,
+    )[["property_id", "aspect", "month", "n", "s", "ss", "residual", "market", "mvar",
+       "rs", "rss"]].reset_index(drop=True)
+
+
+def _changepoints_from_units(units: pd.DataFrame, min_effect: float, q: float) -> pd.DataFrame:
+    if units.empty:
+        return pd.DataFrame(columns=CHANGEPOINT_COLUMNS)
+    g = market_adjusted_months(units)
+    n = g["n"].to_numpy(dtype=float)
+    s = g["s"].to_numpy(dtype=float)
+    rs = g["rs"].to_numpy(dtype=float)
+    rss = g["rss"].to_numpy(dtype=float)
+    mvar = g["mvar"].to_numpy(dtype=float)
+    is_res = g["residual"].to_numpy(dtype=bool)
     months = g["month"].dt.strftime("%Y-%m").to_numpy()
     codes = g.groupby(["property_id", "aspect"], sort=False).ngroup().to_numpy()
     if len(codes) == 0:

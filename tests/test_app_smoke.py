@@ -97,3 +97,11 @@ def test_property_deep_link_preselects_a_property():
     at.run()
     assert _errors(at) == []
     assert at.sidebar.selectbox(key="property").value == "Property F"
+
+
+def test_fix_check_page_shows_a_market_adjusted_verdict(app_test):
+    at = app_test(APP / "pages" / "6_Fix_check.py")
+    at.selectbox(key="fix_aspect").set_value("Room").run()
+    at.selectbox(key="fix_start").set_value("2025-12").run()
+    assert _errors(at) == []
+    assert any("No detectable change" in i.value for i in at.info)

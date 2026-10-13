@@ -244,3 +244,78 @@ recall.
   and below 3 properties the scope is `undetermined`.
 - **Classifier.** The rule baseline misses sarcasm, post-negation and implicit
   sentiment; real-data precision/recall/F1 are `TBD`.
+
+## 12. "Did my fix work?" — market-adjusted before/after (`intervention_check`)
+
+Detection (§6–7) says *what* went wrong. After a manager acts (new cook, heater
+replacement, housekeeping training), the next question is whether it worked. A
+plain before/after comparison credits the property with everything else that moved
+in those months, such as the season, road conditions or a festival. This check makes
+the comparison **relative to the market**, using the §6 reference.
+
+1. **Inputs.** Property, aspect, and `start` = the first month after the change.
+   The user picks the month, so this is **one pre-specified test**: no search over
+   months and no multiple-testing correction. Choosing the month *after* looking at
+   the trend makes the p-value optimistic; the dashboard says so.
+2. **Effect.** Per review unit: value − market (the other properties' average
+   deviation from their own levels that month, §6.1). `effect` = mean after − mean
+   before of that residual, i.e. the property's change minus the market's change
+   over the same months: a difference-in-differences with the rest of the cluster as
+   the comparison group. Two-sample t test with the §6.2 standard error, which
+   includes the variance of the market estimate. 95% CI = effect ± t₀.₉₇₅·SE.
+   `naive_delta` = the plain change; `market_delta` = naive − effect.
+3. **Baseline after a decline.** Managers usually act *because* something
+   declined. Comparing with the whole history would then mix the good months before
+   the problem with the bad months that prompted the fix, and could hide a real
+   recovery. So "before" starts at the latest significant shift relative to the
+   market in the months before `start` (the §6 test on that window: p ≤ 0.05,
+   |Δ| ≥ 0.4, ≥ 4 months and 10 reviews per side), else at the first month of data.
+   `baseline_start` can be overridden.
+4. **Timing check.** The same §6 search over the before + after window (≥ 2 months
+   and 10 reviews per side, Bonferroni over splits) gives `detected_start`. If a
+   significant change begins more than one month before `start`, the summary warns
+   that it may not be due to the fix. This covers changes too close to `start` for
+   step 3 to make them the baseline.
+5. **Placebo.** Every other property with ≥ 10 reviews on each side goes through
+   the same calculation at the same months. `placebo_rank` = 1 + the number whose
+   |effect| is at least as large. It is reported, not used for the verdict: with 12
+   properties a permutation p-value cannot go below 1/12.
+6. **Verdict.** `improved` / `worsened` when p ≤ 0.05, else `no detectable change`.
+   `too early to tell` below 10 reviews mentioning the aspect after `start`; `no
+   data` below 10 before. `mde` = 2.80 × SE, the effect detected with 80% power at
+   5%, so "no detectable change" always comes with how large a change could have
+   been missed.
+7. **No market.** Below 3 properties reviewing the aspect, `basis = "own history"`:
+   the test runs on the raw series, `market_delta` and the placebo are None, and the
+   summary says the market's own change cannot be removed.
+
+**Calibration (SYNTHETIC; reproduce with `python scripts/calibrate_intervention.py`).**
+Simulated 6-property clusters, 15 reviews per property-month, 2024-01 to 2025-12,
+change month 2025-06. "Naive" = the same test on the property's own reviews only.
+
+| Scenario (seeds) | Truth | Market-adjusted correct (Wilson 95% CI) | Naive correct |
+|---|---|---|---|
+| Nothing changed (100) | no change | 94/100 (0.88–0.97) | 95/100 |
+| **Whole market improved (100)** | no change | **93/100 (0.86–0.97)** | **0/100** |
+| Real fix, +1.0 (50) | improved | 50/50 (0.93–1.00) | 50/50 |
+| Small fix, +0.2 (50) | improved | 14/50 (0.17–0.42) | 19/50 |
+| Fix after a decline (50) | improved | 50/50 (0.93–1.00) | 50/50 |
+
+In the last scenario `baseline_start` was the true decline month (2025-01) in 48/50
+seeds. The cost of removing the market is some power on small effects (14 vs 19
+of 50), because the market estimate adds variance. That is what `mde` reports.
+
+**Limitations.**
+- **Not proof of cause.** Anything else that changed at the property in the same
+  month is mixed in, and the comparison assumes the property would have moved with
+  the market otherwise (parallel trends). The timing check and placebo only catch
+  some violations.
+- **Regression to the mean.** A fix made right after an unusually bad month can
+  look like an improvement. Step 3 helps only when the bad period is a sustained
+  shift (≥ 4 months).
+- **Changing review mix.** If the fix changes *who* reviews or *which* aspects
+  they mention, the comparison changes too. Management responses, for example, have
+  been found to change who leaves reviews (Proserpio & Zervas, *Marketing Science*
+  36(5), 2017, doi:10.1287/mksc.2017.1043).
+- **Synthetic only.** The rates above are on simulated data; real-data behaviour
+  is `TBD`.

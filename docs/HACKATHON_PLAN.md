@@ -150,6 +150,8 @@ def search_reviews(d: ClusterData, property_id=None, aspect=None, sentiment=None
 > - Day-1 integration: `classify_text(text) -> aspect, sentiment, sentence` (the
 >   explorer's *Try your own review*), and the constants `MARKET_WIDE_FRACTION`,
 >   `MIN_REVIEWS_FOR_FLAG` that charts draw instead of hard-coding thresholds.
+> - `intervention_check(d, property_id, aspect, start, baseline_start=None) -> dict`
+>   ("Did my fix work?", keys `INTERVENTION_KEYS`; methodology §12).
 
 **Day-0 unblock rule:** `[A]` pushes `api.py` with *working or stubbed* returns
 (correct columns, plausible shapes) **within the first 2 hours**. From that moment

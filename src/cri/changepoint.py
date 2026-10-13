@@ -114,17 +114,12 @@ def find_changepoint(
     leaving it out makes the test anti-conservative. It must come from the data
     the market was estimated on (the other properties), not from this series.
     """
-    n = np.asarray(n, dtype=float)
-    s = np.asarray(s, dtype=float)
-    ss = np.asarray(ss, dtype=float)
-    raw_s = s if raw_s is None else np.asarray(raw_s, dtype=float)
-    mvar = np.zeros_like(n) if market_var is None else np.asarray(market_var, dtype=float)
+    n, s, ss, raw_s, mvar = _as_arrays(n, s, ss, raw_s, market_var)
     months = len(n)
     if months < 2 * min_months:
         return None
 
-    cn, cs, css, craw = np.cumsum(n), np.cumsum(s), np.cumsum(ss), np.cumsum(raw_s)
-    cmk = np.cumsum(n * n * mvar)
+    cn = np.cumsum(n)
     total_n = cn[-1]
     k = np.arange(min_months, months - min_months + 1)
     n1 = cn[k - 1]
@@ -132,28 +127,101 @@ def find_changepoint(
     if len(k) == 0 or total_n < 3:
         return None
 
+    diff, raw_diff, se, dof = _split_stats(n, s, ss, raw_s, mvar, k)
+    t = _t_stat(diff, se)
+    best = int(np.argmax(np.abs(t)))
+    p_one_split = 2.0 * t_sf(float(abs(t[best])), dof)
+    return Changepoint(
+        index=int(k[best]),
+        delta=float(diff[best]),
+        raw_delta=float(raw_diff[best]),
+        p_value=float(min(1.0, len(k) * p_one_split)),
+    )
+
+
+@dataclass(frozen=True)
+class Shift:
+    delta: float  # mean(after) - mean(before) of the tested values
+    raw_delta: float  # the same shift on the untransformed values
+    se: float  # standard error of ``delta`` (includes the market estimate's variance)
+    dof: float  # degrees of freedom of the pooled-variance t statistic
+    p_value: float  # two-sided, for this ONE pre-specified split (no adjustment)
+
+
+def shift_at(
+    n: np.ndarray,
+    s: np.ndarray,
+    ss: np.ndarray,
+    raw_s: np.ndarray | None = None,
+    *,
+    split: int,
+    market_var: np.ndarray | None = None,
+) -> Shift | None:
+    """Mean shift at a split chosen in advance (segments ``[:split]``, ``[split:]``).
+
+    The same statistic as :func:`find_changepoint`, but the split is given rather
+    than searched for, so the p-value needs no correction for the choice of split.
+    Returns None when a segment is empty or there are fewer than 3 units in total.
+    """
+    n, s, ss, raw_s, mvar = _as_arrays(n, s, ss, raw_s, market_var)
+    if not 0 < split < len(n):
+        return None
+    n1 = n[:split].sum()
+    if n1 < 1 or n.sum() - n1 < 1 or n.sum() < 3:
+        return None
+    diff, raw_diff, se, dof = _split_stats(n, s, ss, raw_s, mvar, np.array([split]))
+    t = float(_t_stat(diff, se)[0])
+    return Shift(
+        delta=float(diff[0]),
+        raw_delta=float(raw_diff[0]),
+        se=float(se[0]),
+        dof=dof,
+        p_value=float(min(1.0, 2.0 * t_sf(abs(t), dof))),
+    )
+
+
+def t_ppf(prob: float, df: float) -> float:
+    """Student-t quantile: the ``t`` with P(T <= t) = ``prob`` (bisection on t_sf)."""
+    if not 0.0 < prob < 1.0 or df <= 0:
+        return math.nan
+    lo, hi = -1e3, 1e3
+    for _ in range(200):
+        mid = 0.5 * (lo + hi)
+        if 1.0 - t_sf(mid, df) < prob:
+            lo = mid
+        else:
+            hi = mid
+    return 0.5 * (lo + hi)
+
+
+def _as_arrays(n, s, ss, raw_s, market_var):
+    n = np.asarray(n, dtype=float)
+    s = np.asarray(s, dtype=float)
+    ss = np.asarray(ss, dtype=float)
+    raw_s = s if raw_s is None else np.asarray(raw_s, dtype=float)
+    mvar = np.zeros_like(n) if market_var is None else np.asarray(market_var, dtype=float)
+    return n, s, ss, raw_s, mvar
+
+
+def _split_stats(n, s, ss, raw_s, mvar, k):
+    """Shift, raw shift, standard error and dof at each split in ``k`` (vectorised)."""
+    cn, cs, css, craw = np.cumsum(n), np.cumsum(s), np.cumsum(ss), np.cumsum(raw_s)
+    cmk = np.cumsum(n * n * mvar)
+    total_n = cn[-1]
     n1, n2 = cn[k - 1], total_n - cn[k - 1]
     s1 = cs[k - 1]
     m1, m2 = s1 / n1, (cs[-1] - s1) / n2
     within = np.maximum(css[k - 1] - n1 * m1 * m1, 0.0) + np.maximum(
         (css[-1] - css[k - 1]) - n2 * m2 * m2, 0.0
     )
-    dof = total_n - 2
+    dof = float(total_n - 2)
     market_1 = cmk[k - 1] / (n1 * n1)
     market_2 = (cmk[-1] - cmk[k - 1]) / (n2 * n2)
     se = np.sqrt(within / dof * (1.0 / n1 + 1.0 / n2) + market_1 + market_2)
-    diff = m2 - m1
-    with np.errstate(divide="ignore", invalid="ignore"):
-        t = np.where(se > 0, diff / se, np.where(diff != 0, np.inf * np.sign(diff), 0.0))
+    raw_diff = (craw[-1] - craw[k - 1]) / n2 - craw[k - 1] / n1
+    return m2 - m1, raw_diff, se, dof
 
-    best = int(np.argmax(np.abs(t)))
-    split = int(k[best])
-    p_one_split = 2.0 * t_sf(float(abs(t[best])), float(dof))
-    raw_before = craw[split - 1] / n1[best]
-    raw_after = (craw[-1] - craw[split - 1]) / n2[best]
-    return Changepoint(
-        index=split,
-        delta=float(diff[best]),
-        raw_delta=float(raw_after - raw_before),
-        p_value=float(min(1.0, len(k) * p_one_split)),
-    )
+
+def _t_stat(diff: np.ndarray, se: np.ndarray) -> np.ndarray:
+    with np.errstate(divide="ignore", invalid="ignore"):
+        return np.where(se > 0, diff / se, np.where(diff != 0, np.inf * np.sign(diff), 0.0))
