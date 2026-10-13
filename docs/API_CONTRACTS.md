@@ -92,6 +92,25 @@ removed with the travel layer (tag `travel-layer-v1`).
 
 ## Python facade changes (`cri.api` and friends)
 
+- **Property positions and neighbourhoods** (2026-10-13, additive; without
+  positions every existing result is unchanged).
+  - `ClusterData.locations` (optional, last field) and
+    `load_cluster(..., locations=path_or_frame)`; the SYNTHETIC sample gets its
+    generated positions. `$CRI_LOCATIONS_PATH` is the default for other data.
+  - `property_locations(d)` → `property_id, lat, lon, zone`.
+  - `neighbourhoods(d)` → `aspect, change_month, delta, n_members, members,
+    radius_km, centre_lat, centre_lon, p_value, gaps` (`cri.neighbourhood`,
+    methodology section 13).
+  - New values: `market_scope.scope` / `destination_summary.scope` may be
+    `neighbourhood-wide`; `priority_actions.whose_problem` may be
+    `your neighbourhood's`. Real row from the snapshot (Property B):
+
+    ```json
+    {"aspect": "Location", "started": "2025-03", "whose_problem": "your neighbourhood's",
+     "whose_detail": "Location fell at you and 3 neighbours within 0.27 km (Property C, Property E, Property H) from 2025-03: you -0.73 and the group -0.69 relative to the rest of the market; a decline this concentrated in one place arises by chance with p = 0.018"}
+    ```
+  - The web snapshot gains `locations`, `locations_exact` and `neighbourhoods`.
+
 - **`priority_actions` → `whose_problem`, `whose_detail`** (2026-10-13, additive; no
   column removed or renamed). `whose_problem` ∈ `yours alone | everyone's |
   not tested`, derived **per property** (rules: `docs/SYSTEM_DESIGN.md`), never joined

@@ -73,15 +73,16 @@ whether its competitors had the same month.
 ## 2. Who it is for and what it answers
 
 **One user: the hotel or homestay owner** (or the manager who runs the property).
-**One question, asked before a fix and after it:** is this decline mine or the
-market's?
+**One question, asked before a fix and after it:** is this decline mine, my
+neighbourhood's, or the market's?
 
 | Question | Output |
 |---|---|
-| What should I fix first, and **whose problem is it?** | Ranked priority actions (gap to the cluster × share of mentions), each tested per property: `yours alone`, `everyone's` or `not tested` |
+| What should I fix first, and **whose problem is it?** | Ranked priority actions (gap to the cluster × share of mentions), each tested per property: `yours alone`, `your neighbourhood's`, `everyone's` or `not tested` |
 | Where do I lead or lag my cluster? | Per-aspect scorecard with review-level 95% confidence intervals and multiple-testing-controlled lead/lag flags |
 | Did something change, and since when? | Changepoints in sentiment **relative to the market**, with the month the shift began |
-| Which declines are market-wide? | Each negative shift labelled `market-wide`, `property-specific` or `undetermined` |
+| Which declines are market-wide? | Each negative shift labelled `market-wide`, `neighbourhood-wide`, `property-specific` or `undetermined` |
+| Is it my street? | With property positions: a spatial scan finds declines shared by nearby properties, drawn on an OpenStreetMap map |
 | Did my fix work? | Before/after change **minus the market's change**, with placebo rank and minimum detectable effect |
 | What exactly did guests say? | Every label traced to the clause it came from; try your own review |
 
@@ -102,12 +103,13 @@ Cleanliness, Booking Experience** (configurable in `src/cri/resources/aspects.ya
 | Benchmark | Cluster benchmark with review-level bootstrap 95% CIs; FDR-controlled lead/lag flags | Implemented | `src/cri/benchmark.py` |
 | Trends | "Is it me?": significance-tested changepoints relative to the market | Implemented | `src/cri/benchmark.py`, `src/cri/changepoint.py` |
 | Trends | "Is it the market?": seasonal dips and step declines tested across properties | Implemented | `src/cri/benchmark.py` |
+| Trends | "Is it my neighbourhood?": spatial scan with a permutation test over property positions | Implemented | `src/cri/neighbourhood.py`, `src/cri/locations.py` |
 | Insight | Priority actions ("fix this first"), each with whose problem it is, and the destination view | Implemented | `src/cri/insights.py` |
 | Insight | "Did my fix work?": market-adjusted before/after with timing check and placebo rank | Implemented | `src/cri/intervention.py` |
 | Interface | Stable review-intelligence facade | Implemented | `src/cri/api.py` |
 | Interface | HTTP API (FastAPI): live classification for the explorer, validated input, CORS | Implemented | `src/cri/server.py` |
-| Interface | Next.js web app, the only user interface | Implemented | `web/` |
-| Quality | Reproducible calibration of every detector on SYNTHETIC data | Implemented | `python -m cri.calibration`, `scripts/calibrate_intervention.py` |
+| Interface | Next.js web app, the only user interface; maps on an OpenFreeMap basemap (no API key) | Implemented | `web/` |
+| Quality | Reproducible calibration of every detector on SYNTHETIC data | Implemented | `python -m cri.calibration`, `scripts/calibrate_intervention.py`, `scripts/calibrate_neighbourhood.py` |
 | Quality | Evaluation harness: aspect P/R/F1, sentiment macro-F1, confusion matrix, error analysis | Implemented | `eval/predict.py`, `eval/score.py` |
 | Quality | Tests: pattern recovery, null-data silence, API contract, HTTP API, learned-model parity, demo claims; CI also type-checks and builds the web app | Implemented | `tests/`, `.github/workflows/ci.yml` |
 | Quality | Clause-level accuracy on real hand-labelled reviews | `TBD` (needs labelled data) | `docs/TODO_RESULTS.md` |
@@ -266,7 +268,9 @@ flowchart TD
     P -- No --> UD["Undetermined<br/>cannot separate market from property;<br/>priorities use the property's own history"]
     P -- Yes --> M{"Market pattern?<br/>seasonal dip recurring every year, or step decline,<br/>shared by at least 60% of properties<br/>(drop >= 0.3, BH q <= 0.05)"}
     M -- Yes --> MW["Market-wide<br/>everyone's: not a gap against competitors"]
-    M -- No --> C{"Property declined relative to the market?<br/>(BH q <= 0.05, effect >= 0.4)"}
+    M -- No --> NB{"Positions known, and a decline shared by<br/>properties within 1 km? (permutation p <= 0.05)"}
+    NB -- Yes --> NW["Neighbourhood-wide<br/>your neighbourhood's: act together"]
+    NB -- No --> C{"Property declined relative to the market?<br/>(BH q <= 0.05, effect >= 0.4)"}
     C -- Yes --> PS["Property-specific<br/>a competitive gap the property owns"]
     C -- No --> ST["Stable<br/>no significant negative shift"]
 ```
@@ -278,13 +282,19 @@ A market-wide label is never copied onto a property's row:
 - **yours alone**: the property declined relative to the market, or lags the market
   with no market-wide pattern on the aspect, or still lags once the market-wide
   patterns it takes part in are set aside;
+- **your neighbourhood's**: the property is one of at least 3 nearby properties
+  whose shared decline the spatial scan found (needs property positions; a
+  market-wide pattern takes precedence);
 - **everyone's**: the lag disappears once those patterns are set aside;
 - **not tested**: fewer than 3 properties review the aspect, or too few reviews remain
   outside the pattern.
 
 Example (SYNTHETIC): Room has a market-wide December dip at 12/12 properties, but
 Property D is still 0.36 below the market outside December, so its Room priority is
-**yours alone**.
+**yours alone**. Location fell from 2025-03 at Properties B, C, E and H, which sit
+within 0.27 km of each other: only C's decline is visible on its own, but pooled the
+scan finds it (p = 0.018), so each of them is told **your neighbourhood's**.
+Method and calibration: [`docs/methodology.md`](docs/methodology.md) section 13.
 
 ### 6.3 Did my fix work?
 
@@ -436,7 +446,15 @@ found in only 14/50: at this volume the check is underpowered for small changes,
 it reports the minimum detectable effect. Details:
 [`docs/methodology.md`](docs/methodology.md) section 12.
 
-### 10.3 Learned sentiment model
+### 10.3 "Is it my neighbourhood?" (SYNTHETIC simulations)
+
+Reproduce with `python scripts/calibrate_neighbourhood.py` (100 simulated
+12-property clusters per scenario). Four clustered neighbours that decline together
+were found in **100/100** (exactly those four in 95/100); the same four scattered
+over the town were grouped in **1/100**; with nothing changed, 3/100 were flagged.
+Details: [`docs/methodology.md`](docs/methodology.md) section 13.
+
+### 10.4 Learned sentiment model
 
 Held-out test sets, macro-F1 with a 95% bootstrap interval; reproduce with
 `python scripts/train_sentiment.py --model open|region`.
@@ -452,7 +470,7 @@ seeds vs 15/20), so **`rule` stays the default**. Details:
 [`docs/AI_MODEL.md`](docs/AI_MODEL.md) and the model card
 [`src/cri/resources/models/MODEL_CARD.md`](src/cri/resources/models/MODEL_CARD.md).
 
-### 10.4 Clause-level accuracy on real reviews
+### 10.5 Clause-level accuracy on real reviews
 
 | Metric (real labelled data) | Rule baseline | Model backend |
 |---|---|---|
@@ -470,7 +488,7 @@ python eval/predict.py eval/labelled/gold.csv --out eval/labelled/predictions.cs
 python eval/score.py eval/labelled/gold.csv --predictions eval/labelled/predictions.csv
 ```
 
-### 10.5 Figures (SYNTHETIC data)
+### 10.6 Figures (SYNTHETIC data)
 
 | Aspect benchmark: a property vs its cluster | Cluster heatmap: property x aspect |
 |---|---|
@@ -493,7 +511,7 @@ All four are regenerated by `scripts/make_figures.py` from `seed=42`. They depic
   years, only large shifts are detected at a 5% false-discovery rate. Thresholds are
   not loosened to inflate recall.
 - **False-discovery control, not zero false alarms.** Once a real finding exists,
-  Benjamini–Hochberg admits more marginal ones (about 0.1 extra changepoints per
+  Benjamini–Hochberg admits more marginal ones (about 0.15 extra changepoints per
   synthetic seed).
 - **Seasonality needs two years.** A dip is called seasonal only if it recurs in every
   observed year.
@@ -552,13 +570,14 @@ src/cri/api.py      review-intelligence facade (stable contract)
 src/cri/server.py   FastAPI service: live classify for the explorer
 src/cri/            schema, loader, sources, generate, normalize, classify, pipeline,
                     benchmark, changepoint, insights, intervention, calibration,
-                    transformer_backend, learned_backend
+                    locations, neighbourhood, transformer_backend, learned_backend
 src/cri/resources/  aspects.yaml, lexicon.yaml, models/ (shipped open model)
 eval/               predict.py, score.py, labelling guide, split_labels.py
 scripts/            demo, make_figures, capture_screenshots, calibrate_intervention,
-                    prepare_region_reviews, train_sentiment
+                    calibrate_neighbourhood, prepare_region_reviews, train_sentiment
 tests/              pattern recovery, API, server, learned model, demo claims
 data/sample/        SYNTHETIC reviews (committed); data/raw/ is gitignored
+data/locations/     SYNTHETIC property positions (kept out of the reviews folder)
 docs/               PRD, SRS, SYSTEM_DESIGN, AI_MODEL, BUSINESS_MODEL, DATA_SOURCES,
                     API_CONTRACTS, IMPLEMENTATION_PLAN, DEMO, DEPLOYMENT,
                     methodology, data_schema, CREDITS, TODO_RESULTS, img/, screenshots/

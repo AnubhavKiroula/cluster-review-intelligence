@@ -32,7 +32,7 @@ Reproduce with `python -m cri.calibration --seeds 1-20` (details: methodology §
 | Property F food decline found (±1 month)  | 15/20  | 0.53–0.89     | misses are seeds whose injected drop is small |
 | Room-December found market-wide           | 20/20  | 0.84–1.00     | |
 | Pattern-free seeds with any false alarm   | 1/20   | —             | previous fixed-threshold detectors: 20/20 |
-| Extra changepoints per injected seed      | 0.10   | —             | FDR (not FWER) control; see methodology §11 |
+| Extra changepoints per injected seed      | 0.15   | —             | FDR (not FWER) control; one is a side effect of the neighbourhood pattern on the market reference (methodology §13) |
 
 ## "Did my fix work?" check (SYNTHETIC simulations, reproducible)
 
@@ -83,6 +83,20 @@ dropped with the layer on 2026-10-13; they are at the git tag `travel-layer-v1`.
 |---|---|
 | Agreement of verdicts with owner-confirmed causes, on real clusters | TBD: needs a real dated export and owner feedback |
 | Share of priorities owners act on (pilot) | TBD: no users yet |
+
+## Neighbourhood scan (SYNTHETIC simulations, reproducible)
+
+Reproduce with `python scripts/calibrate_neighbourhood.py` (details: methodology §13).
+Simulated 12-property clusters, 100 seeds per scenario, 199 permutations per scan.
+
+| Scenario                                          | Flagged neighbourhood-wide | Wilson 95% CI |
+|---------------------------------------------------|----------------------------|---------------|
+| Nothing changed                                   | 3/100                      | 0.01–0.08     |
+| 4 clustered neighbours decline                    | 100/100 (exact 4: 95/100)  | 0.96–1.00     |
+| The same 4 decline, scattered                     | 1/100                      | 0.00–0.05     |
+| 1 property declines inside the neighbourhood      | 4/100                      | 0.02–0.10     |
+| The whole market declines                         | 6/100                      | 0.03–0.12     |
+| Real neighbourhood-level declines (e.g. dated road works) | TBD                | TBD           |
 
 ## Web app and API
 
