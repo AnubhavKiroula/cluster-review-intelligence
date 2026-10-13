@@ -83,6 +83,7 @@ charts in `lib/theme.ts`. Colours carry meaning, and the same meaning on every p
 | `--buransh` (rhododendron) | `#B4235A` | Worse, behind the cluster, *yours alone* |
 | `--slate` | `#4A6386` | The market, *everyone's*; also the SYNTHETIC strip |
 | `--stone` | `#737F79` | Neutral, on par, not tested |
+| `--marigold` | `#9A6608` | *Your neighbourhood's*: a decline nearby properties share |
 | `--mist` / `--ink` | `#EEF2F0` / `#1F2D27` | Page background / text |
 
 Light values shown; the dark variant of each is in `globals.css` and `lib/theme.ts`.
@@ -94,6 +95,13 @@ Light values shown; the dark variant of each is in `globals.css` and `lib/theme.
   market's change over the same months, and what is left for the property alone, on a
   shared zero. It is the product's question in one figure, so it appears on home,
   `/property/` (top priority) and `/fix-check/`.
+- **Maps** (`components/ClusterMap.tsx`): Plotly's MapLibre map (`scattermap`, already
+  in `plotly.js-dist-min`, so no new dependency) on OpenFreeMap vector tiles
+  (Positron, or Dark in dark mode): free, no API key, attribution shown by MapLibre.
+  Each point is labelled with its status, not only coloured; a neighbourhood-wide
+  decline is a shaded circle; wheel-zoom is off so the page still scrolls; every map
+  has a "Show the numbers" table. `/market/?aspect=Location` deep-links the market map.
+  Positions are SYNTHETIC in the sample; real ones are grid-snapped by the exporter.
 - **SYNTHETIC label:** `SyntheticBanner` is built to be rendered once by
   `app/layout.tsx`, so no page can omit it. It is hidden for now; see above.
 - **Shareable views:** `/property/`, `/fix-check/` and `/explorer/` keep their

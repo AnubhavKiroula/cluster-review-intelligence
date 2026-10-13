@@ -2,8 +2,10 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import ClusterMap from "@/components/ClusterMap";
 import Plot from "@/components/Plot";
 import { fmtNum, fmtPct, syncQuery, useData } from "@/lib/data";
+import { haversineKm, positionsNote, statusFor } from "@/lib/geo";
 import {
   ChangeSplit,
   ChartNumbers,
@@ -162,6 +164,22 @@ export default function PropertyPage() {
   const shared = data.market_scope.filter(
     (s) => s.scope === "market-wide" && s.properties.split(", ").includes(prop),
   );
+  // A top priority shared with the neighbours: the response is collective.
+  const topHood =
+    top?.whose_problem === "your neighbourhood's"
+      ? data.neighbourhoods.find((h) => h.aspect === top.aspect && h.members.includes(prop))
+      : undefined;
+  const myHoods = data.neighbourhoods.filter((h) => h.members.includes(prop));
+  const here = data.locations.find((l) => l.property_id === prop);
+  const mapAspect = myHoods[0]?.aspect ?? top?.aspect ?? data.meta.aspects[0];
+  const mapHood = data.neighbourhoods.find((h) => h.aspect === mapAspect);
+  const nearby = here
+    ? data.locations
+        .filter((l) => l.property_id !== prop)
+        .map((l) => ({ id: l.property_id, km: haversineKm(here, l) }))
+        .sort((a, b) => a.km - b.km)
+        .slice(0, 3)
+    : [];
   const leads = pdata.scorecard.filter((r) => r.flag === "lead").map((r) => r.aspect);
   const lags = pdata.scorecard.filter((r) => r.flag === "lag").map((r) => r.aspect);
 
@@ -192,18 +210,19 @@ export default function PropertyPage() {
       {actions.length === 0 ? (
         <Info>Nothing lags the cluster enough to flag. This property is on par.</Info>
       ) : (
-        <section className="priority" aria-labelledby="priority-title">
+        <section className={topHood ? "priority hood" : "priority"} aria-labelledby="priority-title">
           <div className="priority-head">
             <h2 id="priority-title">
-              Fix {top.aspect} first{top.started ? ` since ${top.started}` : ""}
+              {topHood ? `Raise ${top.aspect} with your neighbours` : `Fix ${top.aspect} first`}
+              {top.started ? ` since ${top.started}` : ""}
             </h2>
             <WhosePill value={top.whose_problem} />
           </div>
-          <div className={topShift ? "priority-body with-split" : "priority-body"}>
+          <div className={topShift || topHood ? "priority-body with-split" : "priority-body"}>
             <div className="priority-text">
               <p>{top.rationale}</p>
               <p>
-                <strong>You or the market?</strong> {top.whose_detail}.
+                <strong>Whose problem is it?</strong> {top.whose_detail}.
               </p>
               <details>
                 <summary>Evidence</summary>
@@ -225,7 +244,25 @@ export default function PropertyPage() {
                 </ul>
               </details>
             </div>
-            {topShift && (
+            {topHood && (
+              <ChangeSplit
+                rows={[
+                  {
+                    label: "You",
+                    note: "your shift, relative to the rest of the market",
+                    value: topHood.gaps[prop] ?? null,
+                  },
+                  {
+                    label: "Your neighbourhood",
+                    note: `${topHood.n_members} properties within ${topHood.radius_km.toFixed(2)} km, together`,
+                    value: topHood.delta,
+                    verdict: true,
+                  },
+                ]}
+                caption={`Change in mean ${top.aspect.toLowerCase()} sentiment from ${topHood.change_month}, relative to the properties outside the neighbourhood (−1 to +1). The rest of the market is the zero line.`}
+              />
+            )}
+            {!topHood && topShift && (
               <ChangeSplit
                 rows={[
                   { label: "Your reviews", note: "plain before and after", value: topShift.raw_delta },
@@ -282,6 +319,38 @@ export default function PropertyPage() {
             <Link href="/market/">the market</Link>.
           </p>
         </aside>
+      )}
+
+      {here && (
+        <section aria-labelledby="hood-title">
+          <div className="section-heading">
+            <h2 id="hood-title">Your neighbourhood</h2>
+            <p>
+              {myHoods.length
+                ? `You share a decline with nearby properties on ${myHoods.map((h) => h.aspect).join(", ")}.`
+                : "No decline is shared with your neighbours: nothing nearby moved together."}{" "}
+              Nearest: {nearby.map((n) => `${n.id} (${n.km.toFixed(2)} km)`).join(", ")}.
+            </p>
+          </div>
+          <div className="chart-panel map-panel">
+            <ClusterMap
+              height={340}
+              locations={data.locations}
+              neighbourhoods={mapHood ? [mapHood] : []}
+              points={data.meta.properties.map((p) => {
+                const st = statusFor(data, p, mapAspect, C, mapHood);
+                return { id: p, status: st.word, color: st.color, focus: p === prop };
+              })}
+              summary={`Map of the cluster for ${mapAspect}, with ${prop} drawn larger. ${
+                mapHood ? `Neighbourhood-wide decline at ${mapHood.members.join(", ")}.` : ""
+              }`}
+            />
+          </div>
+          <p className="caption">
+            Showing {mapAspect}. {positionsNote(data)} Basemap © OpenStreetMap contributors,
+            OpenMapTiles, OpenFreeMap. <Link href={`/market/?aspect=${encodeURIComponent(mapAspect)}`}>Open the market map</Link>.
+          </p>
+        </section>
       )}
 
       <SectionHeading

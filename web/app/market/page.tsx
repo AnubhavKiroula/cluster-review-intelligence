@@ -1,9 +1,12 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
+import ClusterMap from "@/components/ClusterMap";
 import Plot from "@/components/Plot";
-import { fmtPct, useData } from "@/lib/data";
+import { fmtPct, syncQuery, useData } from "@/lib/data";
+import { nearestKm, positionsNote, statusFor } from "@/lib/geo";
 import {
+  ChartNumbers,
   DownloadCsv,
   ErrorState,
   Info,
@@ -17,6 +20,7 @@ import { SCOPE_VARS, scopeColors, usePalette } from "@/lib/theme";
 // Shape as well as colour tells the scopes apart.
 const SCOPE_SYMBOLS: Record<string, string> = {
   "market-wide": "circle",
+  "neighbourhood-wide": "hexagon",
   "property-specific": "diamond",
   undetermined: "square",
   stable: "triangle-up",
@@ -26,6 +30,20 @@ export default function MarketPage() {
   const { data, error } = useData();
   // Charts need literal colours for the viewer's scheme (light or dark).
   const C = usePalette();
+  const [mapAspect, setMapAspect] = useState("");
+
+  // Default to an aspect with a neighbourhood-wide decline, else the headline aspect.
+  // Deep link: /market/?aspect=Location
+  useEffect(() => {
+    if (!data || mapAspect) return;
+    const wanted = new URLSearchParams(window.location.search).get("aspect");
+    const fallback = data.neighbourhoods[0]?.aspect ?? data.market_headline?.aspect ?? data.meta.aspects[0];
+    setMapAspect(wanted && data.meta.aspects.includes(wanted) ? wanted : fallback);
+  }, [data, mapAspect]);
+
+  useEffect(() => {
+    if (mapAspect) syncQuery({ aspect: mapAspect });
+  }, [mapAspect]);
 
   const chart = useMemo(() => {
     if (!data) return null;
@@ -75,6 +93,14 @@ export default function MarketPage() {
 
   const headline = data.market_headline;
   const count = (scope: string) => data.market_scope.filter((row) => row.scope === scope).length;
+  const hood = data.neighbourhoods.find((h) => h.aspect === mapAspect);
+  const nearest = nearestKm(data.locations);
+  const mapRows = data.meta.properties.map((p) => {
+    const status = statusFor(data, p, mapAspect, C, hood);
+    const loc = data.locations.find((l) => l.property_id === p);
+    return { property: p, status: status.word, color: status.color, zone: loc?.zone ?? "—",
+             nearest: nearest.get(p) };
+  });
 
   return (
     <>
@@ -102,6 +128,10 @@ export default function MarketPage() {
           <dd style={{ color: SCOPE_VARS["market-wide"] }}>{count("market-wide")}</dd>
         </div>
         <div>
+          <dt>Shared by one neighbourhood</dt>
+          <dd style={{ color: SCOPE_VARS["neighbourhood-wide"] }}>{count("neighbourhood-wide")}</dd>
+        </div>
+        <div>
           <dt>Belong to one property</dt>
           <dd style={{ color: SCOPE_VARS["property-specific"] }}>{count("property-specific")}</dd>
         </div>
@@ -110,6 +140,82 @@ export default function MarketPage() {
           <dd>{count("undetermined")}</dd>
         </div>
       </dl>
+
+      {data.locations.length > 0 && mapAspect && (
+        <section aria-labelledby="where-title">
+          <div className="section-heading">
+            <h2 id="where-title">Where it is happening</h2>
+            <p>
+              Each point is a property, labelled with its status for one aspect. A shaded circle
+              marks a decline that nearby properties share and the rest of the market does not.
+            </p>
+          </div>
+          <div className="controls">
+            <div className="field">
+              <label htmlFor="map-aspect">Aspect</label>
+              <select id="map-aspect" name="aspect" value={mapAspect} onChange={(e) => setMapAspect(e.target.value)}>
+                {data.meta.aspects.map((a) => (
+                  <option key={a} value={a}>
+                    {a}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+          {hood && (
+            <aside className="note hood">
+              <h3>
+                {hood.aspect}: a neighbourhood problem since {hood.change_month}
+              </h3>
+              <p>
+                {hood.members.join(", ")} declined together, by {(-hood.delta).toFixed(2)} on
+                average relative to the rest of the market, within {hood.radius_km.toFixed(2)} km
+                of each other. A decline this concentrated in one place arises by chance with
+                p = {hood.p_value.toFixed(3)}. The useful response is shared: neighbours, the hotel
+                association or the municipality, not each property on its own.
+              </p>
+            </aside>
+          )}
+          <div className="chart-panel map-panel">
+            <ClusterMap
+              locations={data.locations}
+              neighbourhoods={hood ? [hood] : []}
+              points={mapRows.map((r) => ({ id: r.property, status: r.status, color: r.color }))}
+              summary={`Map of ${data.locations.length} properties for ${mapAspect}. ${
+                hood
+                  ? `Neighbourhood-wide decline since ${hood.change_month} at ${hood.members.join(", ")}.`
+                  : "No neighbourhood-wide decline for this aspect."
+              }`}
+            />
+            <ChartNumbers
+              caption={`Status of each property for ${mapAspect}`}
+              rows={mapRows}
+              columns={[
+                { key: "property", label: "Property" },
+                {
+                  key: "status",
+                  label: "Status",
+                  render: (r) => (
+                    <span className="scope" style={{ "--tone": r.color } as React.CSSProperties}>
+                      {r.status}
+                    </span>
+                  ),
+                },
+                { key: "zone", label: "Zone" },
+                {
+                  key: "nearest",
+                  label: "Nearest property",
+                  align: "right",
+                  render: (r) => (r.nearest == null || !isFinite(r.nearest) ? "—" : `${r.nearest.toFixed(2)} km`),
+                },
+              ]}
+            />
+          </div>
+          <p className="caption">
+            {positionsNote(data)} Basemap © OpenStreetMap contributors, OpenMapTiles, OpenFreeMap.
+          </p>
+        </section>
+      )}
 
       {!chart ? (
         <Info>No aspect shows a negative shift to classify yet.</Info>

@@ -2,6 +2,7 @@
    Palette from the Uttarakhand hills, light and dark (same values as lib/theme.ts):
      deodar  = better / ahead of the cluster   buransh (rhododendron) = worse / yours alone
      slate   = the market, everyone's          stone = neutral, on par, not tested
+     marigold = your neighbourhood's (a decline shared by nearby properties)
    Type: Source Serif 4 for headings, Public Sans for everything else (next/font). */
 
 :root {
@@ -18,7 +19,7 @@
   --buransh: #b4235a;
   --slate: #4a6386;
   --stone: #737f79;
-  --marigold: #c98a12;
+  --marigold: #9a6608;
   --deodar-tint: #e3ede8;
   --buransh-tint: #f8e7ee;
   --slate-tint: #e6ebf2;
@@ -501,7 +502,7 @@ input:hover {
 
 .contrast {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 330px), 1fr));
   gap: 20px;
 }
 
@@ -723,6 +724,28 @@ input:hover {
   border: 1px solid var(--line);
   border-left: 4px solid var(--buransh);
   border-radius: var(--radius);
+}
+
+.priority.hood {
+  border-left-color: var(--marigold);
+}
+
+.note.hood {
+  background: var(--marigold-tint);
+  margin-bottom: 16px;
+}
+
+.note.hood h3 {
+  color: var(--ink);
+}
+
+.map-panel {
+  padding: 0;
+  overflow: hidden;
+}
+
+.map-panel .chart-numbers {
+  margin: 10px 14px 14px;
 }
 
 .priority-head h2 {

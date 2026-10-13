@@ -46,11 +46,12 @@ export default function Home() {
   if (!data) return <Loading />;
   const headline = data.market_headline;
   const own = ownProblemExample(data);
+  const hood = data.neighbourhoods[0];
 
   return (
     <>
       <section className="home-hero">
-        <h1>Your reviews got worse. Is it your property, or the whole market?</h1>
+        <h1>Your reviews got worse. Is it your property, your street, or the whole market?</h1>
         <p className="lede">
           One property&apos;s reviews cannot answer that. A December dip that hits every hotel in a
           hill town needs a different response from a kitchen problem only you have. Compare
@@ -111,6 +112,28 @@ export default function Home() {
               your competitors.
             </p>
             <Link href="/market/">See the market view</Link>
+          </article>
+        )}
+        {hood && (
+          <article className="contrast-case">
+            <header>
+              <h3>
+                {hood.n_members} neighbours: {hood.aspect} since {hood.change_month}
+              </h3>
+              <WhosePill value="your neighbourhood's" />
+            </header>
+            <ChangeSplit
+              rows={hood.members.map((m) => ({
+                label: m,
+                note: "vs the rest of the market",
+                value: hood.gaps[m] ?? null,
+              }))}
+            />
+            <p>
+              Each is too small to prove alone; together, within {hood.radius_km.toFixed(2)} km,
+              the decline is clear (p = {hood.p_value.toFixed(3)}). Raise it together, not one by one.
+            </p>
+            <Link href={`/market/?aspect=${encodeURIComponent(hood.aspect)}`}>See it on the map</Link>
           </article>
         )}
       </section>
