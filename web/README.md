@@ -19,7 +19,14 @@ chart panels, and responsive layouts keep the experience consistent across every
 cri.api (Python)  ──  web/scripts/export_snapshot.py  ──▶  web/public/data/cluster.synthetic.json  ──▶  Next.js (client fetch)
 ```
 
-Regenerate the snapshot whenever the analytics change:
+The **Did my fix work?** page (`/fix-check/`) needs a result for every property × aspect ×
+month the user can pick, and there is no backend to compute one on demand. So the exporter
+also writes `web/public/data/fixcheck.synthetic.json` with every combination precomputed
+(2,208 checks on the sample; a few minutes). Only that page fetches it. Deep link for the
+demo: `/fix-check/?property=Property%20A&aspect=Room&month=2025-12`.
+
+Regenerate the snapshots whenever the analytics change (`--skip-fix-check` for a quick
+re-export of the main snapshot only):
 
 ```bash
 # from the repo root, with the project installed (pip install -e ".[dashboard]")
@@ -59,5 +66,9 @@ in `public/`, so no build-time Python is needed.
 ## Notes
 
 - Dependencies are pinned (CLAUDE.md). Charts use Plotly.js (lazy-loaded client-side).
-- Pages are client components; `cluster.synthetic.json` is fetched at runtime from `/data/`.
+- Pages are client components; the snapshots are fetched at runtime from the root-relative
+  `/data/` (`dataUrl` in `lib/data.tsx`). A relative `data/...` URL resolved against the
+  current route, so any page opened directly (e.g. `/property/?property=…`) failed to load.
+  Root-relative URLs assume the site is served at a domain root (Vercel, Netlify); a GitHub
+  Pages project site under `/<repo>/` would need `basePath` in `next.config.mjs`.
 - `trailingSlash: true` so routes resolve as `/property/` on any static host.

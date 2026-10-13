@@ -61,7 +61,7 @@ Simulated 6-property clusters; "naive" = plain before/after on the property alon
 
 - Streamlit dashboard: **built** (`app/`), every page tested headlessly in CI.
   Real screenshots on SYNTHETIC data: `docs/screenshots/*_SYNTHETIC.png`.
-- Public deployment URL (Streamlit Community Cloud): `TBD` (steps in
+- Public deployment URL (Next.js static site on Vercel): `TBD` (steps in
   `docs/DEPLOYMENT.md`).
 
 ## Deployment / OpenSSF Scorecard
