@@ -88,9 +88,41 @@ charts in `lib/theme.ts`. Colours carry meaning, and the same meaning on every p
 
 Light values shown; the dark variant of each is in `globals.css` and `lib/theme.ts`.
 
-- **Type:** Source Serif 4 for headings, Public Sans for everything else, both
-  self-hosted by `next/font` at build time (no requests to Google from the browser;
-  credits in `docs/CREDITS.md`). Numbers use tabular figures.
+Every page is built as **two zones**: the verdict (roomy, set in the serif, the one
+place with elevation and load motion) and the evidence for it (dense, flat, tabular),
+with a labelled rule between them so a reader always knows which of the two they are
+reading (`ZoneRule` in `components/ui.tsx`).
+
+- **Type:** Literata for headings and the figures that carry a verdict, IBM Plex Sans
+  for the interface and the numbers, and IBM Plex Sans Devanagari behind it in the same
+  stack, all self-hosted by `next/font` at build time (no requests to Google from the
+  browser; credits in `docs/CREDITS.md`). The Devanagari face is not decoration: 781 of
+  the 5,124 sample reviews contain Devanagari, so Hindi clauses in the explorer resolve
+  to a face from the same family instead of a system fallback. Sizes come from the
+  `--t-*` scale in `globals.css` rather than ad-hoc values; numbers use tabular figures.
+- **Motion** (`lib/motion.ts`, GSAP, loaded dynamically so it never blocks first
+  paint): three rules hold everywhere. The DOM already holds the final state, so every
+  helper animates *towards* what the markup rendered and a reader with reduced motion,
+  without JavaScript or with a failed GSAP chunk still sees the finished figure.
+  Motion carries meaning — a bar grows because the quantity grows, a number counts
+  because it is a count — and nothing fades in merely to arrive.
+  `prefers-reduced-motion: reduce` skips animation rather than shortening it.
+  There is one load animation on the site (`components/HeroFigure.tsx`, below) and at
+  most one animated element per other view. Scroll triggers use `IntersectionObserver`,
+  not GSAP's ScrollTrigger, because Plotly measures its charts after mount and changes
+  section heights, which invalidates ScrollTrigger's cached positions.
+- **Home figure** (`components/HeroFigure.tsx`): the product's argument in the order it
+  makes it. A real property's monthly series draws left to right, the month it broke
+  appears, then the change split resolves underneath. Series, month and all three
+  deltas are read from the snapshot; only pixel positions are computed in the browser.
+- **Colour scheme:** light, dark, or match the device, chosen in the header
+  (`components/ThemeToggle.tsx`) and remembered in `localStorage`. CSS and charts
+  resolve the same scheme from one store (`useScheme` in `lib/theme.ts`), so they
+  cannot disagree. A synchronous inline script applies the stored choice before the
+  first paint (`lib/theme-boot.ts`); it has to be a plain `<script>` as the first child
+  of `<body>` — inside `<head>` the App Router drops it from the exported HTML, and
+  `next/script` with `beforeInteractive` only reaches the flight payload under
+  `output: export`, which runs after hydration and so too late to prevent the flash.
 - **Change split** (`ChangeSplit` in `components/ui.tsx`): the plain change, the
   market's change over the same months, and what is left for the property alone, on a
   shared zero. It is the product's question in one figure, so it appears on home,
@@ -112,15 +144,25 @@ Light values shown; the dark variant of each is in `globals.css` and `lib/theme.
 - **Shareable views:** `/property/`, `/fix-check/` and `/explorer/` keep their
   selections (and the explorer's search text) in the query string, so the address bar
   is always a deep link to what is on screen. The explorer shows 100 matches at a time
-  with *Show 100 more*.
-- **Dark mode:** follows the device setting (`prefers-color-scheme`). The CSS variables
-  switch in `globals.css`; charts get the matching literal colours from `usePalette()`
-  in `lib/theme.ts`, so the two lists must change together. The dark palette meets the
-  same targets (lowest text pair: the *not tested* tag, 5.6:1; lowest chart mark: the pale
-  change-split bar, 3.3:1).
+  with *Show 100 more*, marks the searched phrase where it landed in each clause
+  (`Highlight` in `components/ui.tsx`, the same literal case-insensitive comparison the
+  filter uses), and caps the result table's height so its column names stay in view.
+- **Loading:** the snapshot is one JSON file of a few megabytes, so on a hill-town
+  connection it is on screen for a while. `Loading` holds the shape of the page that is
+  coming instead of showing a line of text that is then replaced by a full page, which
+  moved everything under it.
+- **Dark palette:** the CSS variables switch in `globals.css` (once for the device
+  setting, once for an explicit choice — the two blocks must hold the same values);
+  charts get the matching literal colours from `usePalette()` in `lib/theme.ts`, so
+  those lists must change together too. The dark palette meets the same targets
+  (lowest text pair: the *not tested* tag, 5.6:1; lowest chart mark: the pale
+  change-split bar, 3.3:1). The palette itself is unchanged by the 2026-10 redesign.
 - **Accessibility:** skip link, visible `:focus-visible` outlines, labelled controls,
-  `aria-live` on results, scrollable tables reachable by keyboard; no layout wider than
-  the screen at 390 px.
+  `aria-live` on results, scrollable tables reachable by keyboard, and the scheme
+  control as a real `radiogroup` with arrow-key movement. Verified with a headless
+  browser: no heading level is skipped on any page, no control other than an inline
+  text link is under 24 px tall (WCAG 2.5.8), and no layout is wider than the screen at
+  320, 390 or 768 px.
 - **Contrast (WCAG 2.2 AA, measured):** text pairs are at least 4.5:1 (the lowest
   is the *not tested* tag, 4.7:1); chart marks, the change-split bars and
   form-control borders are at least 3:1 against white. Re-check when changing a colour.
@@ -130,7 +172,9 @@ Light values shown; the dark variant of each is in `globals.css` and `lib/theme.
 
 ## Notes
 
-- Dependencies are pinned (CLAUDE.md). Charts use Plotly.js (lazy-loaded client-side).
+- Dependencies are pinned (CLAUDE.md). Charts use Plotly.js and animation uses GSAP,
+  both lazy-loaded client-side; GSAP's licence is not OSI-approved and is spelled out in
+  `docs/CREDITS.md`.
 - Pages are client components; the snapshots are fetched at runtime from the root-relative
   `/data/` (`dataUrl` in `lib/data.tsx`), so a page opened directly by deep link (e.g.
   `/property/?property=…`) loads. Root-relative URLs assume the site is served at a domain
