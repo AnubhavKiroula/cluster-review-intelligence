@@ -2,6 +2,7 @@
   "name": "cluster-review-intelligence-web",
   "version": "0.1.0",
   "private": true,
+  "engines": { "node": "22.x" },
   "description": "Next.js frontend for Cluster Review Intelligence (reads a static snapshot exported from the Python cri.api core).",
   "scripts": {
     "dev": "next dev",
