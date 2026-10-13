@@ -1,5 +1,4 @@
 // Brand palette (docs/HACKATHON_PLAN.md section 4) + shared Plotly layout.
-// Mirrors app/theme.py so the Next.js and Streamlit frontends read as one product.
 
 export const COLORS = {
   navy: "#0B2545",

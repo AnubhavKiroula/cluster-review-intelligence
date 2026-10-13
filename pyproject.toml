@@ -22,7 +22,7 @@ dependencies = [
 [project.optional-dependencies]
 figures = ["matplotlib==3.10.8"]
 # Optional transformer sentiment backend (CRI_MODEL_BACKEND=transformer). Heavy:
-# not installed by default, in CI, or on Streamlit Cloud. See cri/transformer_backend.py.
+# not installed by default or in CI. See cri/transformer_backend.py.
 model = [
     "transformers==5.19.0",
     "torch==2.14.1",
@@ -37,13 +37,6 @@ dev = [
 api = [
     "fastapi==0.143.0",
     "uvicorn==0.54.0",
-]
-# pyarrow is pinned because streamlit 1.41.1 only asks for pyarrow>=7, and pyarrow 26
-# refuses numpy<2 at import time (every st.dataframe would crash on our numpy 1.26).
-dashboard = [
-    "plotly==5.24.1",
-    "pyarrow==25.0.1",
-    "streamlit==1.41.1",
 ]
 
 [project.scripts]

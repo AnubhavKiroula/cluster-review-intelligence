@@ -16,7 +16,7 @@ trend/changepoint -> dashboard. Users: property managers; tourism boards (destin
 
 ## Stack and conventions
 - Python 3.11+, `src/` layout, `pyproject.toml`, type hints, ruff + pytest.
-- Dashboard: Streamlit + Plotly. Static README figures: matplotlib via `scripts/make_figures.py` (reproducible).
+- UI: Next.js (`web/`, static export, Plotly.js) + FastAPI (`src/cri/server.py`). Static README figures: matplotlib via `scripts/make_figures.py` (reproducible).
 - Pin dependencies. GitHub Actions pinned to full commit SHAs (look up from official action repos; do not guess).
 - Small commits, Conventional Commits messages, work on feature branches, never push to main directly.
 
