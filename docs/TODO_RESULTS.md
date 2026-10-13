@@ -88,7 +88,10 @@ probe from the clause-level one in the transformer table above.
 - Next.js app (the only UI; Streamlit removed): **built**, type-checked and built in CI;
   every page verified in headless Edge with the API running (2026-10-13). Screenshots
   on SYNTHETIC data: `docs/screenshots/*_SYNTHETIC.png`.
-- Public URLs (static site and API): `TBD` (steps in `docs/DEPLOYMENT.md`).
+- Public URLs (static site on Cloudflare Workers Static Assets, API on Cloudflare
+  Containers): `TBD` (steps in `docs/DEPLOYMENT.md`).
+- Measured on Cloudflare: API cold start after sleep, warm latency, monthly cost: `TBD`
+  (local laptop figures, not Cloudflare, are in `docs/DEPLOYMENT.md` section 5).
 
 ## Deployment / OpenSSF Scorecard
 

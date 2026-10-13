@@ -677,27 +677,43 @@ data/sample/        SYNTHETIC reviews (committed); data/raw/ is gitignored
 docs/               PRD, SRS, SYSTEM_DESIGN, AI_MODEL, BUSINESS_MODEL, DATA_SOURCES,
                     API_CONTRACTS, IMPLEMENTATION_PLAN, DEMO_SCRIPT, DEMO, DEPLOYMENT,
                     methodology, data_schema, CREDITS, TODO_RESULTS, img/, screenshots/
-.github/workflows/  ci.yml (Python + web), codeql.yml, scorecard.yml (SHA-pinned)
+.github/workflows/  ci.yml (Python, web, deploy config), codeql.yml, scorecard.yml (SHA-pinned)
+deploy/cloudflare/api/  Cloudflare Worker + Container config for the API
+Dockerfile          API image (cri.server on port 8080)
 ```
 
 ## 16. Deployment
 
-Two pieces, neither needing secrets. The static web app can be served from any static
-host (Vercel is the documented primary). The API runs on any Python host that keeps a
-long-lived web process. Neither is deployed yet; URLs are `TBD`. Step-by-step
-instructions: [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md).
+Two pieces, neither needing secrets, both on Cloudflare:
+
+- **Web app:** the static export of `web/` on Workers Static Assets (`cri-web`).
+  Requests to static assets are free.
+- **API:** `cri.server`, unchanged, in a Docker container run by Cloudflare Containers
+  behind a small Worker (`cri-api`). This needs the Workers Paid plan. A Python Worker
+  cannot run the API: Workers allow 10 ms of CPU per request on the Free plan and
+  128 MB of memory on any plan.
+
+Neither is deployed yet; URLs are `TBD`. Step-by-step instructions, cost notes and
+what has been verified: [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md). Vercel or any
+static host, and any Python or Docker host, remain documented alternatives.
 
 ```mermaid
 flowchart LR
-    DEV["Developer"] -- "export_snapshot.py,<br/>commit snapshots" --> GH["GitHub repository<br/>main branch"]
-    GH -- "npm run build, root directory web/<br/>NEXT_PUBLIC_API_BASE_URL at build time" --> WEBH["Static host<br/>Next.js export (Vercel)"]
-    GH -- "pip install -e .[api]<br/>uvicorn cri.server:app" --> APIH["Python host<br/>FastAPI (cri.server)"]
-    USER["Browser"] --> WEBH
-    USER -- "travel pages, live classify<br/>(origin allowed by CRI_API_CORS_ORIGINS)" --> APIH
-    APIH -- "GET /health" --> HC["Health check"]
+    DEV["Developer"] -- "export_snapshot.py, then<br/>npm run build with<br/>NEXT_PUBLIC_API_BASE_URL" --> OUT["web/out<br/>static export"]
+    OUT -- "wrangler deploy<br/>web/wrangler.jsonc" --> WEB["cri-web<br/>Workers Static Assets<br/>(free)"]
+    DEV -- "wrangler deploy<br/>deploy/cloudflare/api<br/>(Docker builds the image)" --> W["cri-api Worker"]
+
+    subgraph CF["Cloudflare Containers (Workers Paid)"]
+        W -- "one named instance" --> C["Container: Dockerfile<br/>uvicorn cri.server:app :8080<br/>instance basic, sleeps after<br/>CONTAINER_SLEEP_AFTER"]
+    end
+
+    USER["Browser"] --> WEB
+    USER -- "travel pages, live classify<br/>(origin allowed by CRI_API_CORS_ORIGINS)" --> W
 ```
 
-Real review data is never deployed publicly.
+CI builds the API image and checks `/health` inside it, and type-checks the Worker,
+on every pull request (`deploy-config` job). Real review data is never deployed
+publicly, and is excluded from the image.
 
 ## 17. Roadmap
 
