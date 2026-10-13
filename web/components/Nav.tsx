@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import ThemeToggle from "@/components/ThemeToggle";
 
 const LINKS = [
   { href: "/property", label: "Your property" },
@@ -22,8 +23,11 @@ export default function Header() {
     <header className="site-header">
       <div className="site-header-inner">
         <Link href="/" className="wordmark" aria-current={isActive("/", pathname) ? "page" : undefined}>
-          <svg className="wordmark-mark" viewBox="0 0 32 20" aria-hidden>
-            <path d="M1 19 L10 6 L15 12 L21 3 L31 19 Z" />
+          {/* Two series that run together and then part: the question the site answers.
+              The solid line is the market, the dashed one the property that left it. */}
+          <svg className="wordmark-mark" viewBox="0 0 32 20" aria-hidden focusable="false">
+            <path d="M1 13 L10 8 L20 9.5 L31 5" />
+            <path className="mark-split" d="M10 8 L20 13.5 L31 18" />
           </svg>
           Cluster Review Intelligence
         </Link>
@@ -45,6 +49,7 @@ export default function Header() {
             })}
           </ul>
         </nav>
+        <ThemeToggle />
       </div>
     </header>
   );
