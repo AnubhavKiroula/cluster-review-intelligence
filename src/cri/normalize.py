@@ -36,6 +36,12 @@ _SPELLING = {
     "gnda": "ganda",
     "acha": "accha",
     "achha": "accha",
+    "achi": "accha",  # feminine / plural forms of the same adjective
+    "achhi": "accha",
+    "acchi": "accha",
+    "achhe": "accha",
+    "acche": "accha",
+    "nahin": "nahi",
     "saaf-safai": "saaf safai",
 }
 

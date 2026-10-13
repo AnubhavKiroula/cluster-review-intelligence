@@ -28,7 +28,7 @@ recall and confusion matrices: `sentiment_open.metrics.json`.
 | Test set | n | This model | Rule baseline | Majority class |
 |---|---|---|---|---|
 | SentiMix official test (tweets) | 2,997 | **0.663** (0.646–0.680) | 0.361 | 0.179 |
-| YouTube held-out 10% | 314 | **0.631** (0.573–0.682) | 0.317 | 0.209 |
+| YouTube held-out 10% | 314 | **0.631** (0.573–0.682) | 0.317 (0.367 after the 2026-10-13 rule fix) | 0.209 |
 | Hill-destination hotel reviews, hotel-grouped test (weak labels from stars) | 8,388 | 0.390 (0.378–0.402) | **0.557** | 0.311 |
 
 Whole-sentence polarity of the 36 SYNTHETIC generator templates: model 17/36, rules

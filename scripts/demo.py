@@ -16,6 +16,7 @@ LIVE_EXAMPLES = [
     "कमरा साफ़ था और view zabardast tha.",
     "Heater kaam nahi kar raha tha, raat bhar thand lagi.",
     "Staff bahut helpful tha, paisa vasool.",
+    "Khaana accha nahi tha.",
 ]
 
 

@@ -8,7 +8,9 @@
 #     before matching, so an entry with capitals could never match);
 #   - a word may not appear in both `positive` and `negative`;
 #   - single words match whole tokens; `*_phrases` match as substrings of a clause;
-#   - a `negation` token flips the sign of the next few sentiment words.
+#   - a `negation` token flips the sign of the next few sentiment words;
+#   - a `post_negation` token (Hindi negates what comes BEFORE it: "accha nahi tha")
+#     flips the sentiment word just before it, or else acts like `negation`.
 # Changing these lists changes classifier output: re-run `python -m pytest`.
 
 # Single positive words (English, romanised Hindi, then Devanagari).
@@ -110,9 +112,15 @@ negative_phrases:
 # Tokens that flip the polarity of the following sentiment words.
 negation:
 - bina
-- nahi
 - never
 - 'no'
 - not
 - without
+
+# Hindi negators: they follow the word they negate ("accha nahi" = not good).
+# Spelling variants such as "nhi" / "nahin" are mapped to "nahi" by cri.normalize.
+post_negation:
+- nahi
+- नहीं
+- नही
 

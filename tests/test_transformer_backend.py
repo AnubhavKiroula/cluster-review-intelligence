@@ -28,12 +28,13 @@ class FakeModel:
 
 
 def test_aspects_come_from_rules_and_sentiment_from_the_model():
-    fake = FakeModel(lambda c: -1 if "nahi" in c else 1)
+    fake = FakeModel(lambda c: -1 if "wah" in c else 1)
     clf = TransformerClassifier(sentiment_fn=fake)
-    # Rules miss this post-negation ("accha nahi" reads as positive); the model decides.
-    res = clf.classify_review("Khaana accha nahi tha.")
-    assert [(r.aspect, r.sentiment) for r in res] == [("Food", -1)]
-    assert RuleClassifier().classify_review("Khaana accha nahi tha.")[0].sentiment == 1
+    # Rules miss this sarcasm (Staff reads as neutral); the model decides.
+    text = "Wah kya staff hai, ek ghanta wait karaya."
+    res = clf.classify_review(text)
+    assert [(r.aspect, r.sentiment) for r in res] == [("Staff", -1)]
+    assert RuleClassifier().classify_review(text)[0].sentiment == 0
 
 
 def test_only_aspect_clauses_are_scored_each_distinct_clause_once():
