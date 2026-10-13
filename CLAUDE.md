@@ -3,7 +3,8 @@
 ## Purpose
 Cluster-level review analytics for Uttarakhand tourism (AI–Tourism Hackathon 2026, problem statement G5).
 Pipeline: ingest reviews -> normalise Hinglish text -> aspect + sentiment -> cluster benchmark ->
-trend/changepoint -> dashboard. Users: property managers; tourism boards (destination view).
+trend/changepoint -> dashboard. User: the hotel or homestay owner (one payer, supply side);
+the question: is a decline this property's problem or the whole market's?
 
 ## Non-negotiable rules
 1. NEVER fabricate results. No invented accuracy, F1, dataset sizes, quotes, or statistics anywhere

@@ -5,129 +5,134 @@ Living project state. Update at meaningful milestones.
 ## What is being built
 
 **G5 "Cluster Review Intelligence & Competitive Benchmarking"** (AI–Tourism
-Hackathon 2026) turns a tourism cluster's reviews into aspect-level, competitive,
-time-aware intelligence, and separates market-wide issues from property-specific
-ones.
+Hackathon 2026), for **one user: the hotel or homestay owner**. It answers one
+question, before a fix and after it: *when my reviews get worse on some aspect, is it
+my problem or the whole market's?* Only the cluster can answer that; one hotel's own
+reviews cannot. That is the moat.
 
-Since 2026-10-13 the same review evidence also drives a **travel-intelligence layer**
-for Uttarakhand and Himachal hill destinations:
+**Positioning:** MakeMyTrip, Goibibo and Booking.com are demand side (they help a
+traveller find a hotel). We are supply side: we sell to the properties listed on those
+platforms and do not compete with them. The same analysis also gives a tourism board a
+destination view (one line in the pitch, not a second product).
 
-- a holiday-aware demand index;
-- crowd-aware alternatives with a capacity guard;
-- star-free stay profiles and provider insights;
-- local sellers;
-- a budget trip planner;
-- a tourism-board region view.
+Repo: `PxA-Labs/cluster-review-intelligence`. Team: Anubhav (analytics core),
+Purvansh (web), Archit (data, eval, ops). Plan and ownership map:
+`docs/HACKATHON_PLAN.md`.
 
-Repo: `PxA-Labs/cluster-review-intelligence`.
+## The focus cut (2026-10-13)
 
-Team: Anubhav (analytics core), Purvansh (web), Archit (data, eval, ops). The plan
-and ownership map are in `docs/HACKATHON_PLAN.md`.
+- **Why:** mentors said the USP was unfocused. We were building for travellers,
+  hotels, tourism boards and local sellers at once.
+- **What went:**
+  - the travel layer (`cri.travel`: demand index, alternatives, stays, sellers,
+    planner, region view) and its two resource files;
+  - its 9 API routes and `/meta`;
+  - six web routes (`/plan`, `/explore`, `/region`, `/provider`, `/destination`,
+    `/cluster`).
+- **Where it is:** everything is recoverable at the git tag **`travel-layer-v1`**
+  (commit `56aaa79`, main before the cut). That tag also answers "what else could
+  this do?"
+- **What was added:** `priority_actions.whose_problem` (`yours alone` | `everyone's`
+  | `not tested`) with `whose_detail`, shown on `/property`. It is derived per
+  property, never joined from `market_scope` by aspect.
+- **Branch / PR:** `feat/focus-one-question` (one commit per section).
 
 ## Current objective
 
-Merge `feat/anubhav-travel-intelligence`. It is stacked on PR #31, so #31 merges
-first. Then:
+Submit tonight. After that:
 
-- deploy the static site and the API;
-- label a clause-level gold set;
-- rehearse `docs/DEMO_SCRIPT.md`.
+- merge the focus-cut PR (it needs explicit maintainer approval);
+- deploy the static site;
+- rehearse `docs/DEMO.md`;
+- label a clause-level gold set.
 
 ## Architecture / state
 
 | Layer | Contents |
 |---|---|
-| `src/cri/` review core | schema → loader / sources → normalize → classify (`rule` default; `learned`, `transformer` opt-in) → pipeline → benchmark / changepoint → insights / intervention → **`api.py`** |
-| `src/cri/travel/` | `data`, `demand`, `alternatives`, `stays`, `region`, `planner`, on `resources/travel_facts.yaml` (sourced) and `resources/travel_synthetic.yaml` (SYNTHETIC) |
-| `src/cri/server.py` | FastAPI over both |
-| `web/` | Next.js static export, the **only UI**. G5 pages read `public/data/*.synthetic.json`; the travel pages and live classify call the API (`NEXT_PUBLIC_API_BASE_URL`). |
+| `src/cri/` review core | schema → loader / sources → normalize → classify (`rule` default; `learned`, `transformer` opt-in) → pipeline → benchmark / changepoint → insights (priorities + whose problem) / intervention → **`api.py`** |
+| `src/cri/server.py` | FastAPI, only `/health` and `POST /reviews/classify` (the explorer's live classify). Loads no data at startup. |
+| `web/` | Next.js static export, the only UI: `/property`, `/market`, `/fix-check`, `/explorer` plus home. Every page reads `public/data/*.synthetic.json`; only live classify calls the API. |
 
-Streamlit (`app/`) was removed on 2026-10-13. No database.
+No database. Streamlit was removed earlier the same day.
 
 ## Completed (implemented + verified)
 
-- **G5 build:** MVP and the Day-1 integration (#14–#18, #24); the Next.js frontend
-  (#25, #26); "Did my fix work?" (#28, plus the web page in #31).
-- **2026-10-13, this branch:**
-  - repo moved to PxA-Labs;
-  - travel layer, API and four web pages;
-  - live classify in the explorer;
-  - Streamlit removed;
-  - CI web job;
-  - learned sentiment backend: the open model is shipped, the hill-review model is
-    local;
-  - the nine product docs: PRD, SRS, SYSTEM_DESIGN, AI_MODEL, BUSINESS_MODEL,
-    DATA_SOURCES, API_CONTRACTS, IMPLEMENTATION_PLAN, DEMO_SCRIPT.
+- **G5 build:** MVP, the Day-1 integration, the Next.js frontend, and "Did my fix
+  work?" (#14–#18, #24–#26, #28, #31).
+- **Before the cut (2026-10-13):**
+  - the travel layer, API and learned sentiment backend (#32, now tagged);
+  - the professional README (#39).
+- **The focus cut, this branch:**
+  - A: `whose_problem` plus the `/property` card and column;
+  - D: `/market` names the worst market-wide aspect (`market_headline` in the
+    snapshot);
+  - B: 4 routes, an exact-match nav fix, home rebuilt;
+  - C: the travel backend deleted;
+  - E: README and the single 3-minute demo `docs/DEMO.md`;
+  - F: the docs moved to the single user;
+  - plus the fix "`not tested` below 3 properties".
 
 ## Verified (2026-10-13, local, Python 3.12.10, Node 22)
 
-- **Python:** `python -m pytest` gives 297 passed, 2 skipped (opt-in real-model tests).
-  `python -m ruff check .` is clean.
-- **Web:** `npx tsc --noEmit` is clean. `npm run build` produces 14 static routes.
-- **Headless browser:** with the API running, headless Edge (Playwright, one-off) loaded
-  every G5 and travel page. There were no error states and no console errors. The trip
-  planner and live classify both work. Screenshots are in `docs/screenshots/`.
-- **Learned model** (held-out, document-level macro-F1):
+- **Python checks:**
+  - `python -m pytest`: 266 passed, 2 skipped (opt-in real-model tests).
+  - `python -m ruff check .`: clean.
+- **Calibration:** `python -m cri.calibration --seeds 1-20` reproduces the documented
+  numbers:
+  - food decline 15/20 (0.53–0.89);
+  - December Room market-wide 20/20 (0.84–1.00);
+  - null seeds with any false alarm 1/20.
+- **Web build:** `npm run build` gives home plus the 4 routes.
+- **Headless Edge walk:**
+  - every kept page renders, with one active nav link;
+  - removed routes return 404, and there are no dead internal links;
+  - every number in `docs/DEMO.md` is on screen;
+  - live classify works.
 
-  | Test set | `open` | `region` | Rules |
-  |---|---|---|---|
-  | SentiMix Hinglish tweets | 0.663 | — | 0.361 |
-  | Hill hotel reviews (hotel-grouped) | — | 0.687 | 0.557 |
-
-  On the SYNTHETIC clause-level patterns the models trail the rules: food decline
-  found in 5/20 and 4/20 seeds, against 15/20 for the rules. **Rules stay the
-  default.** Full results are in `docs/AI_MODEL.md`.
-- **Facts:** every fact in `travel_facts.yaml` was read from its cited source on
-  2026-10-13, and holiday weekdays are checked on load.
-- **CI on PR #32:** green. lint-and-test passed on 3.11 and 3.12, the web job
-  (tsc + build) passed, and CodeQL passed.
-- **Not verified:** deployment of either piece (needs accounts).
+  The only console error is `/favicon.ico` 404, which already happens on `main`.
+- **Not verified:** deployment (needs accounts). `whose_problem` on real clusters is
+  `TBD`.
 
 ## Next tasks
 
-1. Merge #31, then this PR. Watch the first CI run of the new web job.
-2. Deploy the static site (Vercel; set `NEXT_PUBLIC_API_BASE_URL`) and the API (set
-   `CRI_API_CORS_ORIGINS`). Record the URLs.
-3. Label about 300 hill-destination clauses (two annotators) and score rules vs
-   learned at clause level.
-4. Get monthly arrivals or partner occupancy to validate the demand index.
-5. Rehearse `docs/DEMO_SCRIPT.md` and record the backup video.
+1. Get approval for the focus-cut PR and merge it.
+2. PR #40 (Cloudflare deploy) must be rebased onto this. Its docs cite
+   `/demand/trip`, which is gone, and its `/health` example still shows
+   `is_synthetic`.
+3. Deploy the static site (it is the whole product); the API is optional.
+4. Label about 300 hill-destination clauses (two annotators). Score rules vs learned
+   at clause level.
+5. Pilot with real owners: do they agree with the `whose_problem` verdicts?
 
 ## Important decisions
 
 - **Review statistics** (unchanged):
-  - The statistical unit is (review, aspect).
-  - FDR q = 0.05.
-  - Effect floors: 0.4 for a property change, 0.3 for market participation.
-  - "Market-wide" needs ≥ 60% of properties.
-- **Platform:** Next.js + FastAPI, with Streamlit removed (reversal of HACKATHON_PLAN
-  §1, recorded there). The G5 pages keep the static snapshot, so they work without
-  the API.
-- **Provenance:** every travel number is an `Evidence` with a basis (fact / measured
-  / derived / synthetic / assumption). Synthetic and sourced data live in separate
-  files.
-- **Demand index:** a transparent points model, not trained, because no footfall data
-  exists. It is never called live traffic.
-- **Capacity guard:** uses assumed ceilings (90/80/70 by sensitivity). No official
-  carrying capacity exists.
-- **Learned backend:**
-  - It is opt-in. The default changes only if it wins on a clause-level gold set.
-  - The CC BY model is shipped as a no-pickle `.npz`.
-  - The model trained on Kaggle hill reviews stays local, because of their provenance.
-- **Hill filter for training:** the plains districts Haridwar and Udham Singh Nagar
-  are dropped. Splits are grouped by hotel.
+  - the unit is (review, aspect);
+  - FDR q = 0.05;
+  - effect floors: 0.4 for a property change, 0.3 for market participation;
+  - "market-wide" needs ≥ 60% of properties.
+- **`whose_problem`:**
+  - A market-adjusted decline is `yours alone`.
+  - A lag is re-tested with the market-wide patterns the property takes part in set
+    aside. It is `everyone's` only if the lag disappears.
+  - Below 3 properties it is `not tested`.
+  - Why not join `market_scope`: Property D's Room gap is real outside December
+    (still 0.36 below the market), so labelling it `everyone's` would be false.
+- **Platform:** Next.js static export plus a small FastAPI service, used only for live
+  classify.
+- **Learned backend:** opt-in. Rules stay the default until a clause-level gold set
+  says otherwise. The Kaggle-trained `region` model stays local.
 
 ## Known issues / honest caveats
 
-- **SYNTHETIC data:** the review data and all stays, prices and sellers are
-  SYNTHETIC. Real-data accuracy at clause level is `TBD`.
-- **Calendar coverage:** state holidays are not included, and school windows are
-  assumptions.
-- **Distance estimates:** they underestimate short hill hops (factor 1.46, derived
-  from 14 official pairs).
-- **Calibration CLI:** `python -m cri.calibration` always uses the rules. To calibrate
-  another backend, pass `classifier=get_classifier(...)` (see `docs/AI_MODEL.md`).
-- **Authentication:** none. The app is not ready for real provider data.
+- The review data is SYNTHETIC. Clause-level accuracy on real data is `TBD`.
+- Every `whose_problem` validation so far is SYNTHETIC (`tests/test_insights.py`).
+- The `everyone's` re-test reuses the lag test on a subset. It is not a separate FDR
+  family.
+- `python -m cri.calibration` always uses the rules (pass `classifier=` to calibrate
+  another backend).
+- There is no authentication, so the app is not ready for real owner data.
 
 ## Commands
 
@@ -135,10 +140,11 @@ Streamlit (`app/`) was removed on 2026-10-13. No database.
 |---|---|
 | Install | `pip install -e ".[dev,api]"` |
 | Test and lint | `pytest` · `ruff check .` |
-| Run the API | `uvicorn cri.server:app --port 8000` |
-| Run the web app | `cd web && npm ci && npm run dev` |
+| Web app | `cd web && npm ci && npm run dev` |
+| Live classify API (optional) | `uvicorn cri.server:app --port 8000` |
 | Check the web app | `npx tsc --noEmit` · `npm run build` |
-| G5 demo and calibration | `python scripts/demo.py` · `python -m cri.calibration --seeds 1-20` |
-| Re-export the snapshot | `python web/scripts/export_snapshot.py` |
+| Demo numbers and calibration | `python scripts/demo.py` · `python -m cri.calibration --seeds 1-20` |
+| Re-export the snapshot | `python web/scripts/export_snapshot.py` (`--skip-fix-check` skips the slow grid) |
 | Train (needs `pip install -e ".[train]"`) | `python scripts/prepare_region_reviews.py` · `python scripts/train_sentiment.py --model open\|region` |
 | Screenshots | `python scripts/capture_screenshots.py` |
+| Recover the travel layer | `git checkout travel-layer-v1 -- <path>` |

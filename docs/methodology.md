@@ -141,7 +141,27 @@ share is relative to the properties that review the aspect.
   current`; `volume` = the aspect's share of the property's mentions;
   `impact_score = gap × volume`. Only aspects that are worse **and** backed by
   evidence (a significant decline, or an FDR-controlled `lag` flag) are listed.
-- **`destination_summary`** (tourism boards): per aspect, the cluster mean,
+- **`whose_problem`** on each priority ("is it me or the market?"), derived for that
+  property, never copied from `market_scope` by aspect (that label describes the
+  cluster, not each property):
+  - a significant decline relative to the market (section 6) → `yours alone`; the
+    market's own move over the same months is quoted (`market_delta`);
+  - a `lag` with no market-wide pattern (section 7) on the aspect that the property
+    takes part in → `yours alone`;
+  - otherwise the lag test of section 5 is re-run with the reviews those patterns
+    cover set aside (a seasonal dip: its calendar month; a step decline: the months
+    from its change onward), for that aspect only. Still `lag` → `yours alone`; not
+    `lag` → `everyone's` (the property's own drop in the pattern is quoted next to the
+    average drop);
+  - `not tested` when fewer than 3 properties review the aspect (whatever the
+    basis: a lag against a 2-property "cluster" separates nothing) or fewer than 10
+    reviews remain outside the pattern.
+
+  The re-test is not a separate FDR family: it reuses section 5's test on a subset,
+  so treat `everyone's` as "the market pattern accounts for the gap", not as proof.
+  Validation is SYNTHETIC only (`tests/test_insights.py`); real-data validation is
+  `TBD`.
+- **`destination_summary`** (the cluster-wide view; `/market` uses it): per aspect, the cluster mean,
   volume, share of negative mentions, number of properties reviewing it, and
   scope (`stable` when no shift, `undetermined` when too few properties).
 

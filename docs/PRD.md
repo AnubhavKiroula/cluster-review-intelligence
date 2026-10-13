@@ -1,146 +1,117 @@
-# Product requirements: Cluster Review Intelligence + hill-travel intelligence
+# Product requirements: Cluster Review Intelligence
 
 ## Executive summary
 
-Cluster Review Intelligence (AI–Tourism Hackathon 2026, problem statement G5)
-turns a tourism cluster's reviews into aspect-level, market-aware intelligence. It
-tells a hotel manager *what* is wrong, *since when*, and whether it is *their*
-problem or the *whole market's*.
+Cluster Review Intelligence (AI–Tourism Hackathon 2026, problem statement G5) is
+review intelligence for **one user: the hotel or homestay owner**. It answers **one
+question**, asked before a fix and after it:
 
-This release puts that review evidence to work for four groups in Uttarakhand and
-Himachal hill destinations:
+> When my reviews get worse on some aspect, is that **my** problem or the **whole
+> market's**?
 
-- **Travellers:** holiday-aware crowd estimates, quieter dates and similar
-  less-crowded places, star-free stay comparison, and a budget trip planner with
-  local sellers and a carbon estimate.
-- **Accommodation providers:** explained improvement priorities, demand peaks against
-  their room mix, and quiet windows for offers.
-- **Local sellers:** discovery inside trip plans, and category-level opportunity
-  estimates.
-- **Tourism boards:** expected pressure against assumed capacity ceilings,
-  redistribution options, under-served seller categories and destination-wide review
-  issues.
+A single hotel cannot answer that from its own reviews. Answering it needs the
+cluster of nearby competitors, and that is the moat.
 
-Everything is honest about its evidence. Profiles, prices and sellers are SYNTHETIC.
-Holidays, distances, arrivals and emission factors are sourced facts. Demand is an
-indicative estimate, never live traffic.
+**Positioning.** MakeMyTrip, Goibibo and Booking.com are demand side: they help a
+traveller find a hotel. We are supply side: we sell to the properties listed on those
+platforms and do not compete with them. Nobody at a booking platform tells a
+Dhanaulti homestay owner that their food sentiment fell in June and that it is not the
+market.
+
+The same analysis also gives a tourism board a destination view.
+
+> **Scope change 2026-10-13.** Mentors judged the earlier scope (travellers, providers,
+> sellers and tourism boards at once) unfocused. The travel-intelligence layer
+> (demand index, alternatives, stays, sellers, planner, region view) was removed. It is
+> preserved at the git tag `travel-layer-v1`.
 
 ## Problem
 
-1. **Uneven demand.** Popular hill stations get overcrowded on long weekends and in
-   season, which strains roads, water and waste systems. Similar places nearby stay
-   under-used.
-2. **Star ratings hide what matters.** A 4.1★ stay can be failing on food or heating.
-   Travellers cannot compare on what they care about, and providers cannot see which
-   problem is theirs and which is the destination's (G5).
-3. **Providers plan blind.** Small hotels and homestays do not see demand peaks or
-   their amenity gaps coming.
-4. **Little of the spending reaches local businesses.** Visitors rarely find artisans,
-   woollen weavers or guides beyond the main market.
-5. **Students and budget travellers** lack an easy way to find affordable, quieter,
-   lower-carbon options.
+1. **Star averages hide what is wrong.** Property F averages 3.28★ and Property I
+   3.33★ (SYNTHETIC). One of them has a serious, recent food problem; the averages
+   cannot say which.
+2. **Owners cannot tell their problem from the market's.** A December dip in room
+   sentiment may hit every property in the cluster. Renovating for it wastes money,
+   and a plain before/after can blame the renovation for the weather.
+3. **Owners do not know what to fix first** or since when it went wrong.
 
 ## Objectives and success metrics
 
 | Objective | Metric | How it would be measured | Today |
 |---|---|---|---|
-| Spread visitor pressure | Share of planner trips moved to a quieter date or alternative | Count variant adoptions (needs telemetry) | `TBD` |
-| Better stay decisions without stars | Share of users opening aspect feedback before choosing | UI analytics | `TBD` |
-| Providers act on evidence | Insights marked "done"; later change relative to the market (fix check) | Provider feedback + G5 intervention check | `TBD` |
-| More local-business discovery | Seller profile views and contacts per trip plan | Analytics + seller reports | `TBD` |
-| Estimated local spend share | Planner spend lines that go to local sellers and experiences | From plans (an estimate, not sales) | `TBD` |
-| Model quality | Clause-level macro-F1 on hand-labelled hill reviews | `eval/score.py` | `TBD` (document-level results in AI_MODEL.md) |
+| Owners act on the right problems | Share of priorities marked "yours alone" that owners act on | Pilot feedback | `TBD` |
+| Fixes are judged fairly | Fix checks run per pilot property; verdicts owners agree with | Pilot feedback + `/fix-check` | `TBD` |
+| Detectors are trustworthy | Recall on injected patterns; false alarms on pattern-free data | `python -m cri.calibration --seeds 1-20` | Food decline 15/20, December dip 20/20, false alarms 1/20 seeds (SYNTHETIC) |
+| Model quality | Clause-level macro-F1 on hand-labelled reviews | `eval/score.py` | `TBD` (document-level results in AI_MODEL.md) |
 
-No metric is reported as achieved: there are no real users yet.
+No product metric is reported as achieved: there are no real users yet.
 
-## Personas
+## Persona
 
 | Persona | Needs | Main view |
 |---|---|---|
-| **Riya**, engineering student in Delhi, ₹6–8k per trip | Cheap, safe, not-crowded weekend trips; transparent costs | `/explore`, `/plan` |
-| **The Negi family**, Dehradun, travelling in school holidays | Family rooms, quieter dates, heating that works | `/explore` stays, `/plan` |
-| **Homestay owner** in Kanatal, 5 rooms | What guests complain about, when demand is coming, whether a fix worked | `/provider`, `/property`, `/fix-check` |
-| **Handicraft seller** in Kausani | Being found by visitors in season | listed in `/plan`; gaps in `/region` |
-| **District tourism officer** | Where pressure will exceed capacity; what is a destination-wide problem | `/region`, `/destination`, `/market` |
+| **Homestay owner** in Dhanaulti, 5 rooms (or the manager running a small hotel) | What guests complain about, since when, whether it is theirs or the market's, whether a fix worked | `/property`, `/market`, `/fix-check`, `/explorer` |
 
-## Core user journeys
+## Core user journey
 
-1. **Traveller:** choose a destination and dates on `/explore`. See the crowd category
-   and why. Pick a quieter date or a similar place. Compare stays on aspect feedback.
-   Continue to `/plan`.
-2. **Trip planning:** set the budget, travellers, interests and transport. Get an
-   itinerary with traced costs, car vs bus carbon, and local sellers. Switch to a
-   cheaper or quieter variant.
-3. **Provider:** choose a property on `/provider`. See review priorities, amenity
-   gaps, peaks against room mix and offer windows. Open `/property` for the full
-   scorecard and `/fix-check` after making a change.
-4. **Tourism board:** choose a window on `/region`. See pressure against ceilings,
-   peaks and their drivers, redistribution options, under-served seller categories
-   and destination-wide review issues.
+1. **`/property`:** choose the property. The card says what to fix first and since
+   when, e.g. *Fix Food first since 2025-06*. Each priority says **whose problem** it
+   is: `yours alone`, `everyone's` or `not tested`, tested for that property.
+2. **`/market`:** see which declines are market-wide and which belong to one
+   property, with the worst market-wide aspect called out. Same chart, two opposite
+   actions.
+3. **`/fix-check`:** after a change, compare before and after **minus the market's
+   change**. Example (SYNTHETIC, Property A, Room, 2025-12): plain before/after −1.38,
+   market −0.95, relative to the market −0.43, no detectable change.
+4. **`/explorer`:** read the reviews and the exact clause behind each label, or type a
+   review (English, Hinglish or Devanagari) and classify it live.
 
 ## Scope
 
 **MVP (built, see IMPLEMENTATION_PLAN.md):**
 
-- **G5 review analytics:** benchmark, changepoints, market scope, priorities, fix
-  check, explorer, live classify.
-- **Demand calendar:** gazetted holidays 2026–27, long weekends, assumed school and
-  year-end windows, demand index with factors, quieter dates, regional overview.
-- **Alternatives:** similarity, capacity guard and five-part explanations.
-- **Stays and providers:** star-free stay profiles; provider insights.
-- **Sellers:** local sellers (no restaurants) and seller opportunity.
-- **Planner:** itinerary, costs, carbon and variants.
-- **Learned sentiment:** an opt-in model trained on open Hinglish data, plus a local
-  model on hill-destination reviews.
-- **Platform:** FastAPI service; Next.js as the only UI; CI for Python and web.
+- Ingestion with reviewer identity dropped; Hinglish and Devanagari normalisation.
+- Rule-based aspect and sentiment classifier (default); opt-in learned and transformer
+  backends.
+- Cluster benchmark with 95% CIs and FDR-controlled lead/lag flags.
+- Changepoints relative to the market; market-wide patterns (seasonal and step).
+- Priority actions with `whose_problem` derived per property.
+- "Did my fix work?" market-adjusted before/after.
+- Next.js static site (four pages) and a FastAPI service for live classification.
 
 **Roadmap (not built):**
 
-- Real data:
-  - partner review exports with dates;
-  - monthly arrivals;
-  - provider and seller onboarding with verification.
-- Learning and forecasting:
-  - a clause-level gold set;
-  - a trained demand model once footfall exists.
-- Live context: weather and road-status integrations, labelled as live only when they
-  are.
-- Provider and seller accounts with authentication.
-- Booking and referral, only with real inventory and transparent fees.
+- Real partner review exports with dates; a clause-level gold set.
+- Owner accounts with authentication and per-property access.
+- Upload of a property's own review export.
 
-**Out of scope:** live traffic claims, payments, scraping, restaurant marketplace.
+**Out of scope:** traveller-facing features, bookings, payments, scraping, live
+traffic claims.
 
-## Business and sustainability goals
+## Business
 
-See [BUSINESS_MODEL.md](BUSINESS_MODEL.md):
-
-- free listings for small providers and sellers;
-- affordable provider analytics subscriptions;
-- dashboards for tourism boards and associations;
-- capped, disclosed referral fees only once real transactions exist.
+See [BUSINESS_MODEL.md](BUSINESS_MODEL.md): one payer, the property owner. Every
+price there is a labelled hypothesis.
 
 ## Assumptions, constraints and risks
 
 | Item | Note |
 |---|---|
-| No real demand data | Demand is a transparent heuristic, and the app says so. Validation plan in AI_MODEL.md. |
-| SYNTHETIC profiles | All stays, prices and sellers are illustrative. Real onboarding is needed. |
-| Capacity unknown | Ceilings are assumptions. |
+| SYNTHETIC data | All bundled reviews are SYNTHETIC. Real-data accuracy is `TBD`. |
+| Cluster size | "Whose problem" needs at least 3 properties reviewing the aspect; below that it is `not tested`. |
+| Statistical power | Only large shifts are detected at a 5% false-discovery rate. |
 | Review data provenance | The hill-review model stays local. The shipped model uses CC BY data only. |
-| Two-process deployment | API + static site. The G5 pages work without the API. |
-| Hackathon time | Vertical slices; cut lines in IMPLEMENTATION_PLAN.md. |
+| Deployment | A static site; the API is optional (live classify only). |
 
 ## Acceptance criteria (MVP)
 
 | ID | Criterion | Verified by |
 |---|---|---|
-| AC-1 | A traveller selects destination and dates and sees a 0–100 index, a category, every factor with its source, and a "not live traffic" note. | `tests/test_travel.py`, `tests/test_server.py`, headless browser run |
-| AC-2 | The calendar marks gazetted holidays and long weekends from the official lists, with coverage stated. | tests (weekday check, Christmas long weekend) |
-| AC-3 | Alternatives are ranked by implemented logic: the origin is excluded, the capacity guard applies, and weights change the ranking. | `test_alternatives_*`, `test_weights_change_the_ranking` |
-| AC-4 | Stay profiles have no star rating. Amenities and practices are labelled self-reported. | `test_stay_profiles_have_no_star_rating` |
-| AC-5 | Providers see insights, each with a reason and evidence, including review priorities and demand gaps. | `test_heating_insight_*`, `test_property_f_*` |
-| AC-6 | Local sellers (no restaurants) are listed and discoverable in plans. | `test_sellers_*`, `/plan` |
-| AC-7 | The planner returns an itinerary whose costs add up, carbon from sourced factors, and cheaper/quieter variants. | `test_plan_*` |
-| AC-8 | Estimates disclose their limitations in the UI and API. | banners, notes, Evidence basis |
-| AC-9 | No secrets exposed; CORS restricted; inputs validated. | `test_server.py`, `.env.example` |
-| AC-10 | README and docs match the code; CI runs Python tests and the web build. | `.github/workflows/ci.yml` |
+| AC-1 | An owner sees what to fix first, since when, ranked by gap × share of mentions. | `test_property_f_should_fix_food_first`, `test_ranking_is_by_impact_and_every_row_is_behind` |
+| AC-2 | Each priority says whose problem it is, derived for that property, never copied from the aspect's market label. | `test_property_f_food_decline_is_its_own`, `test_a_year_round_room_gap_is_not_blamed_on_the_december_dip`, `test_a_lag_that_is_only_the_market_pattern_is_everyones` |
+| AC-3 | Market-wide and property-specific declines are separated. | `test_same_chart_two_different_actions`, `test_market_patterns_are_only_the_injected_one` |
+| AC-4 | A fix is judged relative to the market. | `test_a_market_wide_change_is_not_credited_to_the_property`, `test_demo_numbers` |
+| AC-5 | Every label traces to its clause; typed reviews classify live. | `test_classify_text_shows_each_aspect_with_its_clause`, `test_classify_matches_the_core` |
+| AC-6 | No secrets exposed; CORS restricted; input validated. | `test_cors_allows_only_configured_origins`, `test_classify_rejects_empty_and_oversized_text` |
+| AC-7 | Every number the demo quotes is test-pinned. | `tests/test_demo.py` |
+| AC-8 | README and docs match the code; CI runs Python tests and the web build. | `.github/workflows/ci.yml` |

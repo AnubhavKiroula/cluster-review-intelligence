@@ -73,21 +73,23 @@ probe from the clause-level one in the transformer table above.
 | December Room market-wide, 20 SYNTHETIC seeds | 20/20 | 20/20 | 14/20 | measured |
 | **Clause-level** F1 on hand-labelled hill-destination reviews | TBD | TBD | TBD | needs the gold set |
 
-## Travel layer
+## "Whose problem is it?" (`priority_actions.whose_problem`)
+
+Validated on SYNTHETIC data only (`tests/test_insights.py`; method: `docs/AI_MODEL.md`
+§3). The travel-layer TBDs (demand validation, occupancy, capacity, impact) were
+dropped with the layer on 2026-10-13; they are at the git tag `travel-layer-v1`.
 
 | Measure | Status |
 |---|---|
-| Demand index vs real footfall (Spearman per destination; time-aware backtest) | TBD: no monthly destination arrivals available |
-| Demand index vs partner occupancy | TBD: no partner data |
-| Carrying capacity per destination | TBD: no official figures; ceilings are assumptions |
-| Adoption of quieter dates / alternatives (impact) | TBD: no users yet |
-| Local spend reaching sellers (impact) | TBD: estimates only; needs seller reports |
+| Agreement of verdicts with owner-confirmed causes, on real clusters | TBD: needs a real dated export and owner feedback |
+| Share of priorities owners act on (pilot) | TBD: no users yet |
 
 ## Web app and API
 
-- Next.js app (the only UI; Streamlit removed): **built**, type-checked and built in CI;
-  every page verified in headless Edge with the API running (2026-10-13). Screenshots
-  on SYNTHETIC data: `docs/screenshots/*_SYNTHETIC.png`.
+- Next.js app (the only UI): four pages plus home, all on the static snapshot;
+  type-checked and built in CI. Screenshots on SYNTHETIC data:
+  `docs/screenshots/*_SYNTHETIC.png`.
+- API: `/health` and `POST /reviews/classify` only (live classify in the explorer).
 - Public URLs (static site and API): `TBD` (steps in `docs/DEPLOYMENT.md`).
 
 ## Deployment / OpenSSF Scorecard

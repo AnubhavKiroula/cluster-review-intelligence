@@ -16,19 +16,12 @@ and license before being committed.
 
 All bundled data in `data/sample/` is **SYNTHETIC**, produced by
 `src/cri/generate.py`. It depicts fictional properties and contains no real
-reviews or personal data. `src/cri/resources/travel_synthetic.yaml` (stays, sellers,
-prices, season curves) is also SYNTHETIC; seller names are fictional.
+reviews or personal data.
 
-Sourced facts in `src/cri/resources/travel_facts.yaml` (full list and links:
-`docs/DATA_SOURCES.md`):
-
-- Gazetted holidays: Government of India, DoPT O.M. F.No.12/2/2023-JCA (2025, 2026),
-  via CGEWCC Dehradun and the Department of Posts.
-- Coordinates and elevations: Wikidata (CC0).
-- Road distances: HPTDC; District Nainital and District Dehradun (NIC).
-- Tourist arrivals: Uttarakhand Tourism Development Board.
-- Emission factors: India GHG Program (2015); UK DESNZ GHG conversion factors 2026
-  (Open Government Licence v3.0).
+The travel layer removed on 2026-10-13 used sourced facts (DoPT holidays, Wikidata,
+HPTDC and NIC district distances, UTDB arrivals, India GHG Program and UK DESNZ
+emission factors) and SYNTHETIC profiles; they and their credits remain at the git
+tag `travel-layer-v1`.
 
 Training data for the shipped sentiment model (`src/cri/resources/models/`), both
 CC BY 4.0 and attributed in its model card:
