@@ -14,8 +14,8 @@ keywords = ["tourism", "reviews", "nlp", "benchmarking", "hinglish", "uttarakhan
 
 # Pinned for reproducibility (see CLAUDE.md). Bumped via Dependabot PRs.
 dependencies = [
-    "numpy==1.26.2",
-    "pandas==2.1.3",
+    "numpy==2.4.6",
+    "pandas==3.0.6",
     "pyyaml==6.0.3",
 ]
 
@@ -36,8 +36,8 @@ dev = [
 # refuses numpy<2 at import time (every st.dataframe would crash on our numpy 1.26).
 dashboard = [
     "plotly==5.24.1",
-    "pyarrow==25.0.1",
-    "streamlit==1.41.1",
+    "pyarrow==26.0.0",
+    "streamlit==1.65.0",
 ]
 
 [project.scripts]
