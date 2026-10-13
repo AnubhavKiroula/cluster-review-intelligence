@@ -22,9 +22,20 @@ def test_hook_two_near_identical_star_averages(d):
     assert api.priority_actions(d, "Property I").empty  # nothing flagged
 
 
-def test_property_f_fix_food_first_since_june(d):
+def test_property_f_fix_food_first_since_june_and_it_is_theirs_alone(d):
     top = api.priority_actions(d, "Property F").iloc[0]
-    assert (top["aspect"], top["started"]) == ("Food", "2025-06")
+    assert (top["aspect"], top["started"], round(top["gap"], 2)) == ("Food", "2025-06", 1.05)
+    assert top["whose_problem"] == "yours alone"
+    assert top["whose_detail"] == (
+        "you dropped 1.22 relative to the market from 2025-06; "
+        "the market itself moved +0.01"
+    )
+
+
+def test_property_d_room_gap_is_its_own_despite_the_december_dip(d):
+    room = api.priority_actions(d, "Property D").set_index("aspect").loc["Room"]
+    assert room["whose_problem"] == "yours alone"
+    assert room["whose_detail"].startswith("still 0.36 below the market outside December")
 
 
 def test_same_chart_two_different_actions(d):
@@ -32,7 +43,7 @@ def test_same_chart_two_different_actions(d):
     assert scope.loc["Food", "scope"] == "property-specific"
     assert scope.loc["Food", "properties"] == "Property F"
     assert scope.loc["Room", "scope"] == "market-wide"
-    assert "December" in scope.loc["Room", "pattern"]
+    assert "December (12/12 properties" in scope.loc["Room", "pattern"]
 
 
 EXPECTED_LIVE = {

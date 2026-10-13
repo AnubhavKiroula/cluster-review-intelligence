@@ -565,7 +565,9 @@ def _findings_from_units(
     return findings
 
 
-def _market_findings(labelled: pd.DataFrame, **kwargs) -> list[dict]:
+def market_findings(labelled: pd.DataFrame, **kwargs) -> list[dict]:
+    """Significant market-wide patterns as dicts (``gaps`` maps each participating
+    property to its drop); ``detect_market_patterns`` is the tabular view."""
     return _findings_from_units(review_units(labelled), **kwargs)
 
 
@@ -584,7 +586,7 @@ def detect_market_patterns(
     reviewed at fewer than ``MIN_PROPERTIES_FOR_SCOPE`` properties are not tested.
     ``change_month`` is None for seasonal rows; ``calendar_month`` is <NA> for steps.
     """
-    findings = _market_findings(labelled, min_fraction=min_fraction, min_effect=min_effect, q=q)
+    findings = market_findings(labelled, min_fraction=min_fraction, min_effect=min_effect, q=q)
     rows = [
         {
             **{k: f[k] for k in ("aspect", "kind", "calendar_month", "change_month", "drop",
@@ -615,7 +617,7 @@ def detect_seasonal_dips(labelled: pd.DataFrame, month: int | None = None) -> pd
             "gap": round(gap, 3),
             "q_value": f["q_value"],
         }
-        for f in _market_findings(labelled)
+        for f in market_findings(labelled)
         if f["kind"] == "seasonal" and (month is None or f["calendar_month"] == month)
         for prop, gap in sorted(f["gaps"].items())
     ]
@@ -625,7 +627,7 @@ def detect_seasonal_dips(labelled: pd.DataFrame, month: int | None = None) -> pd
 # --- Market-wide vs property-specific -----------------------------------------------
 
 
-def _describe(finding: dict) -> str:
+def describe_finding(finding: dict) -> str:
     k = len(finding["gaps"])
     if finding["kind"] == "seasonal":
         when = f"seasonal dip in {calendar.month_name[finding['calendar_month']]}"
@@ -673,7 +675,7 @@ def market_wide_summary(
         elif market:
             scope = "market-wide"
             props = set().union(*(f["gaps"] for f in market))
-            pattern = "; ".join(_describe(f) for f in market)
+            pattern = "; ".join(describe_finding(f) for f in market)
             if own_text:
                 pattern += f"; also {own_text}"
         else:

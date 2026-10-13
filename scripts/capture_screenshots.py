@@ -3,14 +3,14 @@
 Not a project dependency - a one-off tool:
 
     pip install playwright==1.58.0
-    uvicorn cri.server:app --port 8000                                   # terminal 1
+    uvicorn cri.server:app --port 8000                                   # terminal 1 (explorer)
     cd web && npm run build && python -m http.server 3000 --directory out  # terminal 2
     python scripts/capture_screenshots.py                 # uses installed Edge
     python scripts/capture_screenshots.py --channel chrome
 
 Each page is captured once its data has rendered, so the images show exactly what a
-visitor sees (SYNTHETIC / prototype banners included). Port 3000 matches the API's
-default CORS origin.
+visitor sees (SYNTHETIC banner included). Only the explorer's live classification
+needs the API; port 3000 matches its default CORS origin.
 """
 
 import argparse
@@ -20,14 +20,11 @@ from playwright.sync_api import sync_playwright
 
 # (file, path, text that appears once rendered)
 PAGES = [
-    ("property_view_SYNTHETIC.png", "/property/?property=Property%20F", "Fix this first"),
+    ("property_view_SYNTHETIC.png", "/property/?property=Property%20F",
+     "Fix Food first since 2025-06"),
     ("market_quadrant_SYNTHETIC.png", "/market/", "Scope by aspect"),
-    ("explore_SYNTHETIC.png", "/explore/?destination=mussoorie&start=2026-12-25&nights=2",
-     "Similar, less crowded places"),
-    ("provider_SYNTHETIC.png", "/provider/?property=Property%20F", "Fix Food first since 2025-06"),
-    ("region_SYNTHETIC.png", "/region/", "Expected pressure vs assumed ceilings"),
+    ("fix_check_SYNTHETIC.png", "/fix-check/", "Before and after"),
 ]
-PLAN = ("plan_SYNTHETIC.png", "/plan/?destination=kanatal&start=2026-12-25&nights=2")
 EXPLORER = "review_explorer_SYNTHETIC.png"
 
 
@@ -52,13 +49,6 @@ def main() -> None:
             settle(page, marker)
             page.screenshot(path=str(args.out / name), full_page=True)
             print("saved", args.out / name)
-
-        name, path = PLAN
-        page.goto(args.url + path, wait_until="networkidle")
-        page.get_by_role("button", name="Plan my trip").click()
-        settle(page, "Cheaper or quieter options")
-        page.screenshot(path=str(args.out / name), full_page=True)
-        print("saved", args.out / name)
 
         page.goto(args.url + "/explorer/", wait_until="networkidle")
         page.get_by_role("button", name="Classify").click()

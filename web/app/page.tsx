@@ -1,24 +1,22 @@
 "use client";
 
 import Link from "next/link";
-import { useData } from "@/lib/data";
+import { fmtPct, useData } from "@/lib/data";
 import { ErrorState, Loading, PageIntro, SyntheticBanner } from "@/components/ui";
 
 export default function Home() {
   const { data, error } = useData();
   if (error) return <ErrorState message={error} />;
   if (!data) return <Loading />;
-  const m = data.meta;
-  const marketSignals = data.destination_summary.filter((row) => row.scope === "market-wide");
-  const leadingSignal = [...marketSignals].sort((a, b) => b.pct_negative - a.pct_negative)[0];
+  const headline = data.market_headline;
 
   return (
     <>
       <PageIntro
-        eyebrow="Workspace overview"
+        eyebrow="For hotel and homestay owners"
         icon="◈"
         title="Cluster review intelligence"
-        description="Turn guest voice into an action plan for every property, aspect, and destination-level signal."
+        description="When your reviews get worse on something, is it your problem or the whole market's? Your own reviews cannot tell. Your cluster can."
       />
       <SyntheticBanner />
 
@@ -30,19 +28,23 @@ export default function Home() {
             Compare each property with its cluster, follow sentiment over time, and separate a
             competitive gap from an issue the whole destination shares.
           </p>
+          <p>
+            MakeMyTrip, Goibibo and Booking.com help travellers find you. We work on the supply
+            side, for the properties those platforms list, and do not compete with them.
+          </p>
           <Link className="btn btn-primary" href="/property">
             Open property workspace <span aria-hidden>→</span>
           </Link>
         </div>
         <div className="hero-panel hero-panel-insight">
           <div>
-            <div className="insight-label">Cluster signal</div>
-            {leadingSignal ? (
+            <div className="insight-label">Market signal</div>
+            {headline ? (
               <>
-                <h3>{leadingSignal.aspect} needs destination attention.</h3>
+                <h3>{headline.aspect} is a market-wide issue, not one property&apos;s.</h3>
                 <p>
-                  {Math.round(leadingSignal.pct_negative * 100)}% of mentions are negative across{" "}
-                  {leadingSignal.n_properties_reviewed} properties in the current snapshot.
+                  {fmtPct(headline.pct_negative)} of mentions are negative across{" "}
+                  {headline.n_properties_reviewed} properties: {headline.pattern}.
                 </p>
               </>
             ) : (
@@ -59,31 +61,6 @@ export default function Home() {
         </div>
       </section>
 
-      <div className="cards">
-        <div className="metric-card">
-          <div className="metric-icon" aria-hidden>⌂</div>
-          <div className="value">{m.properties.length}</div>
-          <div className="label">Properties</div>
-        </div>
-        <div className="metric-card">
-          <div className="metric-icon" aria-hidden>⌁</div>
-          <div className="value">{m.n_reviews.toLocaleString()}</div>
-          <div className="label">Reviews</div>
-        </div>
-        <div className="metric-card">
-          <div className="metric-icon" aria-hidden>⊙</div>
-          <div className="value">{m.aspects.length}</div>
-          <div className="label">Aspects tracked</div>
-        </div>
-        <div className="metric-card">
-          <div className="metric-icon" aria-hidden>◷</div>
-          <div className="value" style={{ fontSize: 17 }}>
-            {m.date_min} – {m.date_max}
-          </div>
-          <div className="label">Date range</div>
-        </div>
-      </div>
-
       <div className="section-heading">
         <div>
           <h2>Choose a decision view</h2>
@@ -92,52 +69,20 @@ export default function Home() {
       </div>
       <div className="cardlinks">
         <Link className="cardlink" href="/property">
-          <div className="t">🏨 Property scorecard</div>
-          <div className="d">Your scorecard vs the cluster, trends, and fix-this-first actions.</div>
+          <div className="t">🏨 Property</div>
+          <div className="d">What to fix first, and whether each problem is yours alone or everyone&apos;s.</div>
         </Link>
         <Link className="cardlink" href="/market">
           <div className="t">⚖️ Market</div>
-          <div className="d">The differentiator: market-wide vs property-specific issues.</div>
+          <div className="d">Which declines are market-wide and which belong to one property.</div>
         </Link>
-        <Link className="cardlink" href="/cluster">
-          <div className="t">🗺️ Cluster</div>
-          <div className="d">The property × aspect heatmap: who leads, who lags.</div>
-        </Link>
-        <Link className="cardlink" href="/destination">
-          <div className="t">🧭 Destination</div>
-          <div className="d">The tourism-board view of cluster-wide problems.</div>
+        <Link className="cardlink" href="/fix-check">
+          <div className="t">🔧 Did my fix work?</div>
+          <div className="d">A before/after check that nets out what the market did meanwhile.</div>
         </Link>
         <Link className="cardlink" href="/explorer">
           <div className="t">🔍 Explorer</div>
           <div className="d">Search reviews; see the exact clause each label came from.</div>
-        </Link>
-      </div>
-
-      <div className="section-heading">
-        <div>
-          <h2>Travel intelligence</h2>
-          <p className="section-description">
-            The same review evidence, put to work for travellers, providers and tourism boards
-            (needs the API: <code>uvicorn cri.server:app</code>).
-          </p>
-        </div>
-      </div>
-      <div className="cardlinks">
-        <Link className="cardlink" href="/explore">
-          <div className="t">🧭 When &amp; where to go</div>
-          <div className="d">Holiday-aware crowd estimates, quieter dates, similar places, star-free stays.</div>
-        </Link>
-        <Link className="cardlink" href="/plan">
-          <div className="t">🗺️ Plan a trip</div>
-          <div className="d">A budget itinerary with traced costs, carbon and local sellers.</div>
-        </Link>
-        <Link className="cardlink" href="/provider">
-          <div className="t">🛎️ Provider insights</div>
-          <div className="d">What to fix, upcoming peaks vs your room mix, quiet windows.</div>
-        </Link>
-        <Link className="cardlink" href="/region">
-          <div className="t">🏔️ Regional pressure</div>
-          <div className="d">Pressure vs assumed ceilings, redistribution, local-economy gaps.</div>
         </Link>
       </div>
 
@@ -146,7 +91,8 @@ export default function Home() {
         <p className="caption" style={{ marginTop: 0 }}>
           This workspace is transparent by design. Explore the matched review clauses, download
           every table, and review the limitations before acting. Real-data accuracy remains{" "}
-          <code>TBD</code> until the labelled set exists. Snapshot generated {m.generated_at}.
+          <code>TBD</code> until the labelled set exists. Snapshot generated{" "}
+          {data.meta.generated_at}.
         </p>
       </div>
     </>

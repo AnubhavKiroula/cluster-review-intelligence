@@ -2,7 +2,7 @@
 "meta": {
 "is_synthetic": true,
 "source_name": "SYNTHETIC sample (seed 42)",
-"generated_at": "2026-10-11T15:36:04+00:00",
+"generated_at": "2026-10-13T11:46:39+00:00",
 "properties": [
 "Property A",
 "Property B",
@@ -30,154 +30,6 @@
 "date_min": "2024-01-01",
 "date_max": "2025-12-27",
 "n_reviews": 5124
-},
-"cluster_matrix": {
-"properties": [
-"Property A",
-"Property B",
-"Property C",
-"Property D",
-"Property E",
-"Property F",
-"Property G",
-"Property H",
-"Property I",
-"Property J",
-"Property K",
-"Property L"
-],
-"aspects": [
-"Food",
-"Room",
-"Housekeeping",
-"Staff",
-"Location",
-"Value for Money",
-"Cleanliness",
-"Booking Experience"
-],
-"z": [
-[
-0.44,
-0.3742,
-0.7128,
-0.4435,
-0.7164,
-0.5631,
-0.7738,
--0.0893
-],
-[
-0.2941,
-0.3059,
-0.5208,
-0.6063,
-0.3645,
-0.1023,
-0.2727,
--0.5
-],
-[
-0.6164,
-0.3089,
-0.3011,
-0.9695,
-0.9176,
-0.7381,
-0.25,
-0.0952
-],
-[
--0.145,
--0.2111,
-0.4719,
-0.4958,
-0.0381,
--0.1216,
--0.0483,
--0.1754
-],
-[
-0.1343,
--0.4021,
-0.2169,
-0.2816,
-0.4906,
-0.2308,
--0.3294,
-0.0161
-],
-[
-0.2188,
-0.1628,
-0.4198,
-0.2,
-0.2547,
-0.2581,
-0.6319,
-0.129
-],
-[
-0.6528,
-0.0106,
-0.3095,
-0.3069,
-0.0952,
-0.69,
-0.4321,
-0.0
-],
-[
-0.6732,
-0.2121,
-0.5556,
-0.5472,
-0.1748,
-0.3611,
-0.1013,
-0.0
-],
-[
-0.4783,
--0.0714,
-0.3462,
-0.5385,
-0.6203,
-0.4783,
-0.5811,
-0.1132
-],
-[
-0.4702,
--0.35,
--0.0568,
-0.1786,
-0.5412,
-0.3333,
--0.1467,
--0.1778
-],
-[
-0.2482,
--0.2414,
--0.1053,
-0.2414,
-0.2262,
-0.1167,
--0.4629,
--0.2586
-],
-[
-0.9108,
-0.4634,
-0.6849,
-0.8261,
-0.951,
-0.8404,
-0.531,
-0.1818
-]
-]
 },
 "market_scope": [
 {
@@ -271,6 +123,15 @@
 "n_properties_reviewed": 12
 }
 ],
+"market_headline": {
+"aspect": "Room",
+"cluster_mean": 0.047,
+"n": 2158,
+"pct_negative": 0.485,
+"scope": "market-wide",
+"pattern": "seasonal dip in December (12/12 properties, average drop 1.10)",
+"n_properties_reviewed": 12
+},
 "per_property": {
 "Property A": {
 "scorecard": [
@@ -1417,7 +1278,9 @@
 "current_mean": 0.102,
 "reference_mean": 0.383,
 "basis": "cluster",
-"n": 88
+"n": 88,
+"whose_problem": "yours alone",
+"whose_detail": "below the market, and no market-wide pattern on Value for Money"
 },
 {
 "aspect": "Booking Experience",
@@ -1429,7 +1292,9 @@
 "current_mean": -0.5,
 "reference_mean": -0.055,
 "basis": "cluster",
-"n": 40
+"n": 40,
+"whose_problem": "yours alone",
+"whose_detail": "below the market, and no market-wide pattern on Booking Experience"
 }
 ],
 "trends": {
@@ -3482,7 +3347,9 @@
 "current_mean": -0.145,
 "reference_mean": 0.416,
 "basis": "cluster",
-"n": 131
+"n": 131,
+"whose_problem": "yours alone",
+"whose_detail": "below the market, and no market-wide pattern on Food"
 },
 {
 "aspect": "Room",
@@ -3494,7 +3361,9 @@
 "current_mean": -0.211,
 "reference_mean": 0.047,
 "basis": "cluster",
-"n": 180
+"n": 180,
+"whose_problem": "yours alone",
+"whose_detail": "still 0.36 below the market outside December; the seasonal dip in December (12/12 properties, average drop 1.10) is everyone's"
 },
 {
 "aspect": "Location",
@@ -3506,7 +3375,9 @@
 "current_mean": 0.038,
 "reference_mean": 0.449,
 "basis": "cluster",
-"n": 105
+"n": 105,
+"whose_problem": "yours alone",
+"whose_detail": "below the market, and no market-wide pattern on Location"
 },
 {
 "aspect": "Cleanliness",
@@ -3518,7 +3389,9 @@
 "current_mean": -0.048,
 "reference_mean": 0.216,
 "basis": "cluster",
-"n": 145
+"n": 145,
+"whose_problem": "yours alone",
+"whose_detail": "below the market, and no market-wide pattern on Cleanliness"
 },
 {
 "aspect": "Value for Money",
@@ -3530,7 +3403,9 @@
 "current_mean": -0.122,
 "reference_mean": 0.383,
 "basis": "cluster",
-"n": 74
+"n": 74,
+"whose_problem": "yours alone",
+"whose_detail": "below the market, and no market-wide pattern on Value for Money"
 }
 ],
 "trends": {
@@ -4583,7 +4458,9 @@
 "current_mean": -0.329,
 "reference_mean": 0.216,
 "basis": "cluster",
-"n": 170
+"n": 170,
+"whose_problem": "yours alone",
+"whose_detail": "below the market, and no market-wide pattern on Cleanliness"
 },
 {
 "aspect": "Room",
@@ -4595,7 +4472,9 @@
 "current_mean": -0.402,
 "reference_mean": 0.047,
 "basis": "cluster",
-"n": 194
+"n": 194,
+"whose_problem": "yours alone",
+"whose_detail": "still 0.54 below the market outside December; the seasonal dip in December (12/12 properties, average drop 1.10) is everyone's"
 },
 {
 "aspect": "Food",
@@ -4607,7 +4486,9 @@
 "current_mean": 0.134,
 "reference_mean": 0.416,
 "basis": "cluster",
-"n": 134
+"n": 134,
+"whose_problem": "yours alone",
+"whose_detail": "below the market, and no market-wide pattern on Food"
 }
 ],
 "trends": {
@@ -5680,7 +5561,9 @@
 "current_mean": -0.704,
 "reference_mean": 0.346,
 "basis": "cluster",
-"n": 128
+"n": 128,
+"whose_problem": "yours alone",
+"whose_detail": "you dropped 1.22 relative to the market from 2025-06; the market itself moved +0.01"
 },
 {
 "aspect": "Staff",
@@ -5692,7 +5575,9 @@
 "current_mean": 0.2,
 "reference_mean": 0.47,
 "basis": "cluster",
-"n": 90
+"n": 90,
+"whose_problem": "yours alone",
+"whose_detail": "below the market, and no market-wide pattern on Staff"
 }
 ],
 "trends": {
@@ -6762,7 +6647,9 @@
 "current_mean": 0.095,
 "reference_mean": 0.449,
 "basis": "cluster",
-"n": 84
+"n": 84,
+"whose_problem": "yours alone",
+"whose_detail": "below the market, and no market-wide pattern on Location"
 }
 ],
 "trends": {
@@ -7820,7 +7707,9 @@
 "current_mean": 0.175,
 "reference_mean": 0.449,
 "basis": "cluster",
-"n": 103
+"n": 103,
+"whose_problem": "yours alone",
+"whose_detail": "below the market, and no market-wide pattern on Location"
 }
 ],
 "trends": {
@@ -9868,7 +9757,9 @@
 "current_mean": -0.35,
 "reference_mean": 0.047,
 "basis": "cluster",
-"n": 200
+"n": 200,
+"whose_problem": "yours alone",
+"whose_detail": "still 0.48 below the market outside December; the seasonal dip in December (12/12 properties, average drop 1.10) is everyone's"
 },
 {
 "aspect": "Cleanliness",
@@ -9880,7 +9771,9 @@
 "current_mean": -0.147,
 "reference_mean": 0.216,
 "basis": "cluster",
-"n": 150
+"n": 150,
+"whose_problem": "yours alone",
+"whose_detail": "below the market, and no market-wide pattern on Cleanliness"
 },
 {
 "aspect": "Housekeeping",
@@ -9892,7 +9785,9 @@
 "current_mean": -0.057,
 "reference_mean": 0.365,
 "basis": "cluster",
-"n": 88
+"n": 88,
+"whose_problem": "yours alone",
+"whose_detail": "below the market, and no market-wide pattern on Housekeeping"
 },
 {
 "aspect": "Staff",
@@ -9904,7 +9799,9 @@
 "current_mean": 0.179,
 "reference_mean": 0.47,
 "basis": "cluster",
-"n": 112
+"n": 112,
+"whose_problem": "yours alone",
+"whose_detail": "below the market, and no market-wide pattern on Staff"
 }
 ],
 "trends": {
@@ -10927,7 +10824,9 @@
 "current_mean": -0.463,
 "reference_mean": 0.216,
 "basis": "cluster",
-"n": 175
+"n": 175,
+"whose_problem": "yours alone",
+"whose_detail": "below the market, and no market-wide pattern on Cleanliness"
 },
 {
 "aspect": "Room",
@@ -10939,7 +10838,9 @@
 "current_mean": -0.241,
 "reference_mean": 0.047,
 "basis": "cluster",
-"n": 203
+"n": 203,
+"whose_problem": "yours alone",
+"whose_detail": "still 0.37 below the market outside December; the seasonal dip in December (12/12 properties, average drop 1.10) is everyone's"
 },
 {
 "aspect": "Housekeeping",
@@ -10951,7 +10852,9 @@
 "current_mean": -0.105,
 "reference_mean": 0.365,
 "basis": "cluster",
-"n": 95
+"n": 95,
+"whose_problem": "yours alone",
+"whose_detail": "below the market, and no market-wide pattern on Housekeeping"
 },
 {
 "aspect": "Value for Money",
@@ -10963,7 +10866,9 @@
 "current_mean": 0.117,
 "reference_mean": 0.383,
 "basis": "cluster",
-"n": 120
+"n": 120,
+"whose_problem": "yours alone",
+"whose_detail": "below the market, and no market-wide pattern on Value for Money"
 }
 ],
 "trends": {

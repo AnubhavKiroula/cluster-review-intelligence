@@ -28,13 +28,20 @@ when, and is it just me or the whole market?"* — backed by honest numbers.
 > **Next.js + a FastAPI service**, and **Streamlit was removed** after its two unique
 > features were ported (fix check: PR #31; *Try your own review*: web explorer).
 > The original rows are kept below for history.
+>
+> **Changed again 2026-10-13 (focus cut, PR `feat/focus-one-question`):** mentors
+> judged the multi-audience pitch unfocused. The product now serves **one payer, the
+> hotel or homestay owner**, and answers one question: is a decline this property's
+> problem or the whole market's? The travel layer and its pages were removed (kept at
+> the git tag `travel-layer-v1`); the API now only classifies typed reviews for the
+> explorer. Four pages remain: `/property`, `/market`, `/fix-check`, `/explorer`.
 
 | Decision | Choice | Why |
 |---|---|---|
-| UI | **Next.js (`web/`, static export) + Plotly.js** *(was: Streamlit + Plotly)* | One polished UI. G5 pages read a static snapshot; travel pages call the API. |
-| Backend | **In-process Python (`src/cri`) behind a FastAPI service (`cri.server`)** *(was: in-process only)* | Interactive travel inputs (dates, budgets) must be computed in tested Python, not duplicated in TypeScript. |
+| UI | **Next.js (`web/`, static export) + Plotly.js** *(was: Streamlit + Plotly)* | One polished UI. Every page reads a static snapshot; only live classify calls the API. |
+| Backend | **In-process Python (`src/cri`); a small FastAPI service (`cri.server`) for live classify** *(was: in-process only)* | Typed reviews must be classified by the same tested Python as the pipeline, not re-implemented in TypeScript. |
 | Charts | **Plotly** | Interactive (hover, zoom) — reads as a product, not a notebook. |
-| Hosting | **Static host (Vercel/Netlify) + a Python host for the API** *(was: Streamlit Community Cloud)* | See `docs/DEPLOYMENT.md`. |
+| Hosting | **Static host (Vercel/Netlify); a Python host for the optional API** *(was: Streamlit Community Cloud)* | See `docs/DEPLOYMENT.md`. |
 | Model backend | **Stretch only** | Rule/lexicon baseline is explainable and already works. A transformer is a *nice-to-have*, never a blocker. |
 | Data | Synthetic (shipped) **+** real CSVs if legitimately obtained | See §8 — scraping is forbidden by `CLAUDE.md`. |
 
@@ -60,8 +67,9 @@ Judges reward a sharp story over feature count. Priority order:
    Saying "we're 0.71 macro F1 and here's where we fail" beats a vague claim.
    **Never invent a number** (`CLAUDE.md` rule 1).
 
-Secondary but cheap: the destination (tourism board) view — it proves a second
-user persona and widens the market story.
+~~Secondary but cheap: the destination (tourism board) view.~~ Cut on 2026-10-13:
+one payer, the property owner. The pitch keeps a single line: the same analysis also
+gives a tourism board a destination view.
 
 ---
 
@@ -79,13 +87,13 @@ is **disjoint file ownership** plus **a frozen contract**.
 |---|---|---|
 | `src/cri/api.py` *(the contract)* | `[A]` | **read-only** — consume it, never edit |
 | `src/cri/benchmark.py`, `changepoint.py`, `insights.py`, `classify.py`, `normalize.py`, `pipeline.py` | `[A]` | do not edit |
-| `web/**` *(Next.js app; the travel pages `web/app/{explore,plan,provider,region}`, `web/lib/api.ts` and `web/components/travel.*` were added by `[A]`)* | `[P]` | do not edit |
-| `src/cri/server.py`, `src/cri/travel/**`, `src/cri/learned_backend.py`, `src/cri/resources/travel_*.yaml`, `src/cri/resources/models/**` | `[A]` | do not edit |
+| `web/**` *(Next.js app; `web/lib/api.ts` was added by `[A]`; the focus cut on 2026-10-13 removed six routes, see §1)* | `[P]` | do not edit |
+| `src/cri/server.py`, `src/cri/learned_backend.py`, `src/cri/resources/models/**` | `[A]` | do not edit |
 | `eval/**`, `scripts/**`, `.github/**`, `data/**` | `[R]` | do not edit |
 | `src/cri/loader.py`, `schema.py`, `sources.py` | `[R]` | do not edit |
 | `src/cri/resources/aspects.yaml`, `lexicon.yaml` *(tuning config)* | `[R]` | do not edit |
 | `tests/test_benchmark.py`, `test_insights.py`, `test_api.py` | `[A]` | — |
-| `tests/test_travel.py`, `test_server.py`, `test_learned_backend.py` | `[A]` | — |
+| `tests/test_server.py`, `test_learned_backend.py` | `[A]` | — |
 | `tests/test_eval.py`, `test_schema_loader.py`, `test_sources.py` | `[R]` | — |
 | `pyproject.toml` | `[R]` **sole editor** | request deps in the group chat |
 | `README.md` | `[A]`, and only at the end | — |
@@ -163,8 +171,15 @@ def search_reviews(d: ClusterData, property_id=None, aspect=None, sentiment=None
 > - `intervention_check(d, property_id, aspect, start, baseline_start=None) -> dict`
 >   ("Did my fix work?", keys `INTERVENTION_KEYS`; methodology §12).
 > - 2026-10-13: classifier backend `learned` (`CRI_LEARNED_MODEL_PATH` is part of the
->   classifier cache key). Nothing above changed. The HTTP API over this facade and the
->   travel layer is documented in `docs/API_CONTRACTS.md`.
+>   classifier cache key). Nothing above changed. The HTTP API over this facade is
+>   documented in `docs/API_CONTRACTS.md`.
+> - 2026-10-13 (focus cut): `priority_actions` → `whose_problem` (`yours alone` |
+>   `everyone's` | `not tested`) and `whose_detail` (why). Derived **per property**,
+>   never joined from `market_scope.scope` by aspect: a market-adjusted decline is the
+>   property's own; a lag is re-tested with the market-wide patterns the property takes
+>   part in set aside, and is `everyone's` only if it disappears. `not tested` when
+>   fewer than 3 properties review the aspect (or too few reviews remain outside the
+>   pattern). Additive: no column removed or renamed.
 
 **Day-0 unblock rule:** `[A]` pushes `api.py` with *working or stubbed* returns
 (correct columns, plausible shapes) **within the first 2 hours**. From that moment
@@ -361,15 +376,16 @@ numbers, the commands that produce them and five pre-tested live inputs, is
 1. **Hook (20 s)** — "Property F averages 3.28 stars. Property I averages 3.33. One
    of them has a serious problem. A star average can't tell you which."
 2. **Property view (40 s)** — open Property F. Priority actions say *fix Food
-   first*. The trend shows it fell off a cliff in June.
+   first since 2025-06*, and the *Whose problem* column says **yours alone**. The
+   trend shows it fell off a cliff in June.
 3. **The differentiator (40 s)** — "But is that *them*, or the whole market?"
    Open the quadrant. Food = property-specific → a competitive gap they own.
    Room = market-wide → every property gets cold-room complaints each December.
    **"Same chart, two completely different actions."**
 4. **Hinglish (20 s)** — type a rehearsed Hinglish/Devanagari review into the
    explorer's *Try your own review* box; show each aspect, its sentiment and the clause.
-5. **Destination view (20 s)** — "And for a tourism board, this is the cluster-wide
-   view: heating is a destination problem, not a hotel problem."
+5. **Did my fix work? (30 s)** — Property A, Room, 2025-12: "A plain before/after
+   would have blamed the renovation for the weather."
 6. **Honesty (20 s)** — show the evaluation table and the limitations section.
    "Here's what we measured, and here's exactly where we fail." (Quote an F1 only
    if it was actually measured on labelled data; otherwise say it is `TBD`.)

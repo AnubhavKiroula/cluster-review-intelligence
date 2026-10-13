@@ -174,3 +174,4 @@ def test_demo_numbers(sample):
     assert (r["naive_delta"], r["market_delta"], r["effect"]) == pytest.approx(
         (-1.38, -0.95, -0.43), abs=0.005
     )
+    assert r["verdict"] == "no detectable change"

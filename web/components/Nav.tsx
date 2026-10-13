@@ -7,39 +7,15 @@ import { useData } from "@/lib/data";
 const LINKS = [
   { href: "/", label: "Home", icon: "🏔️" },
   { href: "/property", label: "Property", icon: "🏨" },
-  { href: "/cluster", label: "Cluster", icon: "🗺️" },
   { href: "/market", label: "Market", icon: "⚖️" },
-  { href: "/destination", label: "Destination", icon: "🧭" },
-  { href: "/explorer", label: "Explorer", icon: "🔍" },
   { href: "/fix-check", label: "Did my fix work?", icon: "🔧" },
+  { href: "/explorer", label: "Explorer", icon: "🔍" },
 ];
 
-// Travel intelligence pages: these call the Python API (cri.server), see lib/api.ts.
-const TRAVEL_LINKS = [
-  { href: "/explore", label: "When & where to go", icon: "🧭" },
-  { href: "/plan", label: "Plan a trip", icon: "🗺️" },
-  { href: "/provider", label: "Provider insights", icon: "🛎️" },
-  { href: "/region", label: "Regional pressure", icon: "🏔️" },
-];
-
-function NavList({ links, pathname }: { links: typeof LINKS; pathname: string }) {
-  return (
-    <ul className="nav-links">
-      {links.map((l) => {
-        const active = l.href === "/" ? pathname === "/" : pathname.startsWith(l.href);
-        return (
-          <li key={l.href}>
-            <Link href={l.href} className={active ? "nav-link active" : "nav-link"}>
-              <span className="nav-icon" aria-hidden>
-                {l.icon}
-              </span>
-              {l.label}
-            </Link>
-          </li>
-        );
-      })}
-    </ul>
-  );
+// Exact match on path segments: a prefix test lit /explorer for /explore too.
+function isActive(href: string, pathname: string): boolean {
+  const path = pathname.replace(/\/+$/, "") || "/";
+  return href === "/" ? path === "/" : path === href || path.startsWith(`${href}/`);
 }
 
 export default function Nav() {
@@ -57,9 +33,21 @@ export default function Nav() {
         </div>
       </div>
       <div className="nav-section-label">Workspace</div>
-      <NavList links={LINKS} pathname={pathname} />
-      <div className="nav-section-label">Travel intelligence</div>
-      <NavList links={TRAVEL_LINKS} pathname={pathname} />
+      <ul className="nav-links">
+        {LINKS.map((l) => (
+          <li key={l.href}>
+            <Link
+              href={l.href}
+              className={isActive(l.href, pathname) ? "nav-link active" : "nav-link"}
+            >
+              <span className="nav-icon" aria-hidden>
+                {l.icon}
+              </span>
+              {l.label}
+            </Link>
+          </li>
+        ))}
+      </ul>
       <div className="nav-footer">
         <div className="workspace-card">
           <span className="status-dot" aria-hidden />

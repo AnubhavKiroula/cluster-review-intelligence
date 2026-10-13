@@ -59,6 +59,7 @@ export default function MarketPage() {
   if (error) return <ErrorState message={error} />;
   if (!data) return <Loading />;
 
+  const headline = data.market_headline;
   const marketWideCount = data.market_scope.filter((row) => row.scope === "market-wide").length;
   const propertySpecificCount = data.market_scope.filter((row) => row.scope === "property-specific").length;
 
@@ -68,9 +69,17 @@ export default function MarketPage() {
         eyebrow="Market diagnosis"
         icon="⚖️"
         title="Market-wide vs property-specific"
-        description="Separate the issues a property can win on from the patterns that call for destination-level action."
+        description="Is a decline one property's problem or the whole market's? One hotel's own reviews cannot tell; the cluster can."
       />
       <SyntheticBanner />
+      {headline && (
+        <div className="callout">
+          <strong>{headline.aspect}</strong> is the biggest market-wide issue:{" "}
+          {fmtPct(headline.pct_negative)} of its mentions are negative across{" "}
+          {headline.n_properties_reviewed} properties ({headline.pattern}). The market shares it,
+          so it is not a gap against your competitors.
+        </div>
+      )}
       <div className="insight-strip">
         <div className="insight-tile">
           <div className="tile-label">Market-wide signals</div>

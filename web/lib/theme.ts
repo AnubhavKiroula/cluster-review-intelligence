@@ -28,6 +28,13 @@ export const SCOPE_COLORS: Record<string, string> = {
   stable: COLORS.teal,
 };
 
+// "Whose problem is it?" uses the scope colours: yours alone = property-specific.
+export const WHOSE_COLORS: Record<string, string> = {
+  "yours alone": COLORS.amber,
+  "everyone's": COLORS.navy,
+  "not tested": COLORS.muted,
+};
+
 // Diverging scale for the -1..+1 sentiment heatmap.
 export const DIVERGING: [number, string][] = [
   [0, COLORS.negative],

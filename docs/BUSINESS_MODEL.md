@@ -2,111 +2,103 @@
 
 **Status: hypotheses.** Every price, cost and conversion below is an assumption to
 be validated with interviews and pilots. None is measured, and market sizes are
-`TBD` until sourced. The model is designed to stay affordable for small providers,
-sellers and students, and to avoid depending on booking commissions.
+`TBD` until sourced.
+
+## One payer, one question
+
+**The payer is the hotel or homestay owner** (or the manager who runs the property).
+The product answers one question for them, before a fix and after it: *when my
+reviews get worse on some aspect, is that my problem or the whole market's?* A single
+hotel cannot answer it from its own reviews; it needs the cluster of nearby
+competitors. That is the moat.
+
+**Positioning.** MakeMyTrip, Goibibo and Booking.com are demand side: they help a
+traveller find a hotel. We are supply side: we sell to the properties listed on those
+platforms and do not compete with them. The same analysis also gives a tourism board
+a destination view; that is not a second product.
+
+> **Scope change 2026-10-13.** Revenue from travellers, sellers and tourism boards was
+> dropped with the travel-intelligence layer (preserved at the git tag
+> `travel-layer-v1`).
 
 ## Business Model Canvas
 
 | Block | Content |
 |---|---|
-| **Customer segments** | (1) Small accommodation providers: homestays, guesthouses, camps, small hotels. (2) Local sellers and experience providers: artisans, weavers, guides. (3) Tourism boards, district administrations and hotel associations. (4) Travellers: students, families, budget and eco-minded visitors (free users). |
-| **Value propositions** | Providers: "what to fix, since when, and is it you or the market", plus demand peaks against your room mix, and whether a fix worked. Sellers: being found in trip plans in the right season. Boards: expected pressure against capacity, redistribution, destination-wide review issues. Travellers: quieter dates, similar places, star-free stays, honest cost and carbon estimates. |
-| **Channels** | Free traveller web app (SEO for "<destination> long weekend crowd"); district tourism offices and homestay schemes; hotel and homestay associations; college travel clubs; WhatsApp-based onboarding for sellers. |
-| **Customer relationships** | Self-serve for travellers and basic listings; assisted onboarding and quarterly review calls for paid providers; dashboards plus a named analyst for boards. |
-| **Revenue streams** | Provider analytics subscriptions; tourism-board and association dashboards (B2G/B2B); later, capped and disclosed referral fees on real transactions; clearly labelled promoted listings that never change trust indicators. |
-| **Key resources** | Review-analytics engine and its methodology; sourced holiday/distance/emission data; verified provider and seller records (to be built); trust. |
-| **Key activities** | Onboarding and verifying providers and sellers; data partnerships (review exports, arrivals); model evaluation (gold labelling); field validation of the demand index. |
-| **Key partners** | Uttarakhand Tourism Development Board and HP Tourism (data, distribution); homestay and hotel associations; NGOs and self-help groups working with artisans; universities (labelling, evaluation). |
-| **Cost structure** | Hosting (static site + small API); data acquisition and verification field work; onboarding staff; model evaluation; support. |
+| **Customer segment** | Small hotels, homestays and guesthouses in a tourism cluster (a hill town or a belt of nearby towns). |
+| **Value proposition** | "What to fix first, since when, and is it you or the market", plus "did my fix work, relative to the market". |
+| **Channels** | Hotel and homestay associations; district tourism offices and homestay schemes (for introductions only); word of mouth inside a cluster. |
+| **Customer relationship** | Assisted onboarding; a short review call each season. |
+| **Revenue stream** | A subscription per property (hypothesis below). |
+| **Key resources** | The review-analytics engine and its methodology; enough properties per cluster to form a market; trust. |
+| **Key activities** | Onboarding properties with their review exports; model evaluation (gold labelling); support. |
+| **Key partners** | Hotel and homestay associations; universities (labelling, evaluation). |
+| **Cost structure** | Hosting (static site + small API); onboarding and support time; model evaluation. |
 
-## Revenue streams (hypotheses)
+## Revenue (hypothesis)
 
 | Stream | Who pays | Hypothesis | Guardrail |
 |---|---|---|---|
-| Free basic listing | Nobody | Profile, aspect feedback, appears in plans and alternatives | Ranking never depends on payment |
-| Provider Insights plan | Provider | ₹499–₹999 per month: insights, fix check, demand peaks, competitor-neutral benchmark | Cancel any time; first season free during pilots (hypothesis) |
-| Association / board dashboard | Board, association | ₹1–3 lakh per year per district or cluster: region view, review issues, exports, analyst support | Aggregates only; no individual reviewer data |
-| Referral fee (later) | Provider, on a completed booking | ≤ 5%, capped per booking, shown to the traveller | Only once real inventory and transactions exist |
-| Promoted placement (later) | Provider, seller | Fixed monthly fee, marked "Promoted" | Never affects demand index, alternatives ranking, feedback or sustainability labels |
+| Owner analytics plan | The property owner | ₹499–₹999 per month: priorities with whose problem, market view, fix check, review explorer | Cancel any time; pause in the off-season; first season free during pilots (hypothesis) |
+
+There are no traveller fees, referral fees or paid placements: the product earns from
+analytics, so it has no incentive to favour any property.
 
 ## Unit economics (illustrative)
 
 Every input is a hypothesis to validate, not a measurement.
 
-**Provider plan:**
-
 | Line | Hypothesis | Notes |
 |---|---|---|
 | Price | ₹699 per month | Midpoint of the band |
-| Gross margin after hosting and support | ~80% | API and static site are cheap; support time dominates |
-| Acquisition cost | ₹1,500 per paying provider | Association partnership plus a field visit |
+| Gross margin after hosting and support | ~80% | The static site and API are cheap; support time dominates |
+| Acquisition cost | ₹1,500 per paying property | Association partnership plus a field visit |
 | Payback | 1,500 / (699 × 0.8) ≈ 2.7 months | |
 | Annual churn | 30% (seasonal businesses) | |
-| 12-month gross profit per provider | ≈ ₹6,700 | |
-
-**Region dashboard:**
-
-| Line | Hypothesis |
-|---|---|
-| Price | ₹2 lakh per year |
-| Analyst time | 6 days per year |
-| Data refresh | 1 day per quarter |
-
-Gross margin depends mainly on analyst cost (to be measured in a pilot).
+| 12-month gross profit per property | ≈ ₹6,700 | |
 
 Break-even depends on fixed team cost, which is `TBD`. Formula:
-`fixed cost ÷ (paying providers × monthly margin + boards × annual margin / 12)`.
+`fixed cost ÷ (paying properties × monthly margin)`.
 
-## Keeping it affordable
+**Cluster constraint.** The answer needs a market: at least 3 properties reviewing an
+aspect, and more for market-wide patterns. A cluster's first customers therefore need
+their competitors' public reviews in the analysis (from permitted exports, never
+scraping), which is a data-access risk below.
 
-- Travellers never pay. The core traveller features are free.
-- Small providers and sellers get a free listing with their review-based profile.
-  Paid analytics start below the price of one room-night per month.
-- Seasonal pause: a provider can pause the plan in the off-season.
-- No commission dependency. The product earns from analytics, so it has no incentive
-  to push travellers to the busiest or most expensive places.
+## Onboarding
 
-## Provider and seller onboarding
-
-1. Partner with an association or district office for an introduction session.
-2. A provider claims their listing with phone OTP (to be built) and uploads their
-   review export, or connects partner data where permitted. No scraping.
-3. Verification of a few items (e.g. a waste-segregation practice) by photo or a
-   field visit. Until verified, items show as "self-reported".
-4. A seller profile is created in a 10-minute assisted session: category, offering,
-   price range, location. It stays "unverified" until a partner NGO or office
-   confirms it.
+1. Partner with an association for an introduction session in one cluster.
+2. An owner shares their review export (or permitted partner data). No scraping.
+3. The first report shows what to fix first and whose problem each item is.
+4. After a fix, the owner runs the fix check at the next review.
 
 ## Competitive differentiation
 
-| Typical OTA or review site | This product |
+| Booking platform or review site | This product |
 |---|---|
-| Star average | Aspect-level feedback with confidence intervals; "is it you or the market" |
-| Pushes popular inventory | Steers away from crowded places and dates, with a capacity guard |
-| Commission-driven ranking | Ranking never paid; promoted items labelled |
-| Restaurants and big hotels dominate | Local artisans, weavers and guides inside trip plans |
-| Opaque | Every number shows its basis (fact / measured / derived / synthetic / assumption) |
+| Serves the traveller (demand side) | Serves the property (supply side) |
+| Star average | Aspect-level scores with confidence intervals |
+| Shows a property its own reviews | Separates the property's problem from the market's, tested per property |
+| Before/after at best | Fix check relative to the market, with a placebo rank |
 
-Validating this against existing booking platforms and destination apps needs a
-structured competitor review (`TBD`).
+Validating this against existing hotel-analytics tools needs a structured competitor
+review (`TBD`).
 
 ## Impact metrics and how they would be measured
 
-| Metric | Estimate today | How to measure for real |
+| Metric | Today | How to measure for real |
 |---|---|---|
-| Visitor pressure moved away from places at or over their ceiling | Planner variants and alternatives (estimate) | Adoption of variants (telemetry), then partner occupancy on peak days |
-| Local-business discovery | Seller impressions in plans (estimate) | Seller-reported enquiries and sales (self-reported, then sampled) |
-| Share of trip spend reaching local businesses | Seller and experience lines in plans (estimate) | Traveller survey plus seller reports; never inferred from simulated data |
-| Occupancy spread across periods | — | Provider occupancy before and after offers in low-demand windows |
-| Sustainability practices adopted | Reported practices per listing | Verified practices per listing over time |
+| Owners act on "yours alone" priorities | `TBD` | Pilot feedback per priority |
+| Money not spent on market-wide problems | `TBD` | Owner interviews after a season |
+| Fixes confirmed relative to the market | `TBD` | Fix-check verdicts in pilots |
 
 ## Risks and validation plan
 
 | Risk | Validation |
 |---|---|
-| Providers will not pay | 10 interviews plus a 2-month free pilot with 15 homestays; target ≥ 30% conversion to paid (hypothesis) |
-| Boards prefer in-house tools | 2 district pilots with an exported report; measure whether decisions cite it |
-| Data access (review exports, arrivals) | MoUs with an association and UTDB; fall back to provider-uploaded exports |
-| Trust in estimates | Keep Evidence labels; publish methodology; collect "was this useful" feedback per insight |
-| Seasonality of revenue | Annual board contracts plus pause-able provider plans |
+| Owners will not pay | 10 interviews plus a 2-month free pilot with 15 homestays; target ≥ 30% conversion to paid (hypothesis) |
+| Too few properties per cluster to form a market | Start where an association covers most properties of one town |
+| Data access (review exports) | MoU with an association; fall back to owner-uploaded exports |
+| Trust in the verdicts | Every verdict shows why; methodology published; "was this useful" feedback per priority |
+| Seasonality of revenue | Pause-able plans |
 | Legal or data provenance | Only permitted data; no scraping; anonymise properties in public views |

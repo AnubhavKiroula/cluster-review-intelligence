@@ -8,7 +8,12 @@ signature and documented columns. Additive extensions (Day 0, agreed in the PR):
 * Extra columns: ``property_scorecard`` -> ``n_reviews, q_value``; ``changepoints``
   -> ``raw_delta, market_delta, p_value, q_value``; ``market_scope`` -> ``pattern``;
   ``destination_summary`` -> ``pattern, n_properties_reviewed``; ``priority_actions``
-  -> ``current_mean, reference_mean, basis, n``.
+  -> ``current_mean, reference_mean, basis, n, whose_problem, whose_detail``.
+* ``priority_actions.whose_problem`` answers "is it me or the market?" for THAT
+  property: ``yours alone`` | ``everyone's`` | ``not tested``, with ``whose_detail``
+  saying why. It is derived per property (a lag is re-tested with the market-wide
+  patterns the property takes part in set aside), never joined from
+  ``market_scope.scope`` by aspect: that label describes the cluster, not each row.
 * Scope values: ``market_scope`` may return ``undetermined`` (fewer than 3
   properties review the aspect); ``destination_summary`` also uses ``stable``.
 * ``classify_text(text)`` -> ``aspect, sentiment, sentence``: classify one typed
@@ -29,7 +34,7 @@ local time in ``LOCAL_TZ`` while naive dates stay as they are (so months are the
 calendar months the guests experienced).
 
 All functions are pure: they never mutate ``ClusterData``. In a UI or server, cache
-``load_cluster`` once (cri.server keeps one ``ClusterData`` per process).
+``load_cluster`` once (the web snapshot exporter loads it once per run).
 Unknown property/aspect names or invalid arguments raise ``ValueError`` naming
 the valid options; empty results are empty frames with the documented columns.
 """
@@ -263,7 +268,8 @@ def destination_summary(d: ClusterData) -> pd.DataFrame:
 
 
 def priority_actions(d: ClusterData, property_id: str, top_n: int = 5) -> pd.DataFrame:
-    """aspect, gap, volume, impact_score, started, rationale -> "fix this first"."""
+    """aspect, gap, volume, impact_score, started, rationale -> "fix this first",
+    plus ``whose_problem`` / ``whose_detail`` -> "is it you or the market?"."""
     if isinstance(top_n, bool) or not isinstance(top_n, numbers.Integral) or top_n < 1:
         raise ValueError(f"top_n must be a positive integer, got {top_n!r}")
     _check_property(d, property_id)

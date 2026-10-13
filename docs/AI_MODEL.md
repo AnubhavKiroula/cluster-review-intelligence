@@ -1,26 +1,25 @@
 # AI / ML components
 
-Six components, each documented the same way: purpose, inputs, data, method,
-evaluation, limitations, fallback and how users see the explanation. Only one of
-them is *trained*; the others are transparent scoring engines, because there is no
-data to train or validate them on (docs/DATA_SOURCES.md). Every number on this page
-was measured or is a stated configuration value; unmeasured results are `TBD`
-(tracked in docs/TODO_RESULTS.md).
+Three components, each documented the same way: purpose, method, evaluation,
+limitations and how users see the explanation. Only the classifier is *trained*;
+the other two are statistical tests over its output. Every number on this page was
+measured or is a stated configuration value; unmeasured results are `TBD` (tracked
+in docs/TODO_RESULTS.md).
 
 | # | Component | Kind | Code |
 |---|---|---|---|
-| 1 | Review aspect + sentiment classifier (G5) | rules (default) or trained model | `cri.classify`, `cri.learned_backend` |
-| 2 | Cluster benchmark, changepoints, market scope, fix check (G5) | statistical tests | `cri.benchmark`, `cri.intervention` (see `methodology.md`) |
-| 3 | Visitor-demand index | transparent points model | `cri.travel.demand` |
-| 4 | Crowd-aware alternatives | weighted similarity + capacity guard | `cri.travel.alternatives` |
-| 5 | Stay profiles + provider opportunity engine | rules over review analytics + demand | `cri.travel.stays` |
-| 6 | Seller opportunity + trip planner | exposure score; cost/carbon arithmetic | `cri.travel.region`, `cri.travel.planner` |
+| 1 | Review aspect + sentiment classifier | rules (default) or trained model | `cri.classify`, `cri.learned_backend` |
+| 2 | Cluster benchmark, changepoints, market scope, fix check | statistical tests | `cri.benchmark`, `cri.intervention` (see `methodology.md`) |
+| 3 | "Whose problem is it?" per priority | re-test of a lag with market patterns set aside | `cri.insights` |
+
+The travel engines removed on 2026-10-13 (demand index, alternatives, stays,
+planner, seller opportunity) are documented at the git tag `travel-layer-v1`.
 
 ---
 
 ## 1. Review sentiment: rules (default) and the learned model
 
-**Purpose.** Label each aspect clause of a review −1 / 0 / +1 so the G5 analytics can
+**Purpose.** Label each aspect clause of a review −1 / 0 / +1 so the review analytics can
 benchmark properties per aspect. Aspects always come from the transparent cue terms
 in `aspects.yaml`; the backend only decides clause sentiment.
 
@@ -125,7 +124,7 @@ fine-tuned multilingual transformer on the local GPU with the same splits.
 
 ---
 
-## 2. G5 statistics
+## 2. Review statistics
 
 Bootstrap benchmark, changepoints relative to the market, market-wide patterns and
 the intervention check are documented in [`methodology.md`](methodology.md) with
@@ -133,147 +132,43 @@ their SYNTHETIC calibration. Unchanged by this work.
 
 ---
 
-## 3. Visitor-demand index (`cri.travel.demand`)
+## 3. "Whose problem is it?" (`priority_actions.whose_problem`)
 
-**Purpose.** Estimate *relative visitor pressure* (0–100) per destination and day
-so travellers can avoid peaks, providers can prepare, and boards can see pressure
-coming. It is **not** live traffic, road congestion or a booking forecast, and the
-UI says so.
+**Purpose.** Each "fix this first" row on the property page answers the owner's one
+question: is this decline mine or the market's? Values: `yours alone`,
+`everyone's`, `not tested`; `whose_detail` says why.
 
-**Formulation.** A points model whose index is exactly the sum of the factors shown:
+**Method.** Derived per property, **never joined from `market_scope.scope` by
+aspect** (that label describes the cluster, not each property):
 
-| Factor | Points | Basis |
-|---|---|---|
-| Popularity tier (high / medium / low) | 30 / 20 / 10 | assumption, with the evidence that informed it (UTDB arrivals where published) |
-| Season | 25 × season[month] (0–1 curve per destination) | synthetic |
-| Weekend (Sat/Sun) | +10 | assumption |
-| Gazetted holiday | +10 | fact (DoPT lists) |
-| Long weekend: day in a run of ≥ 3 consecutive off-days containing a holiday | +15 | derived |
-| Inside an assumed school-vacation or year-end window | +10 each | assumption |
+| Case | Verdict |
+|---|---|
+| The property's own decline relative to the market (a market-adjusted changepoint) | `yours alone` |
+| A lag vs the cluster, with no market-wide pattern on the aspect that the property takes part in | `yours alone` |
+| A lag, re-tested (same FDR-controlled lag test) with the market-wide patterns the property takes part in set aside: still lags | `yours alone` |
+| Same re-test: the lag disappears | `everyone's` |
+| Fewer than 3 properties review the aspect, or fewer than 10 reviews remain outside the pattern | `not tested` |
 
-Clipped to 0–100 (a visible "capped" factor keeps the sum exact). Categories:
-Low < 30 ≤ Moderate < 55 ≤ High < 75 ≤ Very High; "borderline" within ±3 points of
-a cut. Bridge days are not counted (a Tuesday holiday is not a long weekend unless
-Monday is also off). Beyond the holiday coverage (2026-01-01 to 2027-12-31) holiday
-points are 0 and every such day carries a note.
+"Set aside" means the pattern's calendar month (seasonal dip) or the months from its
+start (step decline), for that aspect only.
 
-**Quieter dates.** The same trip shifted by up to ±7 days; options at least 10
-points quieter on average are returned with the factors they avoid.
+**Validation (SYNTHETIC only, `tests/test_insights.py`).** Property F's Food decline
+is `yours alone`. Property D's Room lag stays `yours alone` although Room has a
+market-wide December dip: D is still 0.36 below the market outside December. A
+fixture that adds two extra copies of Property G's December Room reviews makes G lag
+on Room purely through the dip, and the verdict becomes `everyone's`. Agreement with
+causes confirmed by owners on real clusters is `TBD`.
 
-**Why not a trained model.** No daily or monthly destination footfall exists in the
-data we could obtain (UTDB publishes annual totals only; Himachal publishes no
-destination series). Training a forecaster on invented observations would only
-dress up the assumptions. The `DemandModel` protocol lets a trained model replace
-the heuristic without touching callers.
-
-**Confidence.** Always "indicative"; shown as a category first, never with a fake
-numeric band.
-
-**Validation plan** (`TBD` until data exists): with monthly arrivals per
-destination, compare the monthly mean index with arrivals (Spearman rank
-correlation per destination), then fit the weights on years ≤ Y and test on Y+1
-(time-aware split); with partner occupancy, check that High/Very High days have
-higher occupancy than Low days.
-
-**Tests.** Index = sum of factors and within 0–100 for every destination and day;
-adding a holiday never lowers any day; Christmas 2026 is a long weekend and
-Tuesday Dussehra 2026 is not; beyond-coverage days carry the note; a custom model is
-used when injected.
-
----
-
-## 4. Crowd-aware alternatives (`cri.travel.alternatives`)
-
-**Purpose.** When a destination is busy, suggest similar places with headroom,
-without just moving pressure onto a more fragile place.
-
-**Scoring.**
-
-- similarity = weighted mean of: landscape Jaccard (0.30), activity-tag Jaccard
-  (0.30), budget closeness 1 − |Δlevel|/2 (0.15), extra travel time from the
-  traveller's city max(0, 1 − Δhours/4) (0.15), share of trip days in the place's
-  suitable months (0.10). Weights are query parameters.
-- relief = (D_origin − D_candidate)/100 on the same dates; headroom =
-  (ceiling − D_candidate)/100 with an **assumed** ceiling of 90 / 80 / 70 for low /
-  medium / high environmental sensitivity.
-- score = similarity × min(relief, headroom). Excluded, with the reason, when relief
-  < 0.10 or headroom ≤ 0 (the capacity guard).
-
-**Explanation.** Every suggestion states why the original is busy (its top demand
-drivers), why the alternative is similar (shared tags, budget), its expected crowd,
-the trade-off (extra hours, budget level, official vs estimated distance) and its
-limitations (assumed ceiling, SYNTHETIC profile, weather/roads not modelled).
-
-**Limitations.** No official carrying capacity exists; ceilings and sensitivity
-tiers are assumptions. Travel time uses an assumed 40 km/h door-to-door average.
-
-**Tests.** Origin never suggested; every suggestion is ≥ 10 points quieter and under
-its ceiling; at least one exclusion by the guard at Christmas; changing weights
-changes the ranking; all five explanations present.
-
----
-
-## 5. Stay profiles and the provider opportunity engine (`cri.travel.stays`)
-
-**Purpose.** Compare stays without star ratings, and give providers explained,
-actionable opportunities. Decision support only: no revenue prediction, no automatic
-pricing.
-
-**Profile.** Price range and band, room mix, listed amenities and sustainability
-practices (self-reported, never labelled verified), rule-based suitability
-(students/budget, families, groups, step-free access, remote work, each with its
-reason), and guest feedback per aspect from the G5 scorecard (mean, 95% CI, n,
-lead/lag vs the cluster) plus significant declines relative to the market.
-
-**Insights** (each with "why" and evidence):
-
-1. G5 priority actions ("Fix Food first since 2025-06").
-2. Amenity gaps: negative review clauses matching cue words (heater/heating,
-   hot water/geyser, wifi, parking), n ≥ 5 reviews, rate per 100 reviews vs the
-   cluster, the peak month, example clauses, and a cross-reference to the G5 market
-   scope (December Room complaints are market-wide).
-3. Demand peaks in the next N days vs the room mix (flags family rooms < 20% during
-   family-travel windows and budget rooms < 20% during weekends).
-4. Low-demand windows of ≥ 3 days for offers.
-5. Sustainability practices not reported.
-
-**Tests.** No star or rating fields; amenity counts equal a direct
-`search_reviews` count; Property F's first insight is the Food decline.
-
----
-
-## 6. Seller opportunity and trip planner
-
-**Seller opportunity** (`cri.travel.region`): exposure = mean over the window of
-(demand index/100 × assumed category seasonality) × 100. A category is
-"under-served" when exposure ≥ 40 (an assumption) and at most one seller is listed.
-Labelled everywhere as a visitor-exposure estimate, **not sales or income**.
-
-**Trip planner** (`cri.travel.planner`): picks the stay with the preferred room type
-and enough rooms (fewest guest-feedback lags, then price; reported practices first if
-the traveller asks), up to two interest-matched activities per day, a local seller
-per day, and costs as traced lines:
-
-- transport: car 2 × km × ₹12/vehicle-km × cars (4 per car), or bus 2 × km ×
-  ₹2/passenger-km × travellers (synthetic rates);
-- stay: price × rooms × nights; activities: Σ price × travellers; food:
-  ₹500/800/1,200 per person-day by destination budget level (synthetic).
-
-Carbon: 2 × km × factor (car per vehicle, bus per passenger) with the source shown;
-stay emissions are not estimated. Variants: *lower budget* (budget rooms + bus) and
-*lower crowd* (the quieter of the best ±7-day shift and the top alternative).
-
-**Tests.** Cost lines sum to the total; carbon equals km × sourced factor; the
-lower-budget variant is cheaper and the lower-crowd variant quieter; invalid input
-is rejected.
+**Limitations.** It inherits the power limits of the lag test (about 100 reviews per
+property-aspect); a property hit harder than average by a market-wide pattern is
+`everyone's` if its remaining lag is not significant (the detail shows its drop vs
+the average drop).
 
 ---
 
 ## Responsible use
 
-- Synthetic profiles, prices and sellers are labelled in files, API responses and
-  UI. Facts carry their source.
-- No live-traffic, safety or accessibility claims are made without data.
+- SYNTHETIC data is labelled in files, figures and the UI.
 - Reviewer identity is dropped at ingestion; the hill-review text and the model
   trained on it never leave the local machine.
-- Provider insights are suggestions with evidence, not guarantees.
+- Priorities and verdicts are suggestions with evidence, not proof of cause.
