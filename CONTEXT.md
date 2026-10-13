@@ -79,8 +79,9 @@ Streamlit (`app/`) was removed on 2026-10-13. No database.
   default.** Full results are in `docs/AI_MODEL.md`.
 - **Facts:** every fact in `travel_facts.yaml` was read from its cited source on
   2026-10-13, and holiday weekdays are checked on load.
-- **Not verified:** deployment of either piece (needs accounts); CI on the PR (runs
-  on push).
+- **CI on PR #32:** green. lint-and-test passed on 3.11 and 3.12, the web job
+  (tsc + build) passed, and CodeQL passed.
+- **Not verified:** deployment of either piece (needs accounts).
 
 ## Next tasks
 
