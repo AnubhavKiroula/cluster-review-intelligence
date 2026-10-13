@@ -365,3 +365,81 @@ def test_intervention_check_contract(d):
 def test_intervention_check_rejects_bad_input(d, args, match):
     with pytest.raises(ValueError, match=match):
         api.intervention_check(d, *args)
+
+
+# --- Sources without review dates (e.g. the real Kausani corpus) ---------------------
+
+
+@pytest.fixture(scope="module")
+def undated(tmp_path_factory):
+    path = tmp_path_factory.mktemp("undated") / "synthetic_undated.csv"
+    generate(seed=42).drop(columns=["date"]).to_csv(path, index=False)
+    return api.load_cluster(path)
+
+
+def test_a_source_without_dates_is_accepted_and_never_filled(undated):
+    assert not undated.has_dates and "date" not in undated.reviews.columns
+    assert undated.labelled["date"].isna().all()  # missing, not invented
+    assert api.load_cluster().has_dates
+    assert all(pd.isna(x) for x in api.date_range(undated))
+
+
+def test_time_based_results_are_empty_typed_frames_without_dates(undated):
+    _has(api.trend(undated, "Property F", "Food"), CONTRACT["trend"])
+    assert api.trend(undated, "Property F", "Food").empty
+    cps = api.changepoints(undated)
+    _has(cps, CONTRACT["changepoints"])
+    assert cps.empty
+    from cri import benchmark
+    assert benchmark.detect_market_patterns(undated.labelled).empty
+    assert list(benchmark.detect_seasonal_dips(undated.labelled).columns) == \
+        benchmark.SEASONAL_COLUMNS
+    assert benchmark.detect_seasonal_dips(undated.labelled).empty
+
+
+def test_fix_check_without_dates_is_no_data_not_an_error(undated):
+    r = api.intervention_check(undated, "Property A", "Room", "2025-12")
+    assert set(r) == set(api.INTERVENTION_KEYS)
+    assert r["verdict"] == "no data" and r["effect"] is None
+    assert "no review dates" in r["summary"]
+
+
+def test_priorities_without_dates_have_no_start_and_say_what_was_not_tested(undated):
+    pa = api.priority_actions(undated, "Property D")
+    assert len(pa) > 0 and pa["started"].isna().all()
+    assert (pa["whose_problem"] == "yours alone").all()
+    assert pa["whose_detail"].str.contains("no review dates").all()
+
+
+def test_market_scope_without_dates_claims_no_time_pattern(undated):
+    scope = api.market_scope(undated)
+    assert len(scope) > 0
+    assert not scope["pattern"].str.contains("seasonal|from 20|decline", regex=True).any()
+    # Room's December dip exists in the data but cannot be seen without dates.
+    assert set(scope["scope"]) <= {"property-specific", "market-wide", "undetermined"}
+    dest = api.destination_summary(undated)
+    assert not dest["pattern"].str.contains("shift").any()
+
+
+def test_a_shared_weak_spot_is_market_wide_without_dates():
+    # 5 properties: guests complain about Room at all of them, never about Food.
+    rows, rid = [], 0
+    for p in "ABCDE":
+        for i in range(30):
+            rid += 1
+            rows += [(rid, f"Property {p}", "Food", 1),
+                     (rid, f"Property {p}", "Room", -1 if i % 2 else 1)]
+    labelled = pd.DataFrame(rows, columns=["review_id", "property_id", "aspect", "sentiment"])
+    labelled = labelled.assign(date=pd.NaT, sentence="")
+    d = api.ClusterData(labelled[["review_id", "property_id"]].drop_duplicates(), labelled,
+                        True, "test", has_dates=False)
+    room = api.market_scope(d).set_index("aspect").loc["Room"]
+    assert room["scope"] == "market-wide" and room["n_properties"] == 5
+    assert room["pattern"].startswith("shared weak spot")
+
+
+def test_search_without_dates_rejects_a_date_filter(undated):
+    hits = api.search_reviews(undated, property_id="Property F", aspect="Food")
+    assert len(hits) > 0 and hits["date"].isna().all()
+    with pytest.raises(ValueError, match="no review dates"):
+        api.search_reviews(undated, start="2025-01-01")

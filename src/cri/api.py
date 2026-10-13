@@ -24,6 +24,14 @@ signature and documented columns. Additive extensions (Day 0, agreed in the PR):
 * Thresholds the UI may draw (constants): ``MARKET_WIDE_FRACTION`` (share of the
   properties reviewing an aspect that must share a market pattern) and
   ``MIN_REVIEWS_FOR_FLAG`` (fewer reviews: no CI, no lead/lag flag).
+* Sources without review dates (2026-10-13): a reviews file with no ``date`` column
+  is accepted and never filled. ``ClusterData.has_dates`` is then False; ``trend``,
+  ``changepoints`` and the market patterns return their empty typed frames;
+  ``intervention_check`` returns verdict ``no data``; ``date_range`` returns
+  ``(NaT, NaT)``; ``priority_actions`` works with ``started`` always None;
+  ``market_scope`` / ``destination_summary`` use the level-based evidence only
+  (shared weak spots and ``lag`` flags), never a seasonal or changepoint claim;
+  ``search_reviews`` returns ``date`` as NaT and rejects ``start``/``end``.
 * Missing optional values: ``priority_actions.started`` and
   ``changepoints.market_delta`` can be missing (``None`` / NaN); test with
   ``pd.isna``. ``ci_low``/``ci_high`` are NaN below 10 reviews.
@@ -85,6 +93,7 @@ class ClusterData:
     labelled: pd.DataFrame  # review_id, property_id, date, aspect, sentiment, sentence
     is_synthetic: bool
     source_name: str  # shown in the UI banner
+    has_dates: bool = True  # False: the source has no review dates (`date` is NaT)
 
 
 # --- Loading ------------------------------------------------------------------------
@@ -162,7 +171,7 @@ def load_cluster(path=None, *, synthetic=True, seed=42) -> ClusterData:
 
     reviews = _normalise(_with_review_ids(reviews))
     labelled = label_reviews(reviews, classifier=_configured_classifier())
-    return ClusterData(reviews, labelled, is_synthetic, source)
+    return ClusterData(reviews, labelled, is_synthetic, source, "date" in reviews.columns)
 
 
 # --- Lookups ------------------------------------------------------------------------
@@ -183,6 +192,9 @@ def list_aspects() -> list[str]:
 
 
 def date_range(d: ClusterData) -> tuple[pd.Timestamp, pd.Timestamp]:
+    """First and last review date; ``(NaT, NaT)`` for a source without dates."""
+    if not d.has_dates:
+        return (pd.NaT, pd.NaT)
     dates = d.reviews["date"]
     return (pd.Timestamp(dates.min()), pd.Timestamp(dates.max()))
 
@@ -235,6 +247,7 @@ def trend(d: ClusterData, property_id: str, aspect: str) -> pd.DataFrame:
     """month, mean, n for one property-aspect (months with at least one mention)."""
     _check_property(d, property_id)
     _check_aspect(aspect)
+    # Without dates monthly_stats finds no dated mention and returns the empty frame.
     return _benchmark.monthly_stats(d.labelled, property_id, aspect)[TREND_COLUMNS]
 
 
@@ -292,9 +305,11 @@ def intervention_check(
     """
     _check_property(d, property_id)
     _check_aspect(aspect)
+    month = _intervention.month(start)
+    if not d.has_dates:
+        return _intervention.no_dates(property_id, aspect, month)
     lo, hi = date_range(d)
     first, last = lo.to_period("M"), hi.to_period("M")
-    month = _intervention.month(start)
     if not first < month <= last:
         raise ValueError(
             f"start {month} must be after the first month of data ({first}) and no later "
@@ -329,7 +344,11 @@ def search_reviews(
     if sentiment is not None and (isinstance(sentiment, bool) or sentiment not in (-1, 0, 1)):
         raise ValueError(f"sentiment must be -1, 0, or 1, got {sentiment!r}")
 
-    reviews = d.reviews[REVIEW_COLUMNS]  # extra raw columns never collide with clause ones
+    if not d.has_dates and (start is not None or end is not None):
+        raise ValueError("This source has no review dates, so start/end cannot be applied.")
+    # Extra raw columns never collide with clause ones; a dateless source gets NaT.
+    reviews = d.reviews.reindex(columns=REVIEW_COLUMNS)
+    reviews["date"] = pd.to_datetime(reviews["date"])
     if property_id is not None:
         reviews = reviews[reviews["property_id"] == property_id]
     day = reviews["date"].dt.normalize()

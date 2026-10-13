@@ -95,6 +95,16 @@ def review_units(labelled: pd.DataFrame) -> pd.DataFrame:
     return units.assign(value=units["total"] / units["mentions"])
 
 
+def dated_units(labelled: pd.DataFrame) -> pd.DataFrame:
+    """Review units that carry a date. Every time-based analysis starts here, so a
+    source without review dates yields empty results, never invented ones."""
+    return review_units(labelled).dropna(subset=["date"])
+
+
+def has_dates(labelled: pd.DataFrame) -> bool:
+    return bool(labelled["date"].notna().any()) if "date" in labelled.columns else False
+
+
 def _group_seed(property_id: str, aspect: str) -> int:
     """Stable per-group seed (Python's hash() is salted per process)."""
     return zlib.crc32(f"{property_id}|{aspect}".encode())
@@ -222,7 +232,7 @@ def benchmark_vs_cluster(labelled: pd.DataFrame, property_id: str | None = None)
 def monthly_stats(labelled: pd.DataFrame, property_id: str, aspect: str) -> pd.DataFrame:
     """month, mean, n for one property-aspect (months with at least one mention)."""
     mask = (labelled["property_id"] == property_id) & (labelled["aspect"] == aspect)
-    sub = labelled.loc[mask]
+    sub = labelled.loc[mask].dropna(subset=["date"])
     if sub.empty:
         return pd.DataFrame(
             {
@@ -381,7 +391,7 @@ def detect_changepoints(
     properties have no market reference: their raw series is tested and
     ``market_delta`` is NaN.
     """
-    return _changepoints_from_units(review_units(labelled), min_effect, q)
+    return _changepoints_from_units(dated_units(labelled), min_effect, q)
 
 
 # --- "Is it the market?": patterns shared across properties -------------------------
@@ -568,7 +578,7 @@ def _findings_from_units(
 def market_findings(labelled: pd.DataFrame, **kwargs) -> list[dict]:
     """Significant market-wide patterns as dicts (``gaps`` maps each participating
     property to its drop); ``detect_market_patterns`` is the tabular view."""
-    return _findings_from_units(review_units(labelled), **kwargs)
+    return _findings_from_units(dated_units(labelled), **kwargs)
 
 
 def detect_market_patterns(
@@ -627,8 +637,63 @@ def detect_seasonal_dips(labelled: pd.DataFrame, month: int | None = None) -> pd
 # --- Market-wide vs property-specific -----------------------------------------------
 
 
+def shared_weak_spots(
+    units: pd.DataFrame, min_fraction: float = MARKET_WIDE_FRACTION, q: float = FDR_Q
+) -> list[dict]:
+    """Level-based market pattern, for sources without review dates.
+
+    An aspect is a *shared weak spot* when guests complain about it more than about
+    the same property's other aspects, at most properties: per property, the
+    complaint share (units with negative sentiment) on the aspect minus on its other
+    aspects (each side needs ``MIN_REVIEWS_FOR_FLAG`` reviews); properties are the
+    replicates (one-sided t test, Benjamini-Hochberg across aspects); and at least
+    ``min_fraction`` of the properties reviewing the aspect must exceed it by
+    ``MARKET_MIN_EFFECT / 2`` (0.3 on the -1..+1 scale is ~15% of mentions flipping).
+    Complaint share, not mean sentiment: neutral mentions (e.g. "check-in at noon")
+    lower a mean without anyone complaining.
+    """
+    if units.empty:
+        return []
+    units = units.assign(complaint=(units["value"] < 0).astype(float))
+    coverage = units.groupby("aspect")["property_id"].nunique()
+    tests = []
+    for aspect in sorted(coverage.index):
+        if coverage[aspect] < MIN_PROPERTIES_FOR_SCOPE:
+            continue
+        gaps, shares = {}, []
+        for prop, g in units.groupby("property_id"):
+            on, off = g.loc[g["aspect"] == aspect, "complaint"], g.loc[g["aspect"] != aspect,
+                                                                      "complaint"]
+            if len(on) >= MIN_REVIEWS_FOR_FLAG and len(off) >= MIN_REVIEWS_FOR_FLAG:
+                gaps[prop] = float(on.mean() - off.mean())
+                shares.append((on.mean(), off.mean()))
+        if len(gaps) < MIN_PROPERTIES_FOR_SCOPE:
+            continue
+        values = np.array(list(gaps.values()))
+        tests.append({
+            "aspect": aspect, "gaps": gaps, "coverage": int(coverage[aspect]),
+            "on": float(np.mean([s[0] for s in shares])),
+            "off": float(np.mean([s[1] for s in shares])),
+            "p_value": _upper_t_p(float(values.mean()), float(values.std(ddof=1)), len(values)),
+        })
+    if not tests:
+        return []
+    qs = bh_qvalues(np.array([t["p_value"] for t in tests]))
+    out = []
+    for t, qv in zip(tests, qs, strict=True):
+        part = {p: g for p, g in t["gaps"].items() if g >= MARKET_MIN_EFFECT / 2}
+        if qv <= q and len(part) / t["coverage"] >= min_fraction:
+            out.append({**t, "kind": "level", "gaps": part, "q_value": float(qv)})
+    return out
+
+
 def describe_finding(finding: dict) -> str:
     k = len(finding["gaps"])
+    if finding["kind"] == "level":
+        return (
+            f"shared weak spot: complaints in {finding['on']:.0%} of mentions vs "
+            f"{finding['off']:.0%} for other aspects ({k}/{finding['coverage']} properties)"
+        )
     if finding["kind"] == "seasonal":
         when = f"seasonal dip in {calendar.month_name[finding['calendar_month']]}"
     else:
@@ -652,12 +717,22 @@ def market_wide_summary(
 
     ``fraction`` is relative to the properties reviewing the aspect. Aspects with no
     negative shift are omitted.
+
+    **Without review dates** only the level-based half can be tested, so nothing
+    seasonal or step-like is ever claimed: ``market-wide`` means a shared weak spot
+    (``shared_weak_spots``) and ``property-specific`` means properties flagged
+    ``lag`` against the cluster.
     """
     units = review_units(labelled)
     coverage = units.groupby("aspect")["property_id"].nunique()
-    cps = _changepoints_from_units(units, CHANGEPOINT_MIN_EFFECT, FDR_Q)
-    declines = cps[cps["direction"] == "negative"]
-    findings = _findings_from_units(units, min_fraction=min_fraction)
+    if units["date"].isna().all():  # a source without review dates: levels only
+        bench = benchmark_vs_cluster(labelled)
+        declines = bench[bench["flag"] == "lag"]
+        findings = shared_weak_spots(units, min_fraction=min_fraction)
+    else:
+        cps = _changepoints_from_units(units, CHANGEPOINT_MIN_EFFECT, FDR_Q)
+        declines = cps[cps["direction"] == "negative"]
+        findings = _findings_from_units(units, min_fraction=min_fraction)
 
     rows: list[dict] = []
     for aspect in sorted(set(declines["aspect"]) | {f["aspect"] for f in findings}):
@@ -665,6 +740,8 @@ def market_wide_summary(
         own = declines[declines["aspect"] == aspect]
         relative = "below the market" if k >= MIN_PROPERTIES_FOR_SCOPE else "declined"
         own_text = "; ".join(
+            f"{r.property_id} below the cluster ({r.mean:+.2f} vs {r.cluster_mean:+.2f})"
+            if "flag" in own.columns else
             f"{r.property_id} {relative} from {r.change_month} ({r.delta:+.2f})"
             for r in own.itertuples()
         )

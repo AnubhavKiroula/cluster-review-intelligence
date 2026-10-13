@@ -57,6 +57,12 @@ def _empty(property_id: str, aspect: str, start: pd.Period, verdict: str, summar
     return out
 
 
+def no_dates(property_id: str, aspect: str, start: pd.Period) -> dict:
+    """The result for a source without review dates: nothing can be compared."""
+    return _empty(property_id, aspect, start, "no data",
+                  "This source has no review dates, so a before/after check is not possible.")
+
+
 def _detect_baseline(series: pd.DataFrame) -> pd.Period | None:
     """Start of the current level before the change: the latest significant shift
     relative to the market in the months before ``start``, if any.

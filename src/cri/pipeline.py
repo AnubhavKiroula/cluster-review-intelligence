@@ -25,6 +25,8 @@ def label_reviews(df: pd.DataFrame, classifier: Classifier | None = None) -> pd.
     ids = df["review_id"].tolist() if "review_id" in df.columns else df.index.tolist()
     texts = [t if isinstance(t, str) else "" for t in df["text"].tolist()]
     mentions = classifier.classify_reviews(texts)
+    # A source without review dates: `date` stays missing (NaT), never invented.
+    dates = df["date"].tolist() if "date" in df.columns else [None] * len(df)
 
     records = [
         {
@@ -36,7 +38,7 @@ def label_reviews(df: pd.DataFrame, classifier: Classifier | None = None) -> pd.
             "sentence": m.sentence,
         }
         for rid, prop, date, found in zip(
-            ids, df["property_id"].tolist(), df["date"].tolist(), mentions, strict=True
+            ids, df["property_id"].tolist(), dates, mentions, strict=True
         )
         for m in found
     ]

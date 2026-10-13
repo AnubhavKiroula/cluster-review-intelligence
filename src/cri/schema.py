@@ -11,6 +11,9 @@ import warnings
 import pandas as pd
 
 REQUIRED_COLUMNS = ["property_id", "platform", "date", "rating", "text", "language_hint"]
+# A source may have no review dates at all (e.g. a corpus exported without them):
+# the whole `date` column may then be absent. It is never filled or inferred.
+DATE_COLUMN = "date"
 
 # Any of these (case-insensitive) are dropped at ingestion to avoid storing PII.
 IDENTITY_COLUMNS = {
@@ -90,9 +93,11 @@ def validate_reviews(df: pd.DataFrame) -> pd.DataFrame:
 
     Raises SchemaError with an actionable message on the first problem found.
     Returns a cleaned copy with ``date`` parsed to naive local datetime (see
-    ``parse_dates``).
+    ``parse_dates``). A frame with no ``date`` column at all is accepted as a
+    dateless source and returned without one (dates are never invented); a
+    ``date`` column that exists must be complete.
     """
-    missing = [c for c in REQUIRED_COLUMNS if c not in df.columns]
+    missing = [c for c in REQUIRED_COLUMNS if c not in df.columns and c != DATE_COLUMN]
     if missing:
         raise SchemaError(
             f"Missing required column(s): {missing}. "
@@ -101,13 +106,13 @@ def validate_reviews(df: pd.DataFrame) -> pd.DataFrame:
 
     df = df.copy()
 
-    try:
-        df["date"] = parse_dates(df["date"])
-    except (ValueError, TypeError) as exc:
-        raise SchemaError(f"Column 'date' is not parseable as a date: {exc}") from exc
-
-    if df["date"].isna().any():
-        raise SchemaError("Column 'date' contains missing values.")
+    if DATE_COLUMN in df.columns:
+        try:
+            df["date"] = parse_dates(df["date"])
+        except (ValueError, TypeError) as exc:
+            raise SchemaError(f"Column 'date' is not parseable as a date: {exc}") from exc
+        if df["date"].isna().any():
+            raise SchemaError("Column 'date' contains missing values.")
 
     df["rating"] = pd.to_numeric(df["rating"], errors="coerce")
     if df["rating"].isna().any():

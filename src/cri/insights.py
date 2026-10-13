@@ -17,6 +17,7 @@ from .benchmark import (
     cluster_means,
     describe_finding,
     detect_changepoints,
+    has_dates,
     market_findings,
     market_wide_summary,
     none_for_missing,
@@ -71,6 +72,11 @@ def _whose_problem(
             f"{decline['change_month']}; the market itself moved {decline['market_delta']:+.2f}"
         )
         return "yours alone", detail + (f"; separately, {also}" if also else "")
+    if not has_dates(labelled):
+        return "yours alone", (
+            "below the cluster average; the source has no review dates, so when it "
+            "started and whether the market moved too are not tested"
+        )
     if not shared:
         return "yours alone", f"below the market, and no market-wide pattern on {aspect}"
     rest, where = labelled, []
@@ -208,8 +214,10 @@ def destination_summary(labelled: pd.DataFrame) -> pd.DataFrame:
             label, pattern = scope.at[aspect, "scope"], scope.at[aspect, "pattern"]
         elif k < MIN_PROPERTIES_FOR_SCOPE:
             label, pattern = "undetermined", undetermined_note(k)
-        else:
+        elif has_dates(labelled):
             label, pattern = "stable", "no significant negative shift"
+        else:  # without dates only levels were tested, never shifts
+            label, pattern = "stable", "no property below the cluster and no shared weak spot"
         rows.append(
             {
                 "aspect": aspect,
