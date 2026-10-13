@@ -14,7 +14,8 @@ loud: the on-page banner is hidden for now, so you are the label.
 
 1. `python -m pytest tests/test_demo.py` passes.
 2. Open the web app:
-   - the deployed URL (`TBD`, see `docs/DEPLOYMENT.md`), **or**
+   - the deployed URL, <https://cluster-review-intelligence.vercel.app> (open <https://cri-api.onrender.com/health> a minute before, to wake
+     the API on Render's free plan), **or**
    - locally: `cd web && npm run build && python -m http.server 3000 --directory out`.
 3. Only step 5 needs the API: `uvicorn cri.server:app --port 8000`. Every other step
    reads the static snapshot.
