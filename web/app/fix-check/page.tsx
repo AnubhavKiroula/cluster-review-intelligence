@@ -5,6 +5,7 @@ import Plot from "@/components/Plot";
 import { fmtNum, syncQuery, useData, useFixChecks, type FixCheck } from "@/lib/data";
 import {
   ChangeSplit,
+  ChartNumbers,
   DownloadCsv,
   ErrorState,
   Info,
@@ -203,7 +204,20 @@ export default function FixCheckPage() {
       />
       {chart ? (
         <div className="chart-panel">
-          <Plot data={chart.data} layout={chart.layout} />
+          <Plot
+            data={chart.data}
+            layout={chart.layout}
+            summary={`Monthly mean ${aspect} sentiment at ${prop}, with the before window shaded and your change at ${month}.`}
+          />
+          <ChartNumbers
+            caption={`Monthly ${aspect} sentiment at ${prop}`}
+            rows={trend ?? []}
+            columns={[
+              { key: "month", label: "Month", render: (r) => r.month.slice(0, 7) },
+              { key: "mean", label: "Mean sentiment", align: "right", render: (r) => signed(r.mean) },
+              { key: "n", label: "Mentions", align: "right" },
+            ]}
+          />
         </div>
       ) : (
         <Info>

@@ -203,6 +203,25 @@ export function Table<T>({
   );
 }
 
+/** The data behind a chart, as a table: exact values for owners, and a text
+ * alternative for screen-reader users (Plotly's SVG is not accessible). */
+export function ChartNumbers<T>({
+  rows,
+  columns,
+  caption,
+}: {
+  rows: T[];
+  columns: Column<T>[];
+  caption: string;
+}) {
+  return (
+    <details className="chart-numbers">
+      <summary>Show the numbers</summary>
+      <Table rows={rows} columns={columns} caption={caption} />
+    </details>
+  );
+}
+
 export function DownloadCsv<T>({ rows, filename }: { rows: T[]; filename: string }) {
   function toCsv(): string {
     if (rows.length === 0) return "";

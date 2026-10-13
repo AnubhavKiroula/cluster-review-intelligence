@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useDeferredValue, useMemo, useState } from "react";
 import { postApi, type ApiError, type ClassifyResponse } from "@/lib/api";
 import { useData, type Mention, type Review } from "@/lib/data";
 import {
@@ -34,10 +34,13 @@ export default function ExplorerPage() {
   const [aspect, setAspect] = useState(ANY);
   const [sentiment, setSentiment] = useState(ANY);
   const [query, setQuery] = useState("");
+  // Filtering ~11k clauses per keystroke would lag the input; the box updates at once
+  // and the table follows when React has time.
+  const deferredQuery = useDeferredValue(query);
 
   const rows = useMemo<Row[]>(() => {
     if (!data) return [];
-    const q = query.trim().toLowerCase();
+    const q = deferredQuery.trim().toLowerCase();
     const aspectActive = aspect !== ANY;
     const sentActive = sentiment !== ANY;
 
@@ -77,7 +80,7 @@ export default function ExplorerPage() {
     }
     out.sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
     return out;
-  }, [data, prop, aspect, sentiment, query]);
+  }, [data, prop, aspect, sentiment, deferredQuery]);
 
   if (error) return <ErrorState message={error} />;
   if (!data) return <Loading />;

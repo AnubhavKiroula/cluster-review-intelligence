@@ -17,7 +17,7 @@
   --deodar-deep: #234539;
   --buransh: #b4235a;
   --slate: #4a6386;
-  --stone: #97a39c;
+  --stone: #737f79;
   --marigold: #c98a12;
   --deodar-tint: #e3ede8;
   --buransh-tint: #f8e7ee;
@@ -331,7 +331,8 @@ input[type="search"] {
   padding: 8px 12px;
   background-color: var(--paper);
   color: var(--ink);
-  border: 1px solid var(--line);
+  /* Control borders need 3:1 against the field (WCAG 1.4.11); --line is for surfaces. */
+  border: 1px solid var(--stone);
   border-radius: var(--radius);
 }
 
@@ -342,7 +343,7 @@ input[type="search"] {
 
 select:hover,
 input:hover {
-  border-color: var(--stone);
+  border-color: var(--ink);
 }
 
 .standing {
@@ -637,11 +638,11 @@ input:hover {
 }
 
 .split-bar.down {
-  background: color-mix(in srgb, var(--buransh) 45%, var(--paper));
+  background: color-mix(in srgb, var(--buransh) 65%, var(--paper));
 }
 
 .split-bar.up {
-  background: color-mix(in srgb, var(--deodar) 45%, var(--paper));
+  background: color-mix(in srgb, var(--deodar) 65%, var(--paper));
 }
 
 .split-row.is-verdict .split-bar.down {
@@ -920,11 +921,25 @@ details ul {
   border-radius: var(--radius);
 }
 
+.chart-box {
+  display: grid;
+}
+
 .chart-loading {
   display: grid;
-  min-height: 300px;
+  height: 100%;
   place-items: center;
   color: var(--muted);
+}
+
+.chart-numbers {
+  margin: 4px 4px 12px;
+}
+
+.chart-numbers .table-wrap {
+  margin-top: 10px;
+  max-height: 360px;
+  overflow-y: auto;
 }
 
 .state {

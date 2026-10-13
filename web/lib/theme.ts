@@ -14,7 +14,7 @@ export const COLORS = {
   deodar: "#2E5B4C",
   buransh: "#B4235A",
   slate: "#4A6386",
-  stone: "#97A39C",
+  stone: "#737F79",
   marigold: "#C98A12",
   // Semantic aliases used by the charts.
   negative: "#B4235A",

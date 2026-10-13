@@ -80,7 +80,7 @@ charts in `lib/theme.ts`. Colours carry meaning, and the same meaning on every p
 | `--deodar` | `#2E5B4C` | Better, ahead of the cluster, improved |
 | `--buransh` (rhododendron) | `#B4235A` | Worse, behind the cluster, *yours alone* |
 | `--slate` | `#4A6386` | The market, *everyone's*; also the SYNTHETIC strip |
-| `--stone` | `#97A39C` | Neutral, on par, not tested |
+| `--stone` | `#737F79` | Neutral, on par, not tested |
 | `--mist` / `--ink` | `#EEF2F0` / `#1F2D27` | Page background / text |
 
 - **Type:** Source Serif 4 for headings, Public Sans for everything else, both
@@ -96,6 +96,12 @@ charts in `lib/theme.ts`. Colours carry meaning, and the same meaning on every p
 - **Accessibility:** skip link, visible `:focus-visible` outlines, labelled controls,
   `aria-live` on results, scrollable tables reachable by keyboard; no layout wider than
   the screen at 390 px.
+- **Contrast (WCAG 2.2 AA, measured):** text pairs are at least 4.5:1 (muted text on
+  the page background is the lowest, 4.94:1); chart marks, the change-split bars and
+  form-control borders are at least 3:1 against white. Re-check when changing a colour.
+- **Charts never rely on colour alone:** scorecard bars say *ahead* / *behind* under
+  the aspect name, market scopes differ in marker shape, and every chart has a text
+  summary for screen readers plus *Show the numbers*, a table of the values it plots.
 
 ## Notes
 

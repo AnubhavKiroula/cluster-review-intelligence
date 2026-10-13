@@ -6,16 +6,20 @@ import Plot from "@/components/Plot";
 import { fmtNum, fmtPct, syncQuery, useData } from "@/lib/data";
 import {
   ChangeSplit,
+  ChartNumbers,
   DownloadCsv,
   ErrorState,
   Info,
   Loading,
   PageHeader,
   SectionHeading,
+  signed,
   Table,
   WhosePill,
 } from "@/components/ui";
 import { COLORS, FLAG_COLORS } from "@/lib/theme";
+
+const FLAG_WORD: Record<string, string> = { lead: "ahead", lag: "behind", on_par: "on par" };
 
 export default function PropertyPage() {
   const { data, error } = useData();
@@ -76,7 +80,18 @@ export default function PropertyPage() {
           hovertemplate: "%{x}<br>cluster %{y:.2f}<extra></extra>",
         },
       ],
-      layout: { yaxis: { title: "mean sentiment (−1…+1)", range: [-1.05, 1.05] } },
+      layout: {
+        yaxis: { title: "mean sentiment (−1…+1)", range: [-1.05, 1.05] },
+        xaxis: {
+          tickvals: sc.map((r) => r.aspect),
+          ticktext: sc.map((r) =>
+            r.flag === "on_par"
+              ? r.aspect
+              : `${r.aspect}<br><span style="color:${FLAG_COLORS[r.flag]}">${FLAG_WORD[r.flag] ?? r.flag}</span>`,
+          ),
+        },
+        margin: { l: 56, r: 16, t: 36, b: 64 },
+      },
     };
   }, [pdata, prop]);
 
@@ -273,7 +288,30 @@ export default function PropertyPage() {
       />
       {scorecardChart && (
         <div className="chart-panel">
-          <Plot data={scorecardChart.data} layout={scorecardChart.layout} />
+          <Plot
+            data={scorecardChart.data}
+            layout={scorecardChart.layout}
+            summary={`Mean sentiment per aspect at ${prop} against the cluster mean. ${
+              lags.length ? `Behind on ${lags.join(", ")}.` : "Behind on nothing."
+            } ${leads.length ? `Ahead on ${leads.join(", ")}.` : ""}`}
+          />
+          <ChartNumbers
+            caption={`Aspect scores for ${prop}`}
+            rows={pdata.scorecard}
+            columns={[
+              { key: "aspect", label: "Aspect" },
+              { key: "mean", label: "You", align: "right", render: (r) => signed(r.mean) },
+              {
+                key: "ci_low",
+                label: "95% interval",
+                align: "right",
+                render: (r) => (r.ci_low == null ? "—" : `${signed(r.ci_low)} to ${signed(r.ci_high)}`),
+              },
+              { key: "cluster_mean", label: "Cluster", align: "right", render: (r) => signed(r.cluster_mean) },
+              { key: "n", label: "Mentions", align: "right" },
+              { key: "flag", label: "Verdict", render: (r) => FLAG_WORD[r.flag] ?? r.flag },
+            ]}
+          />
         </div>
       )}
       <p className="caption">
@@ -303,7 +341,22 @@ export default function PropertyPage() {
       {trendChart ? (
         <>
           <div className="chart-panel">
-            <Plot data={trendChart.data} layout={trendChart.layout} />
+            <Plot
+              data={trendChart.data}
+              layout={trendChart.layout}
+              summary={`Monthly mean ${aspect} sentiment at ${prop}. ${
+                trendChart.hasCps ? "Significant shifts are marked with a dashed line." : "No significant shift."
+              }`}
+            />
+            <ChartNumbers
+              caption={`Monthly ${aspect} sentiment at ${prop}`}
+              rows={pdata.trends[aspect] ?? []}
+              columns={[
+                { key: "month", label: "Month", render: (r) => r.month.slice(0, 7) },
+                { key: "mean", label: "Mean sentiment", align: "right", render: (r) => signed(r.mean) },
+                { key: "n", label: "Mentions", align: "right" },
+              ]}
+            />
           </div>
           <p className="caption">
             {trendChart.hasCps

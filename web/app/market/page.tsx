@@ -14,6 +14,14 @@ import {
 } from "@/components/ui";
 import { COLORS, SCOPE_COLORS } from "@/lib/theme";
 
+// Shape as well as colour tells the scopes apart.
+const SCOPE_SYMBOLS: Record<string, string> = {
+  "market-wide": "circle",
+  "property-specific": "diamond",
+  undetermined: "square",
+  stable: "triangle-up",
+};
+
 export default function MarketPage() {
   const { data, error } = useData();
 
@@ -37,7 +45,12 @@ export default function MarketPage() {
         y: g.map((s) => negByAspect.get(s.aspect) ?? 0),
         text: g.map((s) => s.aspect),
         textposition: "top center",
-        marker: { size: 14, color: SCOPE_COLORS[sc] ?? COLORS.stone, line: { width: 1.5, color: COLORS.paper } },
+        marker: {
+          size: 15,
+          symbol: SCOPE_SYMBOLS[sc] ?? "circle",
+          color: SCOPE_COLORS[sc] ?? COLORS.stone,
+          line: { width: 1.5, color: COLORS.paper },
+        },
         customdata: g.map((s) => s.n_properties),
         hovertemplate:
           "%{text}<br>share of properties affected %{x:.0%}" +
@@ -106,6 +119,9 @@ export default function MarketPage() {
           />
           <div className="chart-panel">
             <Plot
+              summary={`Each aspect with a negative shift, by share of properties affected and share of mentions negative. ${data.market_scope
+                .map((s) => `${s.aspect}: ${s.scope}`)
+                .join("; ")}.`}
               height={480}
               data={chart.traces}
               layout={{
