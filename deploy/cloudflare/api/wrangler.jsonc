@@ -1,0 +1,33 @@
+// Worker + Cloudflare Container running the FastAPI service (cri.server).
+// Needs the Workers Paid plan and Docker running locally for `wrangler deploy`.
+// Steps and checks: docs/DEPLOYMENT.md.
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "cri-api",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-09-29",
+  "containers": [
+    {
+      "class_name": "CriApi",
+      // Built from the repository root Dockerfile (linux/amd64).
+      "image": "../../../Dockerfile",
+      "image_build_context": "../../..",
+      // 1/4 vCPU, 1 GiB memory, 4 GB disk.
+      "instance_type": "basic",
+      "max_instances": 1
+    }
+  ],
+  "durable_objects": {
+    "bindings": [{ "name": "CRI_API", "class_name": "CriApi" }]
+  },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["CriApi"] }],
+  "vars": {
+    // The web app's origin(s), comma-separated. Replace before deploying, or pass
+    // --var CRI_API_CORS_ORIGINS:https://cri-web.<subdomain>.workers.dev
+    "CRI_API_CORS_ORIGINS": "https://cri-web.example.workers.dev",
+    "CRI_MODEL_BACKEND": "rule",
+    // Idle time before the container sleeps: longer = fewer cold starts, higher cost.
+    "CONTAINER_SLEEP_AFTER": "1h"
+  },
+  "observability": { "enabled": true }
+}
