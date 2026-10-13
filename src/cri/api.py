@@ -13,6 +13,9 @@ signature and documented columns. Additive extensions (Day 0, agreed in the PR):
   properties review the aspect); ``destination_summary`` also uses ``stable``.
 * ``classify_text(text)`` -> ``aspect, sentiment, sentence``: classify one typed
   review (demo step 4: "type a Hinglish review in the explorer").
+* ``intervention_check(d, property_id, aspect, start, baseline_start=None)`` -> dict:
+  "Did my fix work?", a market-adjusted before/after check of one change
+  (keys: ``cri.intervention.INTERVENTION_KEYS``; methodology section 12).
 * Thresholds the UI may draw (constants): ``MARKET_WIDE_FRACTION`` (share of the
   properties reviewing an aspect that must share a market pattern) and
   ``MIN_REVIEWS_FOR_FLAG`` (fewer reviews: no CI, no lead/lag flag).
@@ -44,6 +47,7 @@ import pandas as pd
 
 from . import benchmark as _benchmark
 from . import insights as _insights
+from . import intervention as _intervention
 from .classify import get_classifier, load_aspects
 from .generate import generate
 from .loader import load_dir, load_reviews
@@ -67,6 +71,7 @@ SEARCH_COLUMNS = [
     "aspect", "sentiment", "sentence", "text",
 ]
 CLASSIFY_COLUMNS = ["aspect", "sentiment", "sentence"]
+INTERVENTION_KEYS = _intervention.INTERVENTION_KEYS
 
 
 @dataclass(frozen=True)
@@ -262,6 +267,35 @@ def priority_actions(d: ClusterData, property_id: str, top_n: int = 5) -> pd.Dat
         raise ValueError(f"top_n must be a positive integer, got {top_n!r}")
     _check_property(d, property_id)
     return _insights.priority_actions(d.labelled, property_id, top_n=int(top_n))
+
+
+def intervention_check(
+    d: ClusterData, property_id: str, aspect: str, start, baseline_start=None
+) -> dict:
+    """"Did my fix work?" for one change the property made.
+
+    ``start`` is the first month after the change (``"2025-06"`` or any date).
+    Returns a dict with ``INTERVENTION_KEYS``: ``verdict`` (improved | worsened |
+    no detectable change | too early to tell | no data), ``effect`` relative to the
+    market with ``ci_low``/``ci_high`` and ``p_value``, ``naive_delta`` (plain
+    before/after) and ``market_delta`` (what the market did meanwhile), ``mde``,
+    the placebo rank among the other properties, and a plain-language ``summary``.
+    Numeric keys are None when no test was run. ``baseline_start`` overrides where
+    "before" begins (default: the latest significant shift before ``start``).
+    """
+    _check_property(d, property_id)
+    _check_aspect(aspect)
+    lo, hi = date_range(d)
+    first, last = lo.to_period("M"), hi.to_period("M")
+    month = _intervention.month(start)
+    if not first < month <= last:
+        raise ValueError(
+            f"start {month} must be after the first month of data ({first}) and no later "
+            f"than the last ({last})"
+        )
+    return _intervention.evaluate_intervention(
+        d.labelled, property_id, aspect, start, baseline_start=baseline_start
+    )
 
 
 def search_reviews(

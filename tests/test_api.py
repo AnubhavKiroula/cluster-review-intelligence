@@ -340,3 +340,28 @@ def test_the_classifier_is_built_once_per_configuration(monkeypatch):
         assert len(calls) == 1
     finally:
         api._classifier.cache_clear()
+
+
+# --- "Did my fix work?" ---------------------------------------------------------------
+
+
+def test_intervention_check_contract(d):
+    r = api.intervention_check(d, "Property A", "Room", "2025-12")
+    assert list(r) == api.INTERVENTION_KEYS
+    assert r["verdict"] == "no detectable change"
+    assert r["naive_delta"] < r["effect"]  # the market's December dip is removed
+
+
+@pytest.mark.parametrize(
+    ("args", "match"),
+    [
+        (("Nope", "Food", "2025-06"), "Unknown property_id"),
+        (("Property A", "Spa", "2025-06"), "Unknown aspect"),
+        (("Property A", "Food", "2024-01"), "after the first month"),
+        (("Property A", "Food", "2031-01"), "after the first month"),
+        (("Property A", "Food", "someday"), "Not a date"),
+    ],
+)
+def test_intervention_check_rejects_bad_input(d, args, match):
+    with pytest.raises(ValueError, match=match):
+        api.intervention_check(d, *args)
