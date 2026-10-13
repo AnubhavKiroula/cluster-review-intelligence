@@ -11,6 +11,7 @@ const LINKS = [
   { href: "/market", label: "Market", icon: "⚖️" },
   { href: "/destination", label: "Destination", icon: "🧭" },
   { href: "/explorer", label: "Explorer", icon: "🔍" },
+  { href: "/fix-check", label: "Did my fix work?", icon: "🔧" },
 ];
 
 export default function Nav() {
