@@ -567,7 +567,7 @@ docs/               PRD, SRS, SYSTEM_DESIGN, AI_MODEL, BUSINESS_MODEL, DATA_SOUR
 ## 15. Deployment
 
 Two pieces, neither needing secrets. The static web app can be served from any static
-host (Vercel is the documented primary) and is the whole product on its own. The API
+host (Vercel is the primary, configured by `web/vercel.json`) and is the whole product on its own. The API
 is optional: it powers only the explorer's live classification and runs on any
 Python host that keeps a long-lived web process. Neither is deployed yet; URLs are `TBD`. Step-by-step
 instructions: [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md).
