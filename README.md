@@ -19,8 +19,8 @@ destination view.
 [![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/PxA-Labs/cluster-review-intelligence/badge)](https://securityscorecards.dev/viewer/?uri=github.com/PxA-Labs/cluster-review-intelligence)
 
 > **Context.** AI–Tourism Hackathon 2026, problem statement **G5: Cluster Review
-> Intelligence and Competitive Benchmarking**. The Scorecard badge populates after
-> the first run on the public repository.
+> Intelligence and Competitive Benchmarking**, by team **The Imposters**. The
+> Scorecard badge populates after the first run on the public repository.
 >
 > **Data notice.** The bundled review data is **SYNTHETIC** (see
 > [`docs/DATA_SOURCES.md`](docs/DATA_SOURCES.md)). Unknown values are written as
@@ -614,8 +614,13 @@ Real review data is never deployed publicly.
   Covenant 2.1)
 - Reporting vulnerabilities privately: [`SECURITY.md`](SECURITY.md)
 
-Maintainer: [@AnubhavKiroula](https://github.com/AnubhavKiroula). Team members and
-roles: `TBD` (add before submission).
+**Team: The Imposters**
+
+| Member | Role |
+|---|---|
+| Archit Mittal | Team lead; data, evaluation and ops |
+| Purvansh Joshi | Web app |
+| Anubhav Kiroula | Analytics core; repository maintainer ([@AnubhavKiroula](https://github.com/AnubhavKiroula)) |
 
 ## 19. License and credits
 

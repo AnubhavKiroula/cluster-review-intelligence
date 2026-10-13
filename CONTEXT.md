@@ -15,8 +15,8 @@ traveller find a hotel). We are supply side: we sell to the properties listed on
 platforms and do not compete with them. The same analysis also gives a tourism board a
 destination view (one line in the pitch, not a second product).
 
-Repo: `PxA-Labs/cluster-review-intelligence`. Team: Anubhav (analytics core),
-Purvansh (web), Archit (data, eval, ops). Plan and ownership map:
+Repo: `PxA-Labs/cluster-review-intelligence`. Team **The Imposters**: Archit Mittal
+(team lead; data, eval, ops), Purvansh Joshi (web), Anubhav Kiroula (analytics core). Plan and ownership map:
 `docs/HACKATHON_PLAN.md`.
 
 ## The focus cut (2026-10-13)
