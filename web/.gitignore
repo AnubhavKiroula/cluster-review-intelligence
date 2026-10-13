@@ -16,3 +16,6 @@ npm-debug.log*
 
 # vercel
 .vercel
+
+# wrangler (local Cloudflare dev state)
+/.wrangler/

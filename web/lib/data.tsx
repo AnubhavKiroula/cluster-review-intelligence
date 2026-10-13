@@ -207,6 +207,16 @@ export function useFixChecks(): { data: FixCheckSnapshot | null; error: string |
   return state;
 }
 
+/** Replace the query string without a navigation, so the current view is a deep link.
+ * Empty values are left out; with none left the URL has no query string. */
+export function syncQuery(params: Record<string, string>): void {
+  const kept = Object.entries(params).filter(([, v]) => v !== "");
+  const next = kept.length ? `?${new URLSearchParams(kept).toString()}` : "";
+  if (window.location.search !== next) {
+    window.history.replaceState(null, "", `${window.location.pathname}${next}`);
+  }
+}
+
 // --- formatting helpers -------------------------------------------------------------
 export const fmtNum = (v: number | null | undefined, digits = 2): string =>
   v == null || Number.isNaN(v) ? "—" : v.toFixed(digits);
@@ -215,10 +225,10 @@ export const fmtPct = (v: number | null | undefined, digits = 0): string =>
   v == null || Number.isNaN(v) ? "—" : `${(v * 100).toFixed(digits)}%`;
 
 export const SENTIMENT_LABELS: Record<number, string> = {
-  1: "👍 positive",
-  0: "😐 neutral",
-  [-1]: "👎 negative",
+  1: "positive",
+  0: "neutral",
+  [-1]: "negative",
 };
 
 export const sentimentLabel = (v: number | null | undefined): string =>
-  v == null ? "— none" : SENTIMENT_LABELS[v] ?? String(v);
+  v == null ? "none" : SENTIMENT_LABELS[v] ?? String(v);

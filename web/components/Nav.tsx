@@ -2,14 +2,12 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useData } from "@/lib/data";
 
 const LINKS = [
-  { href: "/", label: "Home", icon: "🏔️" },
-  { href: "/property", label: "Property", icon: "🏨" },
-  { href: "/market", label: "Market", icon: "⚖️" },
-  { href: "/fix-check", label: "Did my fix work?", icon: "🔧" },
-  { href: "/explorer", label: "Explorer", icon: "🔍" },
+  { href: "/property", label: "Your property" },
+  { href: "/market", label: "The market" },
+  { href: "/fix-check", label: "Did my fix work?" },
+  { href: "/explorer", label: "Review explorer" },
 ];
 
 // Exact match on path segments: a prefix test lit /explorer for /explore too.
@@ -18,45 +16,36 @@ function isActive(href: string, pathname: string): boolean {
   return href === "/" ? path === "/" : path === href || path.startsWith(`${href}/`);
 }
 
-export default function Nav() {
+export default function Header() {
   const pathname = usePathname();
-  const { data } = useData();
   return (
-    <nav className="nav">
-      <div className="nav-brand">
-        <div className="brand-mark" aria-hidden>
-          ◒
-        </div>
-        <div>
-          <div className="brand-title">Cluster Review</div>
-          <div className="brand-subtitle">Intelligence workspace</div>
-        </div>
+    <header className="site-header">
+      <div className="site-header-inner">
+        <Link href="/" className="wordmark" aria-current={isActive("/", pathname) ? "page" : undefined}>
+          <svg className="wordmark-mark" viewBox="0 0 32 20" aria-hidden>
+            <path d="M1 19 L10 6 L15 12 L21 3 L31 19 Z" />
+          </svg>
+          Cluster Review Intelligence
+        </Link>
+        <nav aria-label="Main">
+          <ul className="nav-links">
+            {LINKS.map((l) => {
+              const active = isActive(l.href, pathname);
+              return (
+                <li key={l.href}>
+                  <Link
+                    href={l.href}
+                    className={active ? "nav-link active" : "nav-link"}
+                    aria-current={active ? "page" : undefined}
+                  >
+                    {l.label}
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </nav>
       </div>
-      <div className="nav-section-label">Workspace</div>
-      <ul className="nav-links">
-        {LINKS.map((l) => (
-          <li key={l.href}>
-            <Link
-              href={l.href}
-              className={isActive(l.href, pathname) ? "nav-link active" : "nav-link"}
-            >
-              <span className="nav-icon" aria-hidden>
-                {l.icon}
-              </span>
-              {l.label}
-            </Link>
-          </li>
-        ))}
-      </ul>
-      <div className="nav-footer">
-        <div className="workspace-card">
-          <span className="status-dot" aria-hidden />
-          <div>
-            <strong>{data?.meta.is_synthetic ? "Synthetic workspace" : "Connected workspace"}</strong>
-            <small>{data ? `${data.meta.properties.length} properties · ${data.meta.n_reviews.toLocaleString()} reviews` : "Loading cluster snapshot…"}</small>
-          </div>
-        </div>
-      </div>
-    </nav>
+    </header>
   );
 }
