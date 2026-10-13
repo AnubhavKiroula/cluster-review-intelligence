@@ -2,7 +2,6 @@ import type { Metadata, Viewport } from "next";
 import { Public_Sans, Source_Serif_4 } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/Nav";
-import { SyntheticBanner } from "@/components/ui";
 import { DataProvider } from "@/lib/data";
 
 // Self-hosted at build time by next/font: the site makes no requests to Google.
@@ -16,11 +15,11 @@ export const metadata: Metadata = {
     "For hotel and homestay owners in Uttarakhand: when your reviews get worse, is it your property or the whole market? Your cluster can tell.",
 };
 
-// Matches the SYNTHETIC strip at the top of every page, in each colour scheme.
+// Matches the header at the top of every page, in each colour scheme.
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#4A6386" },
-    { media: "(prefers-color-scheme: dark)", color: "#2B3A52" },
+    { media: "(prefers-color-scheme: light)", color: "#FFFFFF" },
+    { media: "(prefers-color-scheme: dark)", color: "#1B2420" },
   ],
 };
 
@@ -32,7 +31,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           Skip to content
         </a>
         <DataProvider>
-          <SyntheticBanner />
           <Header />
           <main id="main" className="main">
             {children}
