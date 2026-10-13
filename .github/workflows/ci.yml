@@ -73,3 +73,43 @@ jobs:
 
       - name: Build (static export)
         run: npm run build
+
+  # Deployment config (docs/DEPLOYMENT.md): the API image must build and answer /health,
+  # and the Cloudflare Worker in front of it must type-check.
+  deploy-config:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Harden the runner
+        uses: step-security/harden-runner@91182cccc01eb5e619899d80e4e971d6181294a7 # v2.10.1
+        with:
+          egress-policy: audit
+
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Build the API image
+        run: docker build --platform linux/amd64 -t cri-api .
+
+      - name: Smoke-test the API image
+        run: |
+          docker run -d --name cri-api -p 8080:8080 \
+            -e CRI_API_CORS_ORIGINS=http://localhost:3000 cri-api
+          for i in $(seq 1 60); do
+            if curl -fsS http://localhost:8080/health; then exit 0; fi
+            sleep 1
+          done
+          docker logs cri-api
+          exit 1
+
+      - name: Set up Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: deploy/cloudflare/api/package-lock.json
+
+      - name: Type-check the Cloudflare Worker
+        working-directory: deploy/cloudflare/api
+        run: |
+          npm ci
+          npm run check
