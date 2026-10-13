@@ -13,7 +13,7 @@ from .alternatives import CEILING, find_alternatives
 from .data import Evidence, Seller, TravelData
 from .demand import DemandModel, demand_calendar, peak_periods, regional_overview
 
-UNDER_SERVED_SCORE = 55
+UNDER_SERVED_SCORE = 40  # assumed: 'high' exposure for a 0-100 window average
 EXPOSURE_NOTE = "Visitor-exposure estimate (demand x category seasonality), not sales or income."
 
 

@@ -14,6 +14,34 @@ const LINKS = [
   { href: "/fix-check", label: "Did my fix work?", icon: "🔧" },
 ];
 
+// Travel intelligence pages: these call the Python API (cri.server), see lib/api.ts.
+const TRAVEL_LINKS = [
+  { href: "/explore", label: "When & where to go", icon: "🧭" },
+  { href: "/plan", label: "Plan a trip", icon: "🗺️" },
+  { href: "/provider", label: "Provider insights", icon: "🛎️" },
+  { href: "/region", label: "Regional pressure", icon: "🏔️" },
+];
+
+function NavList({ links, pathname }: { links: typeof LINKS; pathname: string }) {
+  return (
+    <ul className="nav-links">
+      {links.map((l) => {
+        const active = l.href === "/" ? pathname === "/" : pathname.startsWith(l.href);
+        return (
+          <li key={l.href}>
+            <Link href={l.href} className={active ? "nav-link active" : "nav-link"}>
+              <span className="nav-icon" aria-hidden>
+                {l.icon}
+              </span>
+              {l.label}
+            </Link>
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
+
 export default function Nav() {
   const pathname = usePathname();
   const { data } = useData();
@@ -29,21 +57,9 @@ export default function Nav() {
         </div>
       </div>
       <div className="nav-section-label">Workspace</div>
-      <ul className="nav-links">
-        {LINKS.map((l) => {
-          const active = l.href === "/" ? pathname === "/" : pathname.startsWith(l.href);
-          return (
-            <li key={l.href}>
-              <Link href={l.href} className={active ? "nav-link active" : "nav-link"}>
-                <span className="nav-icon" aria-hidden>
-                  {l.icon}
-                </span>
-                {l.label}
-              </Link>
-            </li>
-          );
-        })}
-      </ul>
+      <NavList links={LINKS} pathname={pathname} />
+      <div className="nav-section-label">Travel intelligence</div>
+      <NavList links={TRAVEL_LINKS} pathname={pathname} />
       <div className="nav-footer">
         <div className="workspace-card">
           <span className="status-dot" aria-hidden />
