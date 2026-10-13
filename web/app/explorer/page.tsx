@@ -1,8 +1,8 @@
 "use client";
 
-import { useDeferredValue, useMemo, useState } from "react";
+import { useDeferredValue, useEffect, useMemo, useState } from "react";
 import { postApi, type ApiError, type ClassifyResponse } from "@/lib/api";
-import { useData, type Mention, type Review } from "@/lib/data";
+import { syncQuery, useData, type Mention, type Review } from "@/lib/data";
 import {
   DownloadCsv,
   ErrorState,
@@ -15,7 +15,9 @@ import {
 } from "@/components/ui";
 
 const ANY = "__any__";
-const MAX_ROWS = 300;
+// Rows rendered per step: a few hundred table rows is already a long page.
+const PAGE = 100;
+const SENTIMENTS = ["1", "0", "-1"];
 
 interface Row {
   date: string;
@@ -37,6 +39,28 @@ export default function ExplorerPage() {
   // Filtering ~11k clauses per keystroke would lag the input; the box updates at once
   // and the table follows when React has time.
   const deferredQuery = useDeferredValue(query);
+  const [shown, setShown] = useState(PAGE);
+  const [ready, setReady] = useState(false);
+
+  // Deep link: /explorer/?property=Property%20F&aspect=Food&sentiment=-1&q=khana
+  useEffect(() => {
+    if (!data || ready) return;
+    const q = new URLSearchParams(window.location.search);
+    const pick = (v: string | null, options: string[]) => (v && options.includes(v) ? v : ANY);
+    setProp(pick(q.get("property"), data.meta.properties));
+    setAspect(pick(q.get("aspect"), data.meta.aspects));
+    setSentiment(pick(q.get("sentiment"), SENTIMENTS));
+    setQuery(q.get("q") ?? "");
+    setReady(true);
+  }, [data, ready]);
+
+  // Keep the URL shareable, and start from the first page whenever the filters change.
+  useEffect(() => {
+    if (!ready) return;
+    const named = (v: string) => (v === ANY ? "" : v);
+    syncQuery({ property: named(prop), aspect: named(aspect), sentiment: named(sentiment), q: deferredQuery.trim() });
+    setShown(PAGE);
+  }, [ready, prop, aspect, sentiment, deferredQuery]);
 
   const rows = useMemo<Row[]>(() => {
     if (!data) return [];
@@ -149,7 +173,7 @@ export default function ExplorerPage() {
 
       <p className="caption" aria-live="polite">
         {rows.length.toLocaleString()} matching {rows.length === 1 ? "clause" : "clauses"}
-        {rows.length > MAX_ROWS ? `, showing the newest ${MAX_ROWS}` : ""}.
+        {rows.length > shown ? `, showing the newest ${shown.toLocaleString()}` : ""}.
       </p>
 
       {rows.length === 0 ? (
@@ -158,7 +182,7 @@ export default function ExplorerPage() {
         <>
           <Table
             caption="Matching review clauses"
-            rows={rows.slice(0, MAX_ROWS)}
+            rows={rows.slice(0, shown)}
             columns={[
               { key: "date", label: "Date", render: (r) => <span className="nowrap">{r.date.slice(0, 10)}</span> },
               { key: "property_id", label: "Property", render: (r) => <span className="nowrap">{r.property_id}</span> },
@@ -171,6 +195,11 @@ export default function ExplorerPage() {
             ]}
           />
           <div className="table-actions">
+            {rows.length > shown && (
+              <button type="button" className="btn btn-quiet" onClick={() => setShown((n) => n + PAGE)}>
+                Show {Math.min(PAGE, rows.length - shown)} more
+              </button>
+            )}
             <DownloadCsv rows={rows} filename="search_results.csv" />
           </div>
         </>
