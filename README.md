@@ -297,7 +297,7 @@ Planned / to be built during the hackathon:
 
 - **Real labelled evaluation** — run `eval/predict.py` + `eval/score.py` on
   hand-labelled real reviews and replace the `TBD`s with measured values.
-- **Public deployment** on Streamlit Community Cloud (steps in
+- **Public deployment** of the Next.js static site in `web/` on Vercel (steps in
   [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md); URL `TBD`).
 - **Evaluate the transformer backend** against the rule baseline on the real
   labelled set, and make it the default only if it wins.

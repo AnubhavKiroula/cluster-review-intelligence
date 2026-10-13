@@ -116,6 +116,10 @@ interface State {
   error: string | null;
 }
 
+// Root-relative: a relative "data/..." resolves against the current route
+// (/property/ -> /property/data/...), so any page opened directly or by deep link 404s.
+export const dataUrl = (file: string): string => `/data/${file}`;
+
 const DataContext = createContext<State>({ data: null, error: null });
 
 export function DataProvider({ children }: { children: ReactNode }) {
@@ -123,7 +127,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     let alive = true;
-    fetch("data/cluster.synthetic.json")
+    fetch(dataUrl("cluster.synthetic.json"))
       .then((r) => {
         if (!r.ok) throw new Error(`HTTP ${r.status}`);
         return r.json();
@@ -142,6 +146,62 @@ export function DataProvider({ children }: { children: ReactNode }) {
 
 export function useData(): State {
   return useContext(DataContext);
+}
+
+// --- "Did my fix work?": precomputed results, loaded only by the fix-check page --------
+export interface FixCheck {
+  property_id: string;
+  aspect: string;
+  start: string;
+  baseline_start: string | null;
+  verdict: "improved" | "worsened" | "no detectable change" | "too early to tell" | "no data";
+  basis: "market" | "own history" | null;
+  effect: number | null;
+  ci_low: number | null;
+  ci_high: number | null;
+  p_value: number | null;
+  naive_delta: number | null;
+  market_delta: number | null;
+  before_mean: number | null;
+  after_mean: number | null;
+  n_before: number;
+  n_after: number;
+  months_before: number;
+  months_after: number;
+  mde: number | null;
+  placebo_rank: number | null;
+  n_placebo: number;
+  detected_start: string | null;
+  summary: string;
+}
+
+export interface FixCheckSnapshot {
+  meta: { is_synthetic: boolean; source_name: string; generated_at: string; months: string[] };
+  // results[property][aspect][month]
+  results: Record<string, Record<string, Record<string, FixCheck>>>;
+}
+
+export function useFixChecks(): { data: FixCheckSnapshot | null; error: string | null } {
+  const [state, setState] = useState<{ data: FixCheckSnapshot | null; error: string | null }>({
+    data: null,
+    error: null,
+  });
+  useEffect(() => {
+    let alive = true;
+    fetch(dataUrl("fixcheck.synthetic.json"))
+      .then((r) => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        return r.json();
+      })
+      .then((data: FixCheckSnapshot) => alive && setState({ data, error: null }))
+      .catch((e: unknown) =>
+        alive && setState({ data: null, error: e instanceof Error ? e.message : String(e) }),
+      );
+    return () => {
+      alive = false;
+    };
+  }, []);
+  return state;
 }
 
 // --- formatting helpers -------------------------------------------------------------
