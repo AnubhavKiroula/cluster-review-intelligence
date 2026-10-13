@@ -1,0 +1,21 @@
+# Keep the API image small and free of anything that is not the package.
+# Real data and local secrets must never reach an image (CLAUDE.md rules 3-5).
+.git
+.github
+.env
+.env.*
+data/
+eval/
+web/
+deploy/
+docs/
+scripts/
+tests/
+assets/
+**/node_modules
+**/__pycache__
+**/*.egg-info
+.pytest_cache
+.ruff_cache
+.venv
+venv
