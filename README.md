@@ -9,6 +9,13 @@ competitors can. The system tells an owner **where** they lag their local cluste
 **since when**, and **whose problem it is**, from reviews written in English,
 romanised Hindi (Hinglish) or Devanagari.
 
+**Shown on a real market:** 25 hotels and 2,751 real reviews in **Kausani**,
+Uttarakhand (TripAdvisor-derived, anonymised as Property A–Y, published as aggregates
+only). In Kausani no aspect is a weak spot shared across the town; 7 of the 25
+hotels lag the cluster on at least one aspect, each its own problem. The source has
+no review dates, so the time axis (trends, changepoints, *did my fix work?*) is
+demonstrated on a clearly labelled simulated timeline.
+
 MakeMyTrip, Goibibo and Booking.com are demand side: they help a traveller find a
 hotel. This is supply side: it serves the properties listed on those platforms and
 does not compete with them. The same analysis also gives a tourism board a
@@ -22,8 +29,11 @@ destination view.
 > Intelligence and Competitive Benchmarking**, by team **The Imposters**. The
 > Scorecard badge populates after the first run on the public repository.
 >
-> **Data notice.** The bundled review data is **SYNTHETIC** (see
-> [`docs/DATA_SOURCES.md`](docs/DATA_SOURCES.md)). Unknown values are written as
+> **Data notice.** The home, property and market pages use the **real** Kausani
+> cluster (aggregates only; review text is never published). The time-series method
+> demo, the fix check and the explorer's searchable texts use **SYNTHETIC** data, and
+> every page says which in its header chip. Details:
+> [`docs/DATA_SOURCES.md`](docs/DATA_SOURCES.md). Unknown values are written as
 > `TBD` and tracked in [`docs/TODO_RESULTS.md`](docs/TODO_RESULTS.md).
 >
 > **Scope.** On 2026-10-13 the product was cut to one user, the property owner. The
@@ -349,15 +359,19 @@ python scripts/make_figures.py            # regenerate the figures (docs/img/)
 python -m cri.calibration --seeds 1-20    # recall and false-alarm rates (about a minute)
 ```
 
-Every page reads a committed snapshot (`web/public/data/*.synthetic.json`) and works
-without the API; only *Try your own review* in the explorer needs it. The web app
+Every page reads a committed snapshot (`web/public/data/cluster.real.json` for the
+real cluster, `*.synthetic.json` for the method demo) and works without the API; only *Try your own review* in the explorer needs it. The web app
 finds the API at `NEXT_PUBLIC_API_BASE_URL` (default `http://localhost:8000`, read at
 build time; see `web/.env.example`), and the API accepts browser calls from
 `CRI_API_CORS_ORIGINS` (default `http://localhost:3000`; see `.env.example`).
 
-`scripts/demo.py` prints, from the SYNTHETIC sample, every fact the 3-minute demo
-([`docs/DEMO.md`](docs/DEMO.md)) relies on, including `Property F` food declining from
-`2025-06` (yours alone) and cluster-wide December room complaints (market-wide).
+`scripts/demo.py` prints every fact the 3-minute demo ([`docs/DEMO.md`](docs/DEMO.md))
+relies on: the real Kausani numbers (from the committed snapshot) and the SYNTHETIC
+method demo. To rebuild the real cluster you need the Kaggle hill reviews locally
+(see [`docs/DATA_SOURCES.md`](docs/DATA_SOURCES.md)):
+`python scripts/prepare_region_reviews.py`, then
+`python scripts/prepare_real_cluster.py --town Kausani`, then
+`python web/scripts/export_snapshot.py`.
 On Windows without `make`, run the commands directly; the `Makefile` only wraps them.
 
 ## 9. Interfaces
@@ -366,18 +380,19 @@ On Windows without `make`, run the commands directly; the `Makefile` only wraps 
 
 | Page | Route | Data source |
 |---|---|---|
-| Home | `/` | Snapshot |
-| Property: what to fix first, and whose problem it is | `/property/` | Snapshot |
-| Market: market-wide vs property-specific | `/market/` | Snapshot |
-| Did my fix work? | `/fix-check/` | Snapshot (precomputed results) |
-| Explorer (with *Try your own review*) | `/explorer/` | Snapshot; live classification via the API |
+| Home | `/` | Real cluster |
+| Property: what to fix first, and whose problem it is | `/property/` | Real cluster; `?source=demo` for the SYNTHETIC timeline |
+| Market: market-wide vs property-specific | `/market/` | Real cluster; `?source=demo` for the SYNTHETIC timeline |
+| Did my fix work? | `/fix-check/` | SYNTHETIC timeline (precomputed results) |
+| Explorer (with *Try your own review*) | `/explorer/` | Illustrative SYNTHETIC texts; live classification via the API |
 
-Deep link: `/property/?property=Property%20F`.
+Deep links: `/property/?property=Property%20Y` (real),
+`/property/?source=demo&property=Property%20F` (method demo).
 
-![Property view for Property F: Fix Food first since 2025-06, yours alone; scorecard with 95% intervals; trend with the detected June 2025 changepoint (SYNTHETIC data)](docs/screenshots/property_view_SYNTHETIC.png)
+![Real Kausani cluster, Property Y: Fix Room first (yours alone); 3.49 star average; scorecard against the cluster with 95% intervals (anonymised aggregates)](docs/screenshots/property_view_real_kausani.png)
 
-More pages, all on SYNTHETIC data:
-[market quadrant](docs/screenshots/market_quadrant_SYNTHETIC.png),
+More pages: [market, real](docs/screenshots/market_real_kausani.png);
+on SYNTHETIC data, [property method demo](docs/screenshots/property_view_SYNTHETIC.png),
 [did my fix work?](docs/screenshots/fix_check_SYNTHETIC.png),
 [review explorer](docs/screenshots/review_explorer_SYNTHETIC.png).
 
@@ -409,8 +424,16 @@ Interactive documentation is served at `/docs`. Limits and real examples:
 
 No real-world clause-level accuracy figures exist yet, so none are claimed. What is
 measured: whether the detectors find patterns injected into **SYNTHETIC** data and
-stay quiet on pattern-free data, and how the learned sentiment model performs on
-held-out public test sets.
+stay quiet on pattern-free data, how the learned sentiment model performs on
+held-out public test sets, and what the analysis finds on the **real** Kausani
+cluster (below).
+
+**Real cluster (Kausani, 25 hotels, 2,751 reviews, no dates).** No shared weak spot
+(the level-based market test needs ≥ 60% of hotels; Housekeeping comes closest with
+too few hotels to test). Nine lags at 7 hotels: Room at 4, Location at 3,
+Cleanliness at 1, Staff at 1. Hinglish or Devanagari appears in 8 of the 2,751
+reviews, so this corpus does not test the Hinglish handling. Method and caveats:
+[`docs/methodology.md`](docs/methodology.md), *Sources without review dates*.
 
 ### 10.1 Detector calibration (SYNTHETIC, 20 seeds)
 
@@ -485,6 +508,11 @@ All four are regenerated by `scripts/make_figures.py` from `seed=42`. They depic
 
 ## 11. Limitations
 
+- **No dates in the real corpus.** On Kausani only levels can be tested: lead/lag,
+  shared weak spots and priorities. When a gap started, and whether the market moved
+  too, cannot be tested; trends and the fix check run on the SYNTHETIC timeline.
+- **Real corpus is mostly English.** 8 of the 2,751 Kausani reviews are Hinglish or
+  Hindi; Hinglish accuracy comes from public Hinglish test sets, not this corpus.
 - **Rule and lexicon baseline.** Misses sarcasm, implicit sentiment and
   out-of-lexicon slang. Hindi negation after the word ("accha nahi tha") is handled
   since 2026-10-13. The learned and transformer backends
@@ -547,7 +575,7 @@ these set.
 ## 14. Project structure
 
 ```
-web/                Next.js app (the only UI): four pages on a static snapshot
+web/                Next.js app (the only UI): four pages on static snapshots (real + SYNTHETIC)
 src/cri/api.py      review-intelligence facade (stable contract)
 src/cri/server.py   FastAPI service: live classify for the explorer
 src/cri/            schema, loader, sources, generate, normalize, classify, pipeline,
@@ -556,7 +584,7 @@ src/cri/            schema, loader, sources, generate, normalize, classify, pipe
 src/cri/resources/  aspects.yaml, lexicon.yaml, models/ (shipped open model)
 eval/               predict.py, score.py, labelling guide, split_labels.py
 scripts/            demo, make_figures, capture_screenshots, calibrate_intervention,
-                    prepare_region_reviews, train_sentiment
+                    prepare_region_reviews, prepare_real_cluster, train_sentiment
 tests/              pattern recovery, API, server, learned model, demo claims
 data/sample/        SYNTHETIC reviews (committed); data/raw/ is gitignored
 docs/               PRD, SRS, SYSTEM_DESIGN, AI_MODEL, BUSINESS_MODEL, DATA_SOURCES,

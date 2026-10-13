@@ -73,22 +73,49 @@ probe from the clause-level one in the transformer table above.
 | December Room market-wide, 20 SYNTHETIC seeds | 20/20 | 20/20 | 14/20 | measured |
 | **Clause-level** F1 on hand-labelled hill-destination reviews | TBD | TBD | TBD | needs the gold set |
 
+## Real cluster: Kausani (measured 2026-10-13, rule classifier)
+
+Source: Kaggle `orionpax00/uttarakhand-hotel-reviews-india`, TripAdvisor-derived
+(platform inferred, not stated per review), **no review dates**. Built with
+`scripts/prepare_real_cluster.py`; published as aggregates in
+`web/public/data/cluster.real.json`, pinned by `tests/test_demo.py`.
+
+| Measure | Result | Status |
+|---|---|---|
+| Hotels / reviews in town after the prep filters | 41 / 2,877 | measured |
+| Hotels kept (≥ 20 reviews, 2 × `MIN_REVIEWS_FOR_FLAG`) / their reviews | 25 / 2,751 | measured |
+| Median reviews per kept hotel | 66 | measured |
+| Shared weak spots (market-wide without dates) | none | measured |
+| Hotels lagging the cluster on ≥ 1 aspect | 7 of 25 (Room 4, Location 3, Cleanliness 1, Staff 1) | measured |
+| Most complained-about aspects (share of mentions, descriptive) | Housekeeping 14%, Cleanliness 9%, Value for Money 8% | measured |
+| Hinglish / Devanagari in the corpus (whole-word markers) | 4 of 2,877 Kausani reviews; 80 of 80,827 overall | measured |
+| Language hints of the 2,751 cluster reviews | 5 Hinglish, 3 Hindi, rest English | measured |
+| Clause-level accuracy on Kausani reviews | TBD | needs the gold set |
+| A real export **with dates** (trends, changepoints, fix check on real data) | TBD | none available |
+
+The Hinglish claim therefore rests on the classifier's capability and the SentiMix /
+YouTube evaluation above, not on this corpus.
+
 ## "Whose problem is it?" (`priority_actions.whose_problem`)
 
 Validated on SYNTHETIC data only (`tests/test_insights.py`; method: `docs/AI_MODEL.md`
-§3). The travel-layer TBDs (demand validation, occupancy, capacity, impact) were
-dropped with the layer on 2026-10-13; they are at the git tag `travel-layer-v1`.
+§3). On the real Kausani cluster it runs on levels only (no dates): every flagged gap
+is `yours alone`, with the untested timing stated. The travel-layer TBDs (demand
+validation, occupancy, capacity, impact) were dropped with the layer on 2026-10-13;
+they are at the git tag `travel-layer-v1`.
 
 | Measure | Status |
 |---|---|
-| Agreement of verdicts with owner-confirmed causes, on real clusters | TBD: needs a real dated export and owner feedback |
+| Agreement of verdicts with owner-confirmed causes, on real clusters (e.g. Kausani owners) | TBD: needs owner feedback |
+| Verdicts with time evidence on a real cluster | TBD: needs a real dated export |
 | Share of priorities owners act on (pilot) | TBD: no users yet |
 
 ## Web app and API
 
-- Next.js app (the only UI): four pages plus home, all on the static snapshot;
-  type-checked and built in CI. Screenshots on SYNTHETIC data:
-  `docs/screenshots/*_SYNTHETIC.png`.
+- Next.js app (the only UI): four pages plus home, on the static snapshots (real
+  Kausani aggregates and the SYNTHETIC method demo); type-checked and built in CI.
+  Screenshots: `docs/screenshots/*_real_kausani.png` (real cluster) and
+  `*_SYNTHETIC.png` (method demo, explorer).
 - API: `/health` and `POST /reviews/classify` only (live classify in the explorer).
 - Public URLs (static site and API): `TBD` (steps in `docs/DEPLOYMENT.md`).
 

@@ -18,7 +18,8 @@ A hotel joins the cluster with at least ``--min-reviews`` reviews (default
 2 x ``MIN_REVIEWS_FOR_FLAG`` = 20): the cluster average weighs every property equally,
 so a hotel with a handful of reviews would add noise without ever being testable.
 
-Also writes ``<file>.json`` (aggregate counts for the web snapshot) and a LOCAL-ONLY map (``Property A`` -> hotel name) so the team can answer
+Also writes ``<file>.json`` (aggregate counts for the web snapshot) and a
+LOCAL-ONLY map (``Property A`` -> hotel name) so the team can answer
 "which hotel is B?". Both files live under the gitignored ``data/raw/external/``;
 never commit them.
 

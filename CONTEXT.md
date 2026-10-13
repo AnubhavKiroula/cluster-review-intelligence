@@ -15,6 +15,12 @@ traveller find a hotel). We are supply side: we sell to the properties listed on
 platforms and do not compete with them. The same analysis also gives a tourism board a
 destination view (one line in the pitch, not a second product).
 
+**Real market (since 2026-10-13, PR `feat/real-kausani-cluster`):** home, `/property`
+and `/market` show **Kausani** (Bageshwar, Uttarakhand): 25 real hotels, 2,751 real
+reviews from the Kaggle hill corpus, anonymised (Property A–Y) and published as
+aggregates only. The corpus has **no review dates**, so the time axis is a labelled
+SYNTHETIC method demo (`?source=demo`, `/fix-check`).
+
 Repo: `PxA-Labs/cluster-review-intelligence`. Team **The Imposters**: Archit Mittal
 (team lead; data, eval, ops), Purvansh Joshi (web), Anubhav Kiroula (analytics core). Plan and ownership map:
 `docs/HACKATHON_PLAN.md`.
@@ -35,16 +41,17 @@ Repo: `PxA-Labs/cluster-review-intelligence`. Team **The Imposters**: Archit Mit
 - **What was added:** `priority_actions.whose_problem` (`yours alone` | `everyone's`
   | `not tested`) with `whose_detail`, shown on `/property`. It is derived per
   property, never joined from `market_scope` by aspect.
-- **Branch / PR:** `feat/focus-one-question` (one commit per section).
+- **Branch / PR:** `feat/focus-one-question` (#41, merged).
 
 ## Current objective
 
-Submit tonight. After that:
+Submit tonight:
 
-- merge the focus-cut PR (it needs explicit maintainer approval);
-- deploy the static site;
-- rehearse `docs/DEMO.md`;
-- label a clause-level gold set.
+- merge the real-cluster PR (`feat/real-kausani-cluster`; it needs explicit
+  maintainer approval) and redeploy;
+- rehearse `docs/DEMO.md` (now built around Kausani).
+
+After that, label a clause-level gold set from Kausani reviews.
 
 ## Architecture / state
 
@@ -52,7 +59,8 @@ Submit tonight. After that:
 |---|---|
 | `src/cri/` review core | schema → loader / sources → normalize → classify (`rule` default; `learned`, `transformer` opt-in) → pipeline → benchmark / changepoint → insights (priorities + whose problem) / intervention → **`api.py`** |
 | `src/cri/server.py` | FastAPI, only `/health` and `POST /reviews/classify` (the explorer's live classify). Loads no data at startup. |
-| `web/` | Next.js static export, the only UI: `/property`, `/market`, `/fix-check`, `/explorer` plus home. Every page reads `public/data/*.synthetic.json`; only live classify calls the API. |
+| `web/` | Next.js static export, the only UI: `/property`, `/market`, `/fix-check`, `/explorer` plus home. Home, property and market read `public/data/cluster.real.json` (real Kausani aggregates); the method demo, fix check and explorer texts read `*.synthetic.json`. A provenance chip on every page says which. Only live classify calls the API. |
+| Real data path (local only) | Kaggle hill reviews → `scripts/prepare_region_reviews.py` → `scripts/prepare_real_cluster.py --town Kausani` → `web/scripts/export_snapshot.py` → `cluster.real.json`. Inputs and the hotel-name map stay under the gitignored `data/raw/external/`. |
 
 No database. Streamlit was removed earlier the same day.
 
@@ -76,7 +84,7 @@ No database. Streamlit was removed earlier the same day.
 ## Verified (2026-10-13, local, Python 3.12.10, Node 22)
 
 - **Python checks:**
-  - `python -m pytest`: 266 passed, 2 skipped (opt-in real-model tests).
+  - `python -m pytest`: 289 passed, 2 skipped (opt-in real-model tests), on the real-cluster branch.
   - `python -m ruff check .`: clean.
 - **Calibration:** `python -m cri.calibration --seeds 1-20` reproduces the documented
   numbers:
@@ -124,6 +132,16 @@ No database. Streamlit was removed earlier the same day.
 - **Learned backend:** opt-in. Rules stay the default until a clause-level gold set
   says otherwise. The Kaggle-trained `region` model stays local.
 
+- **Real cluster (2026-10-13):**
+  - Kausani was chosen for cluster density: 41 hotels and 2,877 reviews in town, 16
+    hotels with ≥ 50 reviews. The runner-up was Lansdowne (36 hotels, 1,972 reviews).
+  - A hotel joins with ≥ 20 reviews (2 × `MIN_REVIEWS_FOR_FLAG`), giving 25 hotels
+    and 2,751 reviews.
+  - Dates are never invented. Without them, scope is level-based only: lag flags,
+    plus `shared_weak_spots` on complaint share (not mean sentiment, because neutral
+    check-in mentions made Booking Experience look weak).
+  - Aggregates are published; review text, clause text and hotel names never are.
+
 ## Known issues / honest caveats
 
 - The review data is SYNTHETIC. Clause-level accuracy on real data is `TBD`.
@@ -133,6 +151,15 @@ No database. Streamlit was removed earlier the same day.
 - `python -m cri.calibration` always uses the rules (pass `classifier=` to calibrate
   another backend).
 - There is no authentication, so the app is not ready for real owner data.
+- **Kausani results:**
+  - There is no shared weak spot, so the "market opportunity" framing shows only on
+    the method demo.
+  - The 9 lags depend on the inclusion rule: 4 remain at ≥ 30 reviews per hotel.
+- **Hinglish is near zero in the real corpus:** 4 of 2,877 Kausani reviews and 80 of
+  80,827 overall. The Hinglish claim rests on the classifier and the public test
+  sets.
+- **Licence:** the corpus is TripAdvisor-derived, so we publish derived statistics
+  only. No legal review of that position has been done.
 
 ## Commands
 
@@ -147,4 +174,5 @@ No database. Streamlit was removed earlier the same day.
 | Re-export the snapshot | `python web/scripts/export_snapshot.py` (`--skip-fix-check` skips the slow grid) |
 | Train (needs `pip install -e ".[train]"`) | `python scripts/prepare_region_reviews.py` · `python scripts/train_sentiment.py --model open\|region` |
 | Screenshots | `python scripts/capture_screenshots.py` |
+| Rebuild the real cluster (needs the local Kaggle data) | `python scripts/prepare_region_reviews.py` · `python scripts/prepare_real_cluster.py --town Kausani` · `python web/scripts/export_snapshot.py --skip-fix-check` |
 | Recover the travel layer | `git checkout travel-layer-v1 -- <path>` |

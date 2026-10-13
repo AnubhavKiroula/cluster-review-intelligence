@@ -10,20 +10,38 @@ one user, the hotel or homestay owner, with four pages plus home:
 | `/fix-check/` | Did my fix work, relative to the market? |
 | `/explorer/` | Which review clause each label came from; *Try your own review* |
 
-Every page reads a **static JSON snapshot** exported from the Python `cri.api` core,
-so the site works as plain static files. Only *Try your own review* in the explorer
+Every page reads **static JSON snapshots** exported from the Python `cri.api` core,
+so the site works as plain static files:
+
+| Snapshot | Contents | Used by |
+|---|---|---|
+| `cluster.real.json` | The **real** Kausani cluster (25 hotels, 2,751 reviews): aggregates only, no review text, no dates | home, `/property`, `/market` (default) |
+| `cluster.synthetic.json` | The **SYNTHETIC** cluster: the simulated timeline and the explorer's illustrative texts | `/property` and `/market` with `?source=demo` (the *Method demo* switch), `/fix-check` (trend), `/explorer` |
+| `fixcheck.synthetic.json` | Every fix-check result, precomputed | `/fix-check` |
+
+Each page header carries a **provenance chip** (`SourceChip` in
+`components/ui.tsx`): `Kausani · 25 hotels · 2,751 real reviews · TripAdvisor`,
+`Method demo · simulated timeline`, or `Illustrative examples · SYNTHETIC reviews`
+(hover for the source details). Figures drawn from SYNTHETIC data carry a
+`SYNTHETIC` mark. Only *Try your own review* in the explorer
 calls the Python API (`cri.server`, through `lib/api.ts`) at
 `NEXT_PUBLIC_API_BASE_URL` (default `http://localhost:8000`, read at build time; see
 `.env.example`). Without the API, that box shows an error and everything else works.
 
-> All numbers come from the audited Python core (CLAUDE.md rule 1). Data is clearly
-> SYNTHETIC (`*.synthetic.json`, banners on every page; rule 2).
+> All numbers come from the audited Python core (CLAUDE.md rule 1). SYNTHETIC data is
+> labelled in its filenames, chips and figures (rule 2); real properties are
+> anonymised (rule 4).
 
 ## Data flow
 
 ```
-cri.api (Python)  ──  web/scripts/export_snapshot.py  ──▶  web/public/data/cluster.synthetic.json  ──▶  Next.js (client fetch)
+data/raw/external (local) ─ scripts/prepare_real_cluster.py ─┐
+                                                             ├─ cri.api ─ web/scripts/export_snapshot.py ─▶ web/public/data/*.json ─▶ Next.js (client fetch)
+SYNTHETIC generator (cri.generate) ──────────────────────────┘
 ```
+
+The real input lives only on the machine of whoever downloaded the dataset; without
+it the exporter keeps the committed `cluster.real.json` and regenerates the rest.
 
 The **Did my fix work?** page needs a result for every property × aspect × month the
 user can pick, and there is no backend to compute one on demand. So the exporter also
@@ -35,8 +53,9 @@ Regenerate the snapshots whenever the analytics change:
 
 ```bash
 # from the repo root, with the project installed (pip install -e .)
-python web/scripts/export_snapshot.py                   # both snapshots
-python web/scripts/export_snapshot.py --skip-fix-check  # main snapshot only (fast)
+python scripts/prepare_real_cluster.py --town Kausani   # local only, needs the Kaggle data
+python web/scripts/export_snapshot.py                   # all snapshots
+python web/scripts/export_snapshot.py --skip-fix-check  # skip the slow fix-check grid
 ```
 
 ## Develop
@@ -51,8 +70,9 @@ npx tsc --noEmit     # type-check (CI runs this and npm run build)
 uvicorn cri.server:app --port 8000
 ```
 
-The default snapshot is labelled **SYNTHETIC** in both the filename and the interface. It is
-fictional data for demonstrating the product flow, not a claim about real properties.
+The real snapshot has no review dates, so trends and the fix check run on the
+SYNTHETIC timeline, which is labelled in its filename, chip and figures. It is
+fictional data for demonstrating the time method, not a claim about real properties.
 
 ## Build a static site
 

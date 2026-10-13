@@ -9,7 +9,7 @@ in docs/TODO_RESULTS.md).
 | # | Component | Kind | Code |
 |---|---|---|---|
 | 1 | Review aspect + sentiment classifier | rules (default) or trained model | `cri.classify`, `cri.learned_backend` |
-| 2 | Cluster benchmark, changepoints, market scope, fix check | statistical tests | `cri.benchmark`, `cri.intervention` (see `methodology.md`) |
+| 2 | Cluster benchmark, changepoints, market scope (incl. shared weak spots without dates), fix check | statistical tests | `cri.benchmark`, `cri.intervention` (see `methodology.md`) |
 | 3 | "Whose problem is it?" per priority | re-test of a lag with market patterns set aside | `cri.insights` |
 
 The travel engines removed on 2026-10-13 (demand index, alternatives, stays,
@@ -137,6 +137,12 @@ labels used for clause-level inference; no review dates, so no temporal validati
 sarcasm; Devanagari is rare in all training data; Mussoorie is absent from the
 hill-review data.
 
+**Hinglish in the real corpus is near zero.** Whole-word Hinglish or Devanagari
+markers appear in 4 of the 2,877 Kausani reviews and 80 of 80,827 hill reviews
+overall; the language hints of the 2,751 reviews in the real cluster are 5 Hinglish,
+3 Hindi, the rest English. The Hinglish capability shown in the demo rests on the
+classifier and its SentiMix / YouTube evaluation, not on this corpus.
+
 **Next.** Label ~300 hill-destination clauses (Hinglish + English, two annotators,
 Cohen's kappa) with the labelling pack; train on clause-split reviews; try a
 fine-tuned multilingual transformer on the local GPU with the same splits.
@@ -147,7 +153,20 @@ fine-tuned multilingual transformer on the local GPU with the same splits.
 
 Bootstrap benchmark, changepoints relative to the market, market-wide patterns and
 the intervention check are documented in [`methodology.md`](methodology.md) with
-their SYNTHETIC calibration. Unchanged by this work.
+their SYNTHETIC calibration. Unchanged for dated sources.
+
+**Without review dates** (the real Kausani cluster) only levels can be tested, so
+"market-wide" means a **shared weak spot** (`benchmark.shared_weak_spots`): per
+property, the complaint share (review units with negative sentiment) on the aspect
+minus on its other aspects, each side needing at least 10 reviews; properties are
+the replicates (one-sided t test, Benjamini-Hochberg across aspects); and at least
+60% of the properties reviewing the aspect must exceed it by 0.15 (half of
+`MARKET_MIN_EFFECT`, i.e. about 15% of mentions flipping). It uses complaint share,
+not mean sentiment, because neutral mentions lower a mean without anyone
+complaining: on Kausani, Booking Experience has the lowest mean (neutral check-in
+mentions score 0) but a *lower* complaint share than the other aspects. Kausani has
+no shared weak spot; its 9 flagged gaps belong to 7 individual hotels. Validation
+on a constructed fixture only (`tests/test_api.py`); on real clusters `TBD`.
 
 ---
 
@@ -177,6 +196,10 @@ market-wide December dip: D is still 0.36 below the market outside December. A
 fixture that adds two extra copies of Property G's December Room reviews makes G lag
 on Room purely through the dip, and the verdict becomes `everyone's`. Agreement with
 causes confirmed by owners on real clusters is `TBD`.
+
+**Without review dates** (the real cluster) there is no changepoint or time pattern
+to test: a lag is `yours alone`, and `whose_detail` says when it started and whether
+the market moved too were not tested.
 
 **Limitations.** It inherits the power limits of the lag test (about 100 reviews per
 property-aspect); a property hit harder than average by a market-wide pattern is

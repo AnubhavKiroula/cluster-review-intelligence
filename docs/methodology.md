@@ -168,6 +168,33 @@ share is relative to the properties that review the aspect.
   volume, share of negative mentions, number of properties reviewing it, and
   scope (`stable` when no shift, `undetermined` when too few properties).
 
+## Sources without review dates (the real Kausani cluster)
+
+The real corpus has no review dates. A reviews file without a `date` column is
+accepted and **never filled**; `ClusterData.has_dates` is False and every
+time-based analysis (sections 6, 7 and 12, `trend`) starts from dated review units
+only, so it returns its empty result instead of an invented one. What still runs:
+
+- **Benchmark** (section 5) and **priorities** (section 8): unchanged. `started` is
+  always empty, and `whose_problem` for a lag says *below the cluster average; when
+  it started and whether the market moved too are not tested*. It assumes the
+  hotels' reviews cover similar periods, which cannot be checked without dates.
+- **Scope**, level-based only, never a seasonal or step claim:
+  `property-specific` = properties flagged `lag`; `market-wide` = a **shared weak
+  spot** (`benchmark.shared_weak_spots`): per property, the *complaint share* (review
+  units with negative sentiment) on the aspect minus on its other aspects, each side
+  with at least 10 reviews; properties are the replicates (one-sided t test,
+  Benjamini–Hochberg across aspects, q ≤ 0.05); and at least 60% of the properties
+  reviewing the aspect must exceed it by 0.15 (`MARKET_MIN_EFFECT / 2`: a 0.3 drop
+  on the −1..+1 scale is ~15% of mentions flipping). It uses complaint share, not
+  mean sentiment, because neutral mentions lower a mean without anyone complaining:
+  on Kausani, Booking Experience has the lowest mean (check-in mentions score 0) but
+  a *lower* complaint share than the other aspects.
+- **Result on Kausani:** no shared weak spot (Housekeeping comes closest, but only 6
+  hotels have enough housekeeping reviews to test). Nine lags at 7 of 25 hotels.
+  The inclusion rule matters: with hotels of ≥ 30 reviews instead of ≥ 20, 4 of the
+  9 lags remain (`scripts/prepare_real_cluster.py --min-reviews`).
+
 ## Input normalisation (`cri.api.load_cluster`)
 
 - `property_id` is converted to text once, so numeric ids (101, 102, …) work

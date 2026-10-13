@@ -116,3 +116,27 @@ removed with the travel layer (tag `travel-layer-v1`).
 - The classifier cache in `cri.api` is keyed by backend, aspects file **and** learned
   model path.
 - `cri.travel` was removed; nothing in the frozen contract depended on it.
+- **Sources without review dates** (2026-10-13, additive; the HTTP API is unchanged):
+  - `validate_reviews` accepts a frame with **no `date` column** and returns it
+    without one (never filled); a `date` column that exists must still be complete.
+  - `ClusterData.has_dates: bool` (default True, so existing constructors work).
+  - `trend`, `changepoints`, `benchmark.detect_market_patterns` and
+    `detect_seasonal_dips` return their documented **empty typed frames**;
+    `date_range` returns `(NaT, NaT)`; `intervention_check` returns verdict
+    `no data` with summary "This source has no review dates, so a before/after check
+    is not possible."
+  - `priority_actions` works; `started` is None on every row; `whose_detail` reads
+    "below the cluster average; the source has no review dates, so when it started
+    and whether the market moved too are not tested".
+  - `market_scope` / `destination_summary` use level evidence only:
+    `property-specific` from `lag` flags (pattern "Property X below the cluster
+    (+0.07 vs +0.25)"), `market-wide` only from `benchmark.shared_weak_spots`
+    (pattern "shared weak spot: complaints in …% of mentions vs …% for other aspects
+    (k/n properties)"); `stable` reads "no property below the cluster and no shared
+    weak spot". Never a seasonal or changepoint claim.
+  - `search_reviews` returns `date` as NaT and raises `ValueError` if `start` or
+    `end` is passed.
+  - New public helpers in `cri.benchmark`: `dated_units`, `has_dates`,
+    `shared_weak_spots`. Dated (SYNTHETIC) outputs are unchanged.
+- `cri.normalize.detect_language` matches Hinglish markers as whole words (it matched
+  substrings, so "reachable" or "Himachal" were hinted Hinglish).

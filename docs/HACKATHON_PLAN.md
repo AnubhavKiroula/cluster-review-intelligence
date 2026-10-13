@@ -180,6 +180,11 @@ def search_reviews(d: ClusterData, property_id=None, aspect=None, sentiment=None
 >   part in set aside, and is `everyone's` only if it disappears. `not tested` when
 >   fewer than 3 properties review the aspect (or too few reviews remain outside the
 >   pattern). Additive: no column removed or renamed.
+> - 2026-10-13 (real cluster): sources **without review dates** are accepted
+>   (`ClusterData.has_dates`, default True). Time-based functions return their empty
+>   typed frames, `intervention_check` returns `no data`, `date_range` returns
+>   `(NaT, NaT)`, and `market_scope` uses level evidence only. Dated behaviour is
+>   unchanged. Details in the `src/cri/api.py` docstring.
 
 **Day-0 unblock rule:** `[A]` pushes `api.py` with *working or stubbed* returns
 (correct columns, plausible shapes) **within the first 2 hours**. From that moment
