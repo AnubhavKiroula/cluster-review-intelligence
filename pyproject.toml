@@ -29,7 +29,7 @@ model = [
 ]
 dev = [
     "pytest==9.0.3",
-    "ruff==0.16.10",
+    "ruff==0.17.0",
     "matplotlib==3.10.8",
     "httpx==0.28.1",
 ]
