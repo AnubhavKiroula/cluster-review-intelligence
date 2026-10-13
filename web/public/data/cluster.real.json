@@ -1,0 +1,2980 @@
+{
+"meta": {
+"is_synthetic": false,
+"has_dates": false,
+"source_name": "Kausani (Bageshwar, Uttarakhand): real hotel reviews",
+"generated_at": "2026-10-13T13:51:07+00:00",
+"properties": [
+"Property A",
+"Property B",
+"Property C",
+"Property D",
+"Property E",
+"Property F",
+"Property G",
+"Property H",
+"Property I",
+"Property J",
+"Property K",
+"Property L",
+"Property M",
+"Property N",
+"Property O",
+"Property P",
+"Property Q",
+"Property R",
+"Property S",
+"Property T",
+"Property U",
+"Property V",
+"Property W",
+"Property X",
+"Property Y"
+],
+"aspects": [
+"Food",
+"Room",
+"Housekeeping",
+"Staff",
+"Location",
+"Value for Money",
+"Cleanliness",
+"Booking Experience"
+],
+"date_min": null,
+"date_max": null,
+"n_reviews": 2751,
+"provenance": {
+"town": "Kausani",
+"district": "Bageshwar",
+"state": "Uttarakhand",
+"hotels": 25,
+"hotels_in_town": 41,
+"reviews_in_town": 2877,
+"min_reviews": 20,
+"median_reviews_per_hotel": 66.0,
+"platform": "TripAdvisor",
+"platform_inferred": true,
+"dataset": "Kaggle orionpax00/uttarakhand-hotel-reviews-india"
+}
+},
+"market_scope": [
+{
+"aspect": "Cleanliness",
+"n_properties": 1,
+"fraction": 0.04,
+"scope": "property-specific",
+"properties": "Property Y",
+"pattern": "Property Y below the cluster (-0.09 vs +0.58)"
+},
+{
+"aspect": "Location",
+"n_properties": 3,
+"fraction": 0.12,
+"scope": "property-specific",
+"properties": "Property D, Property H, Property Q",
+"pattern": "Property D below the cluster (+0.39 vs +0.53); Property H below the cluster (+0.45 vs +0.53); Property Q below the cluster (+0.44 vs +0.53)"
+},
+{
+"aspect": "Room",
+"n_properties": 4,
+"fraction": 0.16,
+"scope": "property-specific",
+"properties": "Property M, Property O, Property U, Property Y",
+"pattern": "Property M below the cluster (+0.07 vs +0.25); Property O below the cluster (-0.10 vs +0.25); Property U below the cluster (+0.09 vs +0.25); Property Y below the cluster (-0.17 vs +0.25)"
+},
+{
+"aspect": "Staff",
+"n_properties": 1,
+"fraction": 0.04,
+"scope": "property-specific",
+"properties": "Property O",
+"pattern": "Property O below the cluster (+0.00 vs +0.45)"
+}
+],
+"destination_summary": [
+{
+"aspect": "Booking Experience",
+"cluster_mean": 0.129,
+"n": 424,
+"pct_negative": 0.014,
+"scope": "stable",
+"pattern": "no property below the cluster and no shared weak spot",
+"n_properties_reviewed": 25
+},
+{
+"aspect": "Room",
+"cluster_mean": 0.247,
+"n": 2083,
+"pct_negative": 0.057,
+"scope": "property-specific",
+"pattern": "Property M below the cluster (+0.07 vs +0.25); Property O below the cluster (-0.10 vs +0.25); Property U below the cluster (+0.09 vs +0.25); Property Y below the cluster (-0.17 vs +0.25)",
+"n_properties_reviewed": 25
+},
+{
+"aspect": "Housekeeping",
+"cluster_mean": 0.248,
+"n": 243,
+"pct_negative": 0.14,
+"scope": "stable",
+"pattern": "no property below the cluster and no shared weak spot",
+"n_properties_reviewed": 25
+},
+{
+"aspect": "Value for Money",
+"cluster_mean": 0.268,
+"n": 438,
+"pct_negative": 0.084,
+"scope": "stable",
+"pattern": "no property below the cluster and no shared weak spot",
+"n_properties_reviewed": 25
+},
+{
+"aspect": "Staff",
+"cluster_mean": 0.454,
+"n": 1923,
+"pct_negative": 0.022,
+"scope": "property-specific",
+"pattern": "Property O below the cluster (+0.00 vs +0.45)",
+"n_properties_reviewed": 25
+},
+{
+"aspect": "Food",
+"cluster_mean": 0.456,
+"n": 2724,
+"pct_negative": 0.04,
+"scope": "stable",
+"pattern": "no property below the cluster and no shared weak spot",
+"n_properties_reviewed": 25
+},
+{
+"aspect": "Location",
+"cluster_mean": 0.525,
+"n": 3276,
+"pct_negative": 0.01,
+"scope": "property-specific",
+"pattern": "Property D below the cluster (+0.39 vs +0.53); Property H below the cluster (+0.45 vs +0.53); Property Q below the cluster (+0.44 vs +0.53)",
+"n_properties_reviewed": 25
+},
+{
+"aspect": "Cleanliness",
+"cluster_mean": 0.582,
+"n": 879,
+"pct_negative": 0.086,
+"scope": "property-specific",
+"pattern": "Property Y below the cluster (-0.09 vs +0.58)",
+"n_properties_reviewed": 25
+}
+],
+"market_headline": null,
+"per_property": {
+"Property A": {
+"stars": {
+"mean": 4.61,
+"n_reviews": 134
+},
+"scorecard": [
+{
+"aspect": "Food",
+"mean": 0.5739130435,
+"ci_low": 0.4728646934,
+"ci_high": 0.6731303419,
+"n": 115,
+"cluster_mean": 0.4562955481,
+"diff": 0.1176174954,
+"flag": "on_par",
+"n_reviews": 87,
+"q_value": 0.1261597402
+},
+{
+"aspect": "Room",
+"mean": 0.3977272727,
+"ci_low": 0.2976190476,
+"ci_high": 0.5058823529,
+"n": 88,
+"cluster_mean": 0.2469662701,
+"diff": 0.1507610027,
+"flag": "lead",
+"n_reviews": 56,
+"q_value": 0.034088459
+},
+{
+"aspect": "Housekeeping",
+"mean": 1.0,
+"ci_low": null,
+"ci_high": null,
+"n": 3,
+"cluster_mean": 0.2478823118,
+"diff": 0.7521176882,
+"flag": "on_par",
+"n_reviews": 3,
+"q_value": null
+},
+{
+"aspect": "Staff",
+"mean": 0.5555555556,
+"ci_low": 0.4553553281,
+"ci_high": 0.6571494709,
+"n": 108,
+"cluster_mean": 0.4541209676,
+"diff": 0.1014345879,
+"flag": "on_par",
+"n_reviews": 88,
+"q_value": 0.1982406549
+},
+{
+"aspect": "Location",
+"mean": 0.5398773006,
+"ci_low": 0.4601103151,
+"ci_high": 0.6273291925,
+"n": 163,
+"cluster_mean": 0.5250979756,
+"diff": 0.014779325,
+"flag": "on_par",
+"n_reviews": 103,
+"q_value": 0.8588809646
+},
+{
+"aspect": "Value for Money",
+"mean": 0.625,
+"ci_low": 0.375,
+"ci_high": 0.8571428571,
+"n": 24,
+"cluster_mean": 0.2679585894,
+"diff": 0.3570414106,
+"flag": "lead",
+"n_reviews": 18,
+"q_value": 0.0372008412
+},
+{
+"aspect": "Cleanliness",
+"mean": 0.8958333333,
+"ci_low": 0.7962868481,
+"ci_high": 0.9787234043,
+"n": 48,
+"cluster_mean": 0.5823835406,
+"diff": 0.3134497927,
+"flag": "lead",
+"n_reviews": 39,
+"q_value": 1.44e-08
+},
+{
+"aspect": "Booking Experience",
+"mean": 0.3043478261,
+"ci_low": 0.1153846154,
+"ci_high": 0.52,
+"n": 23,
+"cluster_mean": 0.1294090458,
+"diff": 0.1749387803,
+"flag": "on_par",
+"n_reviews": 19,
+"q_value": 0.287797052
+}
+],
+"priority_actions": [],
+"trends": {},
+"changepoints": []
+},
+"Property B": {
+"stars": {
+"mean": 3.97,
+"n_reviews": 59
+},
+"scorecard": [
+{
+"aspect": "Food",
+"mean": 0.6545454545,
+"ci_low": 0.4905660377,
+"ci_high": 0.807034413,
+"n": 55,
+"cluster_mean": 0.4562955481,
+"diff": 0.1982499064,
+"flag": "on_par",
+"n_reviews": 45,
+"q_value": 0.0949328726
+},
+{
+"aspect": "Room",
+"mean": 0.3333333333,
+"ci_low": 0.1051956815,
+"ci_high": 0.55,
+"n": 39,
+"cluster_mean": 0.2469662701,
+"diff": 0.0863670633,
+"flag": "on_par",
+"n_reviews": 25,
+"q_value": 0.7354309447
+},
+{
+"aspect": "Housekeeping",
+"mean": 0.3636363636,
+"ci_low": -0.0909090909,
+"ci_high": 0.8181818182,
+"n": 11,
+"cluster_mean": 0.2478823118,
+"diff": 0.1157540518,
+"flag": "on_par",
+"n_reviews": 11,
+"q_value": 0.8490638324
+},
+{
+"aspect": "Staff",
+"mean": 0.5,
+"ci_low": 0.2916666667,
+"ci_high": 0.7021881044,
+"n": 46,
+"cluster_mean": 0.4541209676,
+"diff": 0.0458790324,
+"flag": "on_par",
+"n_reviews": 36,
+"q_value": 0.8490638324
+},
+{
+"aspect": "Location",
+"mean": 0.5961538462,
+"ci_low": 0.4727272727,
+"ci_high": 0.7333333333,
+"n": 52,
+"cluster_mean": 0.5250979756,
+"diff": 0.0710558706,
+"flag": "on_par",
+"n_reviews": 40,
+"q_value": 0.6332523616
+},
+{
+"aspect": "Value for Money",
+"mean": 0.2,
+"ci_low": null,
+"ci_high": null,
+"n": 5,
+"cluster_mean": 0.2679585894,
+"diff": -0.0679585894,
+"flag": "on_par",
+"n_reviews": 4,
+"q_value": null
+},
+{
+"aspect": "Cleanliness",
+"mean": 0.5217391304,
+"ci_low": 0.2666666667,
+"ci_high": 0.7894736842,
+"n": 23,
+"cluster_mean": 0.5823835406,
+"diff": -0.0606444102,
+"flag": "on_par",
+"n_reviews": 19,
+"q_value": 0.8490638324
+},
+{
+"aspect": "Booking Experience",
+"mean": 0.0833333333,
+"ci_low": null,
+"ci_high": null,
+"n": 12,
+"cluster_mean": 0.1294090458,
+"diff": -0.0460757125,
+"flag": "on_par",
+"n_reviews": 9,
+"q_value": null
+}
+],
+"priority_actions": [],
+"trends": {},
+"changepoints": []
+},
+"Property C": {
+"stars": {
+"mean": 4.49,
+"n_reviews": 301
+},
+"scorecard": [
+{
+"aspect": "Food",
+"mean": 0.5541795666,
+"ci_low": 0.4938372455,
+"ci_high": 0.6163543551,
+"n": 323,
+"cluster_mean": 0.4562955481,
+"diff": 0.0978840185,
+"flag": "lead",
+"n_reviews": 228,
+"q_value": 0.0278690984
+},
+{
+"aspect": "Room",
+"mean": 0.3821656051,
+"ci_low": 0.2866232329,
+"ci_high": 0.4768287668,
+"n": 157,
+"cluster_mean": 0.2469662701,
+"diff": 0.135199335,
+"flag": "lead",
+"n_reviews": 103,
+"q_value": 0.034088459
+},
+{
+"aspect": "Housekeeping",
+"mean": 0.4166666667,
+"ci_low": null,
+"ci_high": null,
+"n": 12,
+"cluster_mean": 0.2478823118,
+"diff": 0.1687843548,
+"flag": "on_par",
+"n_reviews": 9,
+"q_value": null
+},
+{
+"aspect": "Staff",
+"mean": 0.5320754717,
+"ci_low": 0.4679170626,
+"ci_high": 0.5934362934,
+"n": 265,
+"cluster_mean": 0.4541209676,
+"diff": 0.0779545041,
+"flag": "on_par",
+"n_reviews": 204,
+"q_value": 0.0848026942
+},
+{
+"aspect": "Location",
+"mean": 0.5325779037,
+"ci_low": 0.4802088629,
+"ci_high": 0.5888888889,
+"n": 353,
+"cluster_mean": 0.5250979756,
+"diff": 0.0074799281,
+"flag": "on_par",
+"n_reviews": 228,
+"q_value": 0.8993506281
+},
+{
+"aspect": "Value for Money",
+"mean": 0.4705882353,
+"ci_low": 0.25,
+"ci_high": 0.6875,
+"n": 34,
+"cluster_mean": 0.2679585894,
+"diff": 0.2026296459,
+"flag": "on_par",
+"n_reviews": 31,
+"q_value": 0.2407881272
+},
+{
+"aspect": "Cleanliness",
+"mean": 0.8421052632,
+"ci_low": 0.7572747482,
+"ci_high": 0.9213483146,
+"n": 95,
+"cluster_mean": 0.5823835406,
+"diff": 0.2597217225,
+"flag": "lead",
+"n_reviews": 83,
+"q_value": 1.115e-07
+},
+{
+"aspect": "Booking Experience",
+"mean": 0.0731707317,
+"ci_low": 0.0,
+"ci_high": 0.1904761905,
+"n": 41,
+"cluster_mean": 0.1294090458,
+"diff": -0.0562383141,
+"flag": "on_par",
+"n_reviews": 32,
+"q_value": 0.6332523616
+}
+],
+"priority_actions": [],
+"trends": {},
+"changepoints": []
+},
+"Property D": {
+"stars": {
+"mean": 4.38,
+"n_reviews": 66
+},
+"scorecard": [
+{
+"aspect": "Food",
+"mean": 0.4057971014,
+"ci_low": 0.2325412875,
+"ci_high": 0.5933021112,
+"n": 69,
+"cluster_mean": 0.4562955481,
+"diff": -0.0504984466,
+"flag": "on_par",
+"n_reviews": 46,
+"q_value": 0.8247621946
+},
+{
+"aspect": "Room",
+"mean": 0.3023255814,
+"ci_low": 0.1363636364,
+"ci_high": 0.4761904762,
+"n": 43,
+"cluster_mean": 0.2469662701,
+"diff": 0.0553593113,
+"flag": "on_par",
+"n_reviews": 29,
+"q_value": 0.8031213049
+},
+{
+"aspect": "Housekeeping",
+"mean": 1.0,
+"ci_low": null,
+"ci_high": null,
+"n": 2,
+"cluster_mean": 0.2478823118,
+"diff": 0.7521176882,
+"flag": "on_par",
+"n_reviews": 2,
+"q_value": null
+},
+{
+"aspect": "Staff",
+"mean": 0.5555555556,
+"ci_low": 0.4423076923,
+"ci_high": 0.6730769231,
+"n": 54,
+"cluster_mean": 0.4541209676,
+"diff": 0.1014345879,
+"flag": "on_par",
+"n_reviews": 38,
+"q_value": 0.2708352114
+},
+{
+"aspect": "Location",
+"mean": 0.3867924528,
+"ci_low": 0.2941176471,
+"ci_high": 0.4857142857,
+"n": 106,
+"cluster_mean": 0.5250979756,
+"diff": -0.1383055228,
+"flag": "lag",
+"n_reviews": 57,
+"q_value": 0.0468849224
+},
+{
+"aspect": "Value for Money",
+"mean": 0.0,
+"ci_low": null,
+"ci_high": null,
+"n": 6,
+"cluster_mean": 0.2679585894,
+"diff": -0.2679585894,
+"flag": "on_par",
+"n_reviews": 5,
+"q_value": null
+},
+{
+"aspect": "Cleanliness",
+"mean": 0.7142857143,
+"ci_low": 0.3333333333,
+"ci_high": 1.0,
+"n": 21,
+"cluster_mean": 0.5823835406,
+"diff": 0.1319021737,
+"flag": "on_par",
+"n_reviews": 20,
+"q_value": 0.7536481152
+},
+{
+"aspect": "Booking Experience",
+"mean": 0.4285714286,
+"ci_low": null,
+"ci_high": null,
+"n": 7,
+"cluster_mean": 0.1294090458,
+"diff": 0.2991623828,
+"flag": "on_par",
+"n_reviews": 7,
+"q_value": null
+}
+],
+"priority_actions": [
+{
+"aspect": "Location",
+"gap": 0.138,
+"volume": 0.344,
+"impact_score": 0.0476,
+"started": null,
+"rationale": "Location is 0.14 below the cluster (now +0.39 vs +0.53; your 95% CI +0.29 to +0.49 lies below the cluster, significant after multiple-testing correction). It appears in 34% of your aspect mentions.",
+"current_mean": 0.387,
+"reference_mean": 0.525,
+"basis": "cluster",
+"n": 106,
+"whose_problem": "yours alone",
+"whose_detail": "below the cluster average; the source has no review dates, so when it started and whether the market moved too are not tested"
+}
+],
+"trends": {},
+"changepoints": []
+},
+"Property E": {
+"stars": {
+"mean": 4.4,
+"n_reviews": 143
+},
+"scorecard": [
+{
+"aspect": "Food",
+"mean": 0.4932432432,
+"ci_low": 0.3972578451,
+"ci_high": 0.5944055944,
+"n": 148,
+"cluster_mean": 0.4562955481,
+"diff": 0.0369476951,
+"flag": "on_par",
+"n_reviews": 108,
+"q_value": 0.7490284918
+},
+{
+"aspect": "Room",
+"mean": 0.2575757576,
+"ci_low": 0.1614802618,
+"ci_high": 0.3628318584,
+"n": 132,
+"cluster_mean": 0.2469662701,
+"diff": 0.0106094875,
+"flag": "on_par",
+"n_reviews": 82,
+"q_value": 0.9040233556
+},
+{
+"aspect": "Housekeeping",
+"mean": 0.1428571429,
+"ci_low": null,
+"ci_high": null,
+"n": 7,
+"cluster_mean": 0.2478823118,
+"diff": -0.105025169,
+"flag": "on_par",
+"n_reviews": 6,
+"q_value": null
+},
+{
+"aspect": "Staff",
+"mean": 0.5102040816,
+"ci_low": 0.3944887968,
+"ci_high": 0.6224489796,
+"n": 98,
+"cluster_mean": 0.4541209676,
+"diff": 0.056083114,
+"flag": "on_par",
+"n_reviews": 77,
+"q_value": 0.6789950112
+},
+{
+"aspect": "Location",
+"mean": 0.5402843602,
+"ci_low": 0.471849076,
+"ci_high": 0.6116653457,
+"n": 211,
+"cluster_mean": 0.5250979756,
+"diff": 0.0151863846,
+"flag": "on_par",
+"n_reviews": 116,
+"q_value": 0.8490638324
+},
+{
+"aspect": "Value for Money",
+"mean": 0.2333333333,
+"ci_low": 0.0356834975,
+"ci_high": 0.4,
+"n": 30,
+"cluster_mean": 0.2679585894,
+"diff": -0.0346252561,
+"flag": "on_par",
+"n_reviews": 22,
+"q_value": 0.8588809646
+},
+{
+"aspect": "Cleanliness",
+"mean": 0.6666666667,
+"ci_low": 0.5,
+"ci_high": 0.8421052632,
+"n": 42,
+"cluster_mean": 0.5823835406,
+"diff": 0.084283126,
+"flag": "on_par",
+"n_reviews": 36,
+"q_value": 0.6896306474
+},
+{
+"aspect": "Booking Experience",
+"mean": 0.04,
+"ci_low": 0.0,
+"ci_high": 0.1363636364,
+"n": 25,
+"cluster_mean": 0.1294090458,
+"diff": -0.0894090458,
+"flag": "on_par",
+"n_reviews": 20,
+"q_value": 0.1323942269
+}
+],
+"priority_actions": [],
+"trends": {},
+"changepoints": []
+},
+"Property F": {
+"stars": {
+"mean": 3.55,
+"n_reviews": 22
+},
+"scorecard": [
+{
+"aspect": "Food",
+"mean": 0.4666666667,
+"ci_low": 0.0,
+"ci_high": 0.8571428571,
+"n": 15,
+"cluster_mean": 0.4562955481,
+"diff": 0.0103711186,
+"flag": "on_par",
+"n_reviews": 14,
+"q_value": 0.9733818978
+},
+{
+"aspect": "Room",
+"mean": 0.1538461538,
+"ci_low": -0.087055336,
+"ci_high": 0.3448275862,
+"n": 26,
+"cluster_mean": 0.2469662701,
+"diff": -0.0931201162,
+"flag": "on_par",
+"n_reviews": 16,
+"q_value": 0.7104432236
+},
+{
+"aspect": "Housekeeping",
+"mean": 0.3333333333,
+"ci_low": null,
+"ci_high": null,
+"n": 3,
+"cluster_mean": 0.2478823118,
+"diff": 0.0854510215,
+"flag": "on_par",
+"n_reviews": 3,
+"q_value": null
+},
+{
+"aspect": "Staff",
+"mean": 0.6363636364,
+"ci_low": null,
+"ci_high": null,
+"n": 11,
+"cluster_mean": 0.4541209676,
+"diff": 0.1822426687,
+"flag": "on_par",
+"n_reviews": 9,
+"q_value": null
+},
+{
+"aspect": "Location",
+"mean": 0.5384615385,
+"ci_low": 0.3448006466,
+"ci_high": 0.7391304348,
+"n": 26,
+"cluster_mean": 0.5250979756,
+"diff": 0.0133635629,
+"flag": "on_par",
+"n_reviews": 18,
+"q_value": 0.9420108594
+},
+{
+"aspect": "Value for Money",
+"mean": 0.0,
+"ci_low": null,
+"ci_high": null,
+"n": 9,
+"cluster_mean": 0.2679585894,
+"diff": -0.2679585894,
+"flag": "on_par",
+"n_reviews": 5,
+"q_value": null
+},
+{
+"aspect": "Cleanliness",
+"mean": -0.3,
+"ci_low": null,
+"ci_high": null,
+"n": 10,
+"cluster_mean": 0.5823835406,
+"diff": -0.8823835406,
+"flag": "on_par",
+"n_reviews": 8,
+"q_value": null
+},
+{
+"aspect": "Booking Experience",
+"mean": 0.0,
+"ci_low": null,
+"ci_high": null,
+"n": 2,
+"cluster_mean": 0.1294090458,
+"diff": -0.1294090458,
+"flag": "on_par",
+"n_reviews": 2,
+"q_value": null
+}
+],
+"priority_actions": [],
+"trends": {},
+"changepoints": []
+},
+"Property G": {
+"stars": {
+"mean": 3.77,
+"n_reviews": 52
+},
+"scorecard": [
+{
+"aspect": "Food",
+"mean": 0.2127659574,
+"ci_low": 0.0227272727,
+"ci_high": 0.3913043478,
+"n": 47,
+"cluster_mean": 0.4562955481,
+"diff": -0.2435295907,
+"flag": "on_par",
+"n_reviews": 36,
+"q_value": 0.0606734555
+},
+{
+"aspect": "Room",
+"mean": 0.2407407407,
+"ci_low": 0.1090909091,
+"ci_high": 0.3958431604,
+"n": 54,
+"cluster_mean": 0.2469662701,
+"diff": -0.0062255293,
+"flag": "on_par",
+"n_reviews": 27,
+"q_value": 0.9587449572
+},
+{
+"aspect": "Housekeeping",
+"mean": 0.0,
+"ci_low": null,
+"ci_high": null,
+"n": 9,
+"cluster_mean": 0.2478823118,
+"diff": -0.2478823118,
+"flag": "on_par",
+"n_reviews": 6,
+"q_value": null
+},
+{
+"aspect": "Staff",
+"mean": 0.3658536585,
+"ci_low": 0.1842105263,
+"ci_high": 0.5676640927,
+"n": 41,
+"cluster_mean": 0.4541209676,
+"diff": -0.0882673091,
+"flag": "on_par",
+"n_reviews": 28,
+"q_value": 0.7104432236
+},
+{
+"aspect": "Location",
+"mean": 0.6714285714,
+"ci_low": 0.5732857143,
+"ci_high": 0.7733548387,
+"n": 70,
+"cluster_mean": 0.5250979756,
+"diff": 0.1463305958,
+"flag": "lead",
+"n_reviews": 42,
+"q_value": 0.034088459
+},
+{
+"aspect": "Value for Money",
+"mean": 0.2307692308,
+"ci_low": -0.1538461538,
+"ci_high": 0.6153846154,
+"n": 13,
+"cluster_mean": 0.2679585894,
+"diff": -0.0371893587,
+"flag": "on_par",
+"n_reviews": 13,
+"q_value": 0.9226087502
+},
+{
+"aspect": "Cleanliness",
+"mean": 0.3684210526,
+"ci_low": -0.0588235294,
+"ci_high": 0.7,
+"n": 19,
+"cluster_mean": 0.5823835406,
+"diff": -0.213962488,
+"flag": "on_par",
+"n_reviews": 16,
+"q_value": 0.6348417238
+},
+{
+"aspect": "Booking Experience",
+"mean": 0.0,
+"ci_low": null,
+"ci_high": null,
+"n": 5,
+"cluster_mean": 0.1294090458,
+"diff": -0.1294090458,
+"flag": "on_par",
+"n_reviews": 5,
+"q_value": null
+}
+],
+"priority_actions": [],
+"trends": {},
+"changepoints": []
+},
+"Property H": {
+"stars": {
+"mean": 4.62,
+"n_reviews": 354
+},
+"scorecard": [
+{
+"aspect": "Food",
+"mean": 0.564516129,
+"ci_low": 0.501605518,
+"ci_high": 0.6241835269,
+"n": 310,
+"cluster_mean": 0.4562955481,
+"diff": 0.1082205809,
+"flag": "lead",
+"n_reviews": 235,
+"q_value": 0.0071239465
+},
+{
+"aspect": "Room",
+"mean": 0.2700729927,
+"ci_low": 0.1818181818,
+"ci_high": 0.35660299,
+"n": 137,
+"cluster_mean": 0.2469662701,
+"diff": 0.0231067226,
+"flag": "on_par",
+"n_reviews": 97,
+"q_value": 0.8327058422
+},
+{
+"aspect": "Housekeeping",
+"mean": 0.4444444444,
+"ci_low": null,
+"ci_high": null,
+"n": 9,
+"cluster_mean": 0.2478823118,
+"diff": 0.1965621326,
+"flag": "on_par",
+"n_reviews": 9,
+"q_value": null
+},
+{
+"aspect": "Staff",
+"mean": 0.5439330544,
+"ci_low": 0.4834710744,
+"ci_high": 0.6081719496,
+"n": 239,
+"cluster_mean": 0.4541209676,
+"diff": 0.0898120868,
+"flag": "lead",
+"n_reviews": 202,
+"q_value": 0.0436175687
+},
+{
+"aspect": "Location",
+"mean": 0.4468085106,
+"ci_low": 0.3888733706,
+"ci_high": 0.5012987013,
+"n": 376,
+"cluster_mean": 0.5250979756,
+"diff": -0.078289465,
+"flag": "lag",
+"n_reviews": 250,
+"q_value": 0.0436175687
+},
+{
+"aspect": "Value for Money",
+"mean": 0.1777777778,
+"ci_low": 0.0,
+"ci_high": 0.3571428571,
+"n": 45,
+"cluster_mean": 0.2679585894,
+"diff": -0.0901808117,
+"flag": "on_par",
+"n_reviews": 42,
+"q_value": 0.6789950112
+},
+{
+"aspect": "Cleanliness",
+"mean": 0.7916666667,
+"ci_low": 0.6811594203,
+"ci_high": 0.8873239437,
+"n": 72,
+"cluster_mean": 0.5823835406,
+"diff": 0.209283126,
+"flag": "lead",
+"n_reviews": 66,
+"q_value": 0.0009364318
+},
+{
+"aspect": "Booking Experience",
+"mean": 0.1388888889,
+"ci_low": 0.0294117647,
+"ci_high": 0.2647058824,
+"n": 36,
+"cluster_mean": 0.1294090458,
+"diff": 0.0094798431,
+"flag": "on_par",
+"n_reviews": 27,
+"q_value": 0.9319403519
+}
+],
+"priority_actions": [
+{
+"aspect": "Location",
+"gap": 0.078,
+"volume": 0.307,
+"impact_score": 0.024,
+"started": null,
+"rationale": "Location is 0.08 below the cluster (now +0.45 vs +0.53; your 95% CI +0.39 to +0.50 lies below the cluster, significant after multiple-testing correction). It appears in 31% of your aspect mentions.",
+"current_mean": 0.447,
+"reference_mean": 0.525,
+"basis": "cluster",
+"n": 376,
+"whose_problem": "yours alone",
+"whose_detail": "below the cluster average; the source has no review dates, so when it started and whether the market moved too are not tested"
+}
+],
+"trends": {},
+"changepoints": []
+},
+"Property I": {
+"stars": {
+"mean": 3.44,
+"n_reviews": 32
+},
+"scorecard": [
+{
+"aspect": "Food",
+"mean": 0.2380952381,
+"ci_low": 0.0,
+"ci_high": 0.55,
+"n": 21,
+"cluster_mean": 0.4562955481,
+"diff": -0.21820031,
+"flag": "on_par",
+"n_reviews": 13,
+"q_value": 0.3163628919
+},
+{
+"aspect": "Room",
+"mean": 0.04,
+"ci_low": -0.1304347826,
+"ci_high": 0.2608695652,
+"n": 25,
+"cluster_mean": 0.2469662701,
+"diff": -0.2069662701,
+"flag": "on_par",
+"n_reviews": 14,
+"q_value": 0.1323942269
+},
+{
+"aspect": "Housekeeping",
+"mean": 0.0,
+"ci_low": null,
+"ci_high": null,
+"n": 3,
+"cluster_mean": 0.2478823118,
+"diff": -0.2478823118,
+"flag": "on_par",
+"n_reviews": 3,
+"q_value": null
+},
+{
+"aspect": "Staff",
+"mean": 0.2173913043,
+"ci_low": -0.0417119565,
+"ci_high": 0.5200434783,
+"n": 23,
+"cluster_mean": 0.4541209676,
+"diff": -0.2367296633,
+"flag": "on_par",
+"n_reviews": 16,
+"q_value": 0.287797052
+},
+{
+"aspect": "Location",
+"mean": 0.5789473684,
+"ci_low": 0.2631578947,
+"ci_high": 0.8823529412,
+"n": 19,
+"cluster_mean": 0.5250979756,
+"diff": 0.0538493928,
+"flag": "on_par",
+"n_reviews": 14,
+"q_value": 0.8588809646
+},
+{
+"aspect": "Value for Money",
+"mean": 0.1818181818,
+"ci_low": null,
+"ci_high": null,
+"n": 11,
+"cluster_mean": 0.2679585894,
+"diff": -0.0861404076,
+"flag": "on_par",
+"n_reviews": 8,
+"q_value": null
+},
+{
+"aspect": "Cleanliness",
+"mean": 0.75,
+"ci_low": 0.3333333333,
+"ci_high": 1.0,
+"n": 12,
+"cluster_mean": 0.5823835406,
+"diff": 0.1676164594,
+"flag": "on_par",
+"n_reviews": 10,
+"q_value": 0.7104432236
+},
+{
+"aspect": "Booking Experience",
+"mean": 0.0,
+"ci_low": null,
+"ci_high": null,
+"n": 2,
+"cluster_mean": 0.1294090458,
+"diff": -0.1294090458,
+"flag": "on_par",
+"n_reviews": 2,
+"q_value": null
+}
+],
+"priority_actions": [],
+"trends": {},
+"changepoints": []
+},
+"Property J": {
+"stars": {
+"mean": 4.16,
+"n_reviews": 31
+},
+"scorecard": [
+{
+"aspect": "Food",
+"mean": 0.3939393939,
+"ci_low": 0.1590909091,
+"ci_high": 0.6774481567,
+"n": 33,
+"cluster_mean": 0.4562955481,
+"diff": -0.0623561542,
+"flag": "on_par",
+"n_reviews": 25,
+"q_value": 0.8490638324
+},
+{
+"aspect": "Room",
+"mean": 0.5769230769,
+"ci_low": 0.3461538462,
+"ci_high": 0.8260869565,
+"n": 26,
+"cluster_mean": 0.2469662701,
+"diff": 0.3299568069,
+"flag": "on_par",
+"n_reviews": 16,
+"q_value": 0.0606734555
+},
+{
+"aspect": "Housekeeping",
+"mean": 0.0,
+"ci_low": null,
+"ci_high": null,
+"n": 3,
+"cluster_mean": 0.2478823118,
+"diff": -0.2478823118,
+"flag": "on_par",
+"n_reviews": 2,
+"q_value": null
+},
+{
+"aspect": "Staff",
+"mean": 0.3571428571,
+"ci_low": 0.1469537815,
+"ci_high": 0.5925925926,
+"n": 28,
+"cluster_mean": 0.4541209676,
+"diff": -0.0969781105,
+"flag": "on_par",
+"n_reviews": 19,
+"q_value": 0.7104432236
+},
+{
+"aspect": "Location",
+"mean": 0.5483870968,
+"ci_low": 0.3846153846,
+"ci_high": 0.7272727273,
+"n": 31,
+"cluster_mean": 0.5250979756,
+"diff": 0.0232891212,
+"flag": "on_par",
+"n_reviews": 20,
+"q_value": 0.8993506281
+},
+{
+"aspect": "Value for Money",
+"mean": 0.4444444444,
+"ci_low": null,
+"ci_high": null,
+"n": 9,
+"cluster_mean": 0.2679585894,
+"diff": 0.176485855,
+"flag": "on_par",
+"n_reviews": 8,
+"q_value": null
+},
+{
+"aspect": "Cleanliness",
+"mean": 0.8,
+"ci_low": 0.5294117647,
+"ci_high": 1.0,
+"n": 15,
+"cluster_mean": 0.5823835406,
+"diff": 0.2176164594,
+"flag": "on_par",
+"n_reviews": 13,
+"q_value": 0.2890594299
+},
+{
+"aspect": "Booking Experience",
+"mean": 0.0,
+"ci_low": null,
+"ci_high": null,
+"n": 2,
+"cluster_mean": 0.1294090458,
+"diff": -0.1294090458,
+"flag": "on_par",
+"n_reviews": 2,
+"q_value": null
+}
+],
+"priority_actions": [],
+"trends": {},
+"changepoints": []
+},
+"Property K": {
+"stars": {
+"mean": 4.04,
+"n_reviews": 23
+},
+"scorecard": [
+{
+"aspect": "Food",
+"mean": 0.4444444444,
+"ci_low": 0.25,
+"ci_high": 0.6666666667,
+"n": 18,
+"cluster_mean": 0.4562955481,
+"diff": -0.0118511037,
+"flag": "on_par",
+"n_reviews": 11,
+"q_value": 0.9529201057
+},
+{
+"aspect": "Room",
+"mean": 0.6315789474,
+"ci_low": 0.4117647059,
+"ci_high": 0.875,
+"n": 19,
+"cluster_mean": 0.2469662701,
+"diff": 0.3846126773,
+"flag": "lead",
+"n_reviews": 13,
+"q_value": 0.0218908562
+},
+{
+"aspect": "Housekeeping",
+"mean": 0.3333333333,
+"ci_low": null,
+"ci_high": null,
+"n": 6,
+"cluster_mean": 0.2478823118,
+"diff": 0.0854510215,
+"flag": "on_par",
+"n_reviews": 5,
+"q_value": null
+},
+{
+"aspect": "Staff",
+"mean": 0.6666666667,
+"ci_low": null,
+"ci_high": null,
+"n": 6,
+"cluster_mean": 0.4541209676,
+"diff": 0.212545699,
+"flag": "on_par",
+"n_reviews": 6,
+"q_value": null
+},
+{
+"aspect": "Location",
+"mean": 0.8064516129,
+"ci_low": 0.696969697,
+"ci_high": 0.9230769231,
+"n": 31,
+"cluster_mean": 0.5250979756,
+"diff": 0.2813536373,
+"flag": "lead",
+"n_reviews": 19,
+"q_value": 8.88151e-05
+},
+{
+"aspect": "Value for Money",
+"mean": 0.25,
+"ci_low": null,
+"ci_high": null,
+"n": 4,
+"cluster_mean": 0.2679585894,
+"diff": -0.0179585894,
+"flag": "on_par",
+"n_reviews": 4,
+"q_value": null
+},
+{
+"aspect": "Cleanliness",
+"mean": 0.7333333333,
+"ci_low": 0.4285714286,
+"ci_high": 1.0,
+"n": 15,
+"cluster_mean": 0.5823835406,
+"diff": 0.1509497927,
+"flag": "on_par",
+"n_reviews": 12,
+"q_value": 0.6348417238
+},
+{
+"aspect": "Booking Experience",
+"mean": 0.6666666667,
+"ci_low": null,
+"ci_high": null,
+"n": 3,
+"cluster_mean": 0.1294090458,
+"diff": 0.5372576209,
+"flag": "on_par",
+"n_reviews": 3,
+"q_value": null
+}
+],
+"priority_actions": [],
+"trends": {},
+"changepoints": []
+},
+"Property L": {
+"stars": {
+"mean": 4.15,
+"n_reviews": 172
+},
+"scorecard": [
+{
+"aspect": "Food",
+"mean": 0.4759358289,
+"ci_low": 0.3742724923,
+"ci_high": 0.5795538596,
+"n": 187,
+"cluster_mean": 0.4562955481,
+"diff": 0.0196402808,
+"flag": "on_par",
+"n_reviews": 132,
+"q_value": 0.8588809646
+},
+{
+"aspect": "Room",
+"mean": 0.2299465241,
+"ci_low": 0.1546934636,
+"ci_high": 0.3072733133,
+"n": 187,
+"cluster_mean": 0.2469662701,
+"diff": -0.017019746,
+"flag": "on_par",
+"n_reviews": 97,
+"q_value": 0.8490638324
+},
+{
+"aspect": "Housekeeping",
+"mean": 0.28,
+"ci_low": 0.0,
+"ci_high": 0.5416666667,
+"n": 25,
+"cluster_mean": 0.2478823118,
+"diff": 0.0321176882,
+"flag": "on_par",
+"n_reviews": 22,
+"q_value": 0.8993506281
+},
+{
+"aspect": "Staff",
+"mean": 0.4673913043,
+"ci_low": 0.3571251768,
+"ci_high": 0.5813953488,
+"n": 92,
+"cluster_mean": 0.4541209676,
+"diff": 0.0132703367,
+"flag": "on_par",
+"n_reviews": 71,
+"q_value": 0.8993506281
+},
+{
+"aspect": "Location",
+"mean": 0.4939271255,
+"ci_low": 0.4259241656,
+"ci_high": 0.5638797357,
+"n": 247,
+"cluster_mean": 0.5250979756,
+"diff": -0.0311708501,
+"flag": "on_par",
+"n_reviews": 146,
+"q_value": 0.7104432236
+},
+{
+"aspect": "Value for Money",
+"mean": 0.3947368421,
+"ci_low": 0.1904440154,
+"ci_high": 0.5910012285,
+"n": 38,
+"cluster_mean": 0.2679585894,
+"diff": 0.1267782527,
+"flag": "on_par",
+"n_reviews": 33,
+"q_value": 0.5283098414
+},
+{
+"aspect": "Cleanliness",
+"mean": 0.7121212121,
+"ci_low": 0.5,
+"ci_high": 0.8769298246,
+"n": 66,
+"cluster_mean": 0.5823835406,
+"diff": 0.1297376715,
+"flag": "on_par",
+"n_reviews": 55,
+"q_value": 0.4920205125
+},
+{
+"aspect": "Booking Experience",
+"mean": 0.0238095238,
+"ci_low": -0.090961945,
+"ci_high": 0.1282258065,
+"n": 42,
+"cluster_mean": 0.1294090458,
+"diff": -0.105599522,
+"flag": "on_par",
+"n_reviews": 29,
+"q_value": 0.1983751803
+}
+],
+"priority_actions": [],
+"trends": {},
+"changepoints": []
+},
+"Property M": {
+"stars": {
+"mean": 3.81,
+"n_reviews": 88
+},
+"scorecard": [
+{
+"aspect": "Food",
+"mean": 0.3203883495,
+"ci_low": 0.1781894596,
+"ci_high": 0.4791666667,
+"n": 103,
+"cluster_mean": 0.4562955481,
+"diff": -0.1359071986,
+"flag": "on_par",
+"n_reviews": 67,
+"q_value": 0.2407881272
+},
+{
+"aspect": "Room",
+"mean": 0.0714285714,
+"ci_low": -0.0394868421,
+"ci_high": 0.1875,
+"n": 70,
+"cluster_mean": 0.2469662701,
+"diff": -0.1755376986,
+"flag": "lag",
+"n_reviews": 35,
+"q_value": 0.0289419109
+},
+{
+"aspect": "Housekeeping",
+"mean": -0.2666666667,
+"ci_low": null,
+"ci_high": null,
+"n": 15,
+"cluster_mean": 0.2478823118,
+"diff": -0.5145489785,
+"flag": "on_par",
+"n_reviews": 9,
+"q_value": null
+},
+{
+"aspect": "Staff",
+"mean": 0.3225806452,
+"ci_low": 0.1927463278,
+"ci_high": 0.4902053274,
+"n": 62,
+"cluster_mean": 0.4541209676,
+"diff": -0.1315403225,
+"flag": "on_par",
+"n_reviews": 45,
+"q_value": 0.2708352114
+},
+{
+"aspect": "Location",
+"mean": 0.4622641509,
+"ci_low": 0.3628318584,
+"ci_high": 0.5619348128,
+"n": 106,
+"cluster_mean": 0.5250979756,
+"diff": -0.0628338247,
+"flag": "on_par",
+"n_reviews": 68,
+"q_value": 0.5238057638
+},
+{
+"aspect": "Value for Money",
+"mean": -0.0769230769,
+"ci_low": null,
+"ci_high": null,
+"n": 13,
+"cluster_mean": 0.2679585894,
+"diff": -0.3448816664,
+"flag": "on_par",
+"n_reviews": 8,
+"q_value": null
+},
+{
+"aspect": "Cleanliness",
+"mean": 0.5333333333,
+"ci_low": 0.25,
+"ci_high": 0.7741935484,
+"n": 30,
+"cluster_mean": 0.5823835406,
+"diff": -0.0490502073,
+"flag": "on_par",
+"n_reviews": 25,
+"q_value": 0.8588809646
+},
+{
+"aspect": "Booking Experience",
+"mean": 0.0769230769,
+"ci_low": 0.0,
+"ci_high": 0.2727272727,
+"n": 13,
+"cluster_mean": 0.1294090458,
+"diff": -0.0524859689,
+"flag": "on_par",
+"n_reviews": 10,
+"q_value": 0.7627834553
+}
+],
+"priority_actions": [
+{
+"aspect": "Room",
+"gap": 0.176,
+"volume": 0.17,
+"impact_score": 0.0298,
+"started": null,
+"rationale": "Room is 0.18 below the cluster (now +0.07 vs +0.25; your 95% CI -0.04 to +0.19 lies below the cluster, significant after multiple-testing correction). It appears in 17% of your aspect mentions.",
+"current_mean": 0.071,
+"reference_mean": 0.247,
+"basis": "cluster",
+"n": 70,
+"whose_problem": "yours alone",
+"whose_detail": "below the cluster average; the source has no review dates, so when it started and whether the market moved too are not tested"
+}
+],
+"trends": {},
+"changepoints": []
+},
+"Property N": {
+"stars": {
+"mean": 3.69,
+"n_reviews": 45
+},
+"scorecard": [
+{
+"aspect": "Food",
+"mean": 0.4102564103,
+"ci_low": 0.1666666667,
+"ci_high": 0.6666666667,
+"n": 39,
+"cluster_mean": 0.4562955481,
+"diff": -0.0460391378,
+"flag": "on_par",
+"n_reviews": 28,
+"q_value": 0.8588809646
+},
+{
+"aspect": "Room",
+"mean": 0.2888888889,
+"ci_low": 0.1110606061,
+"ci_high": 0.5,
+"n": 45,
+"cluster_mean": 0.2469662701,
+"diff": 0.0419226188,
+"flag": "on_par",
+"n_reviews": 30,
+"q_value": 0.8490638324
+},
+{
+"aspect": "Housekeeping",
+"mean": 0.0,
+"ci_low": null,
+"ci_high": null,
+"n": 4,
+"cluster_mean": 0.2478823118,
+"diff": -0.2478823118,
+"flag": "on_par",
+"n_reviews": 4,
+"q_value": null
+},
+{
+"aspect": "Staff",
+"mean": 0.2894736842,
+"ci_low": 0.0951827243,
+"ci_high": 0.4881097561,
+"n": 38,
+"cluster_mean": 0.4541209676,
+"diff": -0.1646472834,
+"flag": "on_par",
+"n_reviews": 27,
+"q_value": 0.2923826551
+},
+{
+"aspect": "Location",
+"mean": 0.5517241379,
+"ci_low": 0.4385964912,
+"ci_high": 0.6716476213,
+"n": 58,
+"cluster_mean": 0.5250979756,
+"diff": 0.0266261623,
+"flag": "on_par",
+"n_reviews": 38,
+"q_value": 0.8490638324
+},
+{
+"aspect": "Value for Money",
+"mean": 0.3076923077,
+"ci_low": 0.0,
+"ci_high": 0.6159090909,
+"n": 13,
+"cluster_mean": 0.2679585894,
+"diff": 0.0397337183,
+"flag": "on_par",
+"n_reviews": 11,
+"q_value": 0.8993506281
+},
+{
+"aspect": "Cleanliness",
+"mean": 0.5833333333,
+"ci_low": 0.1666666667,
+"ci_high": 0.9166666667,
+"n": 12,
+"cluster_mean": 0.5823835406,
+"diff": 0.0009497927,
+"flag": "on_par",
+"n_reviews": 12,
+"q_value": 0.9960733814
+},
+{
+"aspect": "Booking Experience",
+"mean": 0.2666666667,
+"ci_low": 0.0666666667,
+"ci_high": 0.5333333333,
+"n": 15,
+"cluster_mean": 0.1294090458,
+"diff": 0.1372576209,
+"flag": "on_par",
+"n_reviews": 11,
+"q_value": 0.5978973154
+}
+],
+"priority_actions": [],
+"trends": {},
+"changepoints": []
+},
+"Property O": {
+"stars": {
+"mean": 2.91,
+"n_reviews": 23
+},
+"scorecard": [
+{
+"aspect": "Food",
+"mean": 0.2173913043,
+"ci_low": -0.0500657895,
+"ci_high": 0.4737468672,
+"n": 23,
+"cluster_mean": 0.4562955481,
+"diff": -0.2389042438,
+"flag": "on_par",
+"n_reviews": 14,
+"q_value": 0.2457178222
+},
+{
+"aspect": "Room",
+"mean": -0.1,
+"ci_low": -0.2857142857,
+"ci_high": 0.1071428571,
+"n": 30,
+"cluster_mean": 0.2469662701,
+"diff": -0.3469662701,
+"flag": "lag",
+"n_reviews": 14,
+"q_value": 0.0052378161
+},
+{
+"aspect": "Housekeeping",
+"mean": -0.1666666667,
+"ci_low": null,
+"ci_high": null,
+"n": 6,
+"cluster_mean": 0.2478823118,
+"diff": -0.4145489785,
+"flag": "on_par",
+"n_reviews": 6,
+"q_value": null
+},
+{
+"aspect": "Staff",
+"mean": 0.0,
+"ci_low": -0.25,
+"ci_high": 0.2222222222,
+"n": 21,
+"cluster_mean": 0.4541209676,
+"diff": -0.4541209676,
+"flag": "lag",
+"n_reviews": 13,
+"q_value": 0.0029702154
+},
+{
+"aspect": "Location",
+"mean": 0.4444444444,
+"ci_low": 0.1738755622,
+"ci_high": 0.7037037037,
+"n": 27,
+"cluster_mean": 0.5250979756,
+"diff": -0.0806535312,
+"flag": "on_par",
+"n_reviews": 16,
+"q_value": 0.8156632059
+},
+{
+"aspect": "Value for Money",
+"mean": 0.2,
+"ci_low": null,
+"ci_high": null,
+"n": 5,
+"cluster_mean": 0.2679585894,
+"diff": -0.0679585894,
+"flag": "on_par",
+"n_reviews": 5,
+"q_value": null
+},
+{
+"aspect": "Cleanliness",
+"mean": 0.0,
+"ci_low": null,
+"ci_high": null,
+"n": 7,
+"cluster_mean": 0.5823835406,
+"diff": -0.5823835406,
+"flag": "on_par",
+"n_reviews": 5,
+"q_value": null
+},
+{
+"aspect": "Booking Experience",
+"mean": 0.0,
+"ci_low": null,
+"ci_high": null,
+"n": 6,
+"cluster_mean": 0.1294090458,
+"diff": -0.1294090458,
+"flag": "on_par",
+"n_reviews": 5,
+"q_value": null
+}
+],
+"priority_actions": [
+{
+"aspect": "Room",
+"gap": 0.347,
+"volume": 0.24,
+"impact_score": 0.0833,
+"started": null,
+"rationale": "Room is 0.35 below the cluster (now -0.10 vs +0.25; your 95% CI -0.29 to +0.11 lies below the cluster, significant after multiple-testing correction). It appears in 24% of your aspect mentions.",
+"current_mean": -0.1,
+"reference_mean": 0.247,
+"basis": "cluster",
+"n": 30,
+"whose_problem": "yours alone",
+"whose_detail": "below the cluster average; the source has no review dates, so when it started and whether the market moved too are not tested"
+},
+{
+"aspect": "Staff",
+"gap": 0.454,
+"volume": 0.168,
+"impact_score": 0.0763,
+"started": null,
+"rationale": "Staff is 0.45 below the cluster (now +0.00 vs +0.45; your 95% CI -0.25 to +0.22 lies below the cluster, significant after multiple-testing correction). It appears in 17% of your aspect mentions.",
+"current_mean": 0.0,
+"reference_mean": 0.454,
+"basis": "cluster",
+"n": 21,
+"whose_problem": "yours alone",
+"whose_detail": "below the cluster average; the source has no review dates, so when it started and whether the market moved too are not tested"
+}
+],
+"trends": {},
+"changepoints": []
+},
+"Property P": {
+"stars": {
+"mean": 4.81,
+"n_reviews": 47
+},
+"scorecard": [
+{
+"aspect": "Food",
+"mean": 0.6363636364,
+"ci_low": 0.5,
+"ci_high": 0.7778455285,
+"n": 44,
+"cluster_mean": 0.4562955481,
+"diff": 0.1800680883,
+"flag": "on_par",
+"n_reviews": 34,
+"q_value": 0.0675488337
+},
+{
+"aspect": "Room",
+"mean": 0.4210526316,
+"ci_low": 0.2564102564,
+"ci_high": 0.6,
+"n": 38,
+"cluster_mean": 0.2469662701,
+"diff": 0.1740863615,
+"flag": "on_par",
+"n_reviews": 24,
+"q_value": 0.1983751803
+},
+{
+"aspect": "Housekeeping",
+"mean": 1.0,
+"ci_low": null,
+"ci_high": null,
+"n": 3,
+"cluster_mean": 0.2478823118,
+"diff": 0.7521176882,
+"flag": "on_par",
+"n_reviews": 3,
+"q_value": null
+},
+{
+"aspect": "Staff",
+"mean": 0.6086956522,
+"ci_low": 0.4693877551,
+"ci_high": 0.75,
+"n": 46,
+"cluster_mean": 0.4541209676,
+"diff": 0.1545746845,
+"flag": "on_par",
+"n_reviews": 36,
+"q_value": 0.1398152889
+},
+{
+"aspect": "Location",
+"mean": 0.5735294118,
+"ci_low": 0.4530871976,
+"ci_high": 0.6986643836,
+"n": 68,
+"cluster_mean": 0.5250979756,
+"diff": 0.0484314362,
+"flag": "on_par",
+"n_reviews": 41,
+"q_value": 0.7434868197
+},
+{
+"aspect": "Value for Money",
+"mean": 0.625,
+"ci_low": null,
+"ci_high": null,
+"n": 8,
+"cluster_mean": 0.2679585894,
+"diff": 0.3570414106,
+"flag": "on_par",
+"n_reviews": 7,
+"q_value": null
+},
+{
+"aspect": "Cleanliness",
+"mean": 0.75,
+"ci_low": 0.5238095238,
+"ci_high": 0.9444444444,
+"n": 20,
+"cluster_mean": 0.5823835406,
+"diff": 0.1676164594,
+"flag": "on_par",
+"n_reviews": 16,
+"q_value": 0.3163628919
+},
+{
+"aspect": "Booking Experience",
+"mean": 0.25,
+"ci_low": null,
+"ci_high": null,
+"n": 4,
+"cluster_mean": 0.1294090458,
+"diff": 0.1205909542,
+"flag": "on_par",
+"n_reviews": 3,
+"q_value": null
+}
+],
+"priority_actions": [],
+"trends": {},
+"changepoints": []
+},
+"Property Q": {
+"stars": {
+"mean": 4.48,
+"n_reviews": 259
+},
+"scorecard": [
+{
+"aspect": "Food",
+"mean": 0.5042735043,
+"ci_low": 0.4331951927,
+"ci_high": 0.5772805643,
+"n": 234,
+"cluster_mean": 0.4562955481,
+"diff": 0.0479779562,
+"flag": "on_par",
+"n_reviews": 166,
+"q_value": 0.4945895194
+},
+{
+"aspect": "Room",
+"mean": 0.2380952381,
+"ci_low": 0.1704384648,
+"ci_high": 0.3154372403,
+"n": 168,
+"cluster_mean": 0.2469662701,
+"diff": -0.008871032,
+"flag": "on_par",
+"n_reviews": 111,
+"q_value": 0.8993506281
+},
+{
+"aspect": "Housekeeping",
+"mean": 0.1,
+"ci_low": null,
+"ci_high": null,
+"n": 10,
+"cluster_mean": 0.2478823118,
+"diff": -0.1478823118,
+"flag": "on_par",
+"n_reviews": 9,
+"q_value": null
+},
+{
+"aspect": "Staff",
+"mean": 0.4160583942,
+"ci_low": 0.3138343978,
+"ci_high": 0.519379845,
+"n": 137,
+"cluster_mean": 0.4541209676,
+"diff": -0.0380625735,
+"flag": "on_par",
+"n_reviews": 111,
+"q_value": 0.7490284918
+},
+{
+"aspect": "Location",
+"mean": 0.4352941176,
+"ci_low": 0.37451699,
+"ci_high": 0.4959723945,
+"n": 255,
+"cluster_mean": 0.5250979756,
+"diff": -0.089803858,
+"flag": "lag",
+"n_reviews": 173,
+"q_value": 0.034088459
+},
+{
+"aspect": "Value for Money",
+"mean": 0.3684210526,
+"ci_low": 0.1578947368,
+"ci_high": 0.5789473684,
+"n": 19,
+"cluster_mean": 0.2679585894,
+"diff": 0.1004624632,
+"flag": "on_par",
+"n_reviews": 19,
+"q_value": 0.7104432236
+},
+{
+"aspect": "Cleanliness",
+"mean": 0.6212121212,
+"ci_low": 0.409074904,
+"ci_high": 0.8181818182,
+"n": 66,
+"cluster_mean": 0.5823835406,
+"diff": 0.0388285806,
+"flag": "on_par",
+"n_reviews": 52,
+"q_value": 0.8588809646
+},
+{
+"aspect": "Booking Experience",
+"mean": 0.1379310345,
+"ci_low": 0.03125,
+"ci_high": 0.2727272727,
+"n": 29,
+"cluster_mean": 0.1294090458,
+"diff": 0.0085219887,
+"flag": "on_par",
+"n_reviews": 21,
+"q_value": 0.9397853389
+}
+],
+"priority_actions": [
+{
+"aspect": "Location",
+"gap": 0.09,
+"volume": 0.278,
+"impact_score": 0.0249,
+"started": null,
+"rationale": "Location is 0.09 below the cluster (now +0.44 vs +0.53; your 95% CI +0.37 to +0.50 lies below the cluster, significant after multiple-testing correction). It appears in 28% of your aspect mentions.",
+"current_mean": 0.435,
+"reference_mean": 0.525,
+"basis": "cluster",
+"n": 255,
+"whose_problem": "yours alone",
+"whose_detail": "below the cluster average; the source has no review dates, so when it started and whether the market moved too are not tested"
+}
+],
+"trends": {},
+"changepoints": []
+},
+"Property R": {
+"stars": {
+"mean": 3.88,
+"n_reviews": 41
+},
+"scorecard": [
+{
+"aspect": "Food",
+"mean": 0.6315789474,
+"ci_low": 0.4473684211,
+"ci_high": 0.7894736842,
+"n": 38,
+"cluster_mean": 0.4562955481,
+"diff": 0.1752833993,
+"flag": "on_par",
+"n_reviews": 32,
+"q_value": 0.185798172
+},
+{
+"aspect": "Room",
+"mean": 0.2631578947,
+"ci_low": 0.0909090909,
+"ci_high": 0.5,
+"n": 19,
+"cluster_mean": 0.2469662701,
+"diff": 0.0161916247,
+"flag": "on_par",
+"n_reviews": 12,
+"q_value": 0.9319403519
+},
+{
+"aspect": "Housekeeping",
+"mean": 0.3333333333,
+"ci_low": null,
+"ci_high": null,
+"n": 6,
+"cluster_mean": 0.2478823118,
+"diff": 0.0854510215,
+"flag": "on_par",
+"n_reviews": 5,
+"q_value": null
+},
+{
+"aspect": "Staff",
+"mean": 0.5,
+"ci_low": 0.3043478261,
+"ci_high": 0.6956521739,
+"n": 24,
+"cluster_mean": 0.4541209676,
+"diff": 0.0458790324,
+"flag": "on_par",
+"n_reviews": 20,
+"q_value": 0.8490638324
+},
+{
+"aspect": "Location",
+"mean": 0.6315789474,
+"ci_low": 0.5142857143,
+"ci_high": 0.7428571429,
+"n": 38,
+"cluster_mean": 0.5250979756,
+"diff": 0.1064809718,
+"flag": "on_par",
+"n_reviews": 26,
+"q_value": 0.227711034
+},
+{
+"aspect": "Value for Money",
+"mean": -0.1666666667,
+"ci_low": null,
+"ci_high": null,
+"n": 6,
+"cluster_mean": 0.2679585894,
+"diff": -0.4346252561,
+"flag": "on_par",
+"n_reviews": 6,
+"q_value": null
+},
+{
+"aspect": "Cleanliness",
+"mean": 0.8181818182,
+"ci_low": 0.4,
+"ci_high": 1.0,
+"n": 11,
+"cluster_mean": 0.5823835406,
+"diff": 0.2357982776,
+"flag": "on_par",
+"n_reviews": 10,
+"q_value": 0.4959215313
+},
+{
+"aspect": "Booking Experience",
+"mean": 0.0833333333,
+"ci_low": null,
+"ci_high": null,
+"n": 12,
+"cluster_mean": 0.1294090458,
+"diff": -0.0460757125,
+"flag": "on_par",
+"n_reviews": 6,
+"q_value": null
+}
+],
+"priority_actions": [],
+"trends": {},
+"changepoints": []
+},
+"Property S": {
+"stars": {
+"mean": 3.87,
+"n_reviews": 23
+},
+"scorecard": [
+{
+"aspect": "Food",
+"mean": 0.5555555556,
+"ci_low": 0.35,
+"ci_high": 0.7647058824,
+"n": 18,
+"cluster_mean": 0.4562955481,
+"diff": 0.0992600075,
+"flag": "on_par",
+"n_reviews": 15,
+"q_value": 0.7104432236
+},
+{
+"aspect": "Room",
+"mean": 0.2285714286,
+"ci_low": 0.0605909091,
+"ci_high": 0.4482758621,
+"n": 35,
+"cluster_mean": 0.2469662701,
+"diff": -0.0183948415,
+"flag": "on_par",
+"n_reviews": 16,
+"q_value": 0.9226087502
+},
+{
+"aspect": "Housekeeping",
+"mean": 0.3333333333,
+"ci_low": null,
+"ci_high": null,
+"n": 6,
+"cluster_mean": 0.2478823118,
+"diff": 0.0854510215,
+"flag": "on_par",
+"n_reviews": 5,
+"q_value": null
+},
+{
+"aspect": "Staff",
+"mean": 0.5333333333,
+"ci_low": 0.2857142857,
+"ci_high": 0.7647058824,
+"n": 15,
+"cluster_mean": 0.4541209676,
+"diff": 0.0792123657,
+"flag": "on_par",
+"n_reviews": 13,
+"q_value": 0.8031213049
+},
+{
+"aspect": "Location",
+"mean": 0.4848484848,
+"ci_low": 0.3235056926,
+"ci_high": 0.6285978836,
+"n": 33,
+"cluster_mean": 0.5250979756,
+"diff": -0.0402494908,
+"flag": "on_par",
+"n_reviews": 20,
+"q_value": 0.8360750002
+},
+{
+"aspect": "Value for Money",
+"mean": 0.0,
+"ci_low": null,
+"ci_high": null,
+"n": 2,
+"cluster_mean": 0.2679585894,
+"diff": -0.2679585894,
+"flag": "on_par",
+"n_reviews": 2,
+"q_value": null
+},
+{
+"aspect": "Cleanliness",
+"mean": 0.7,
+"ci_low": null,
+"ci_high": null,
+"n": 10,
+"cluster_mean": 0.5823835406,
+"diff": 0.1176164594,
+"flag": "on_par",
+"n_reviews": 8,
+"q_value": null
+},
+{
+"aspect": "Booking Experience",
+"mean": 0.0,
+"ci_low": null,
+"ci_high": null,
+"n": 7,
+"cluster_mean": 0.1294090458,
+"diff": -0.1294090458,
+"flag": "on_par",
+"n_reviews": 5,
+"q_value": null
+}
+],
+"priority_actions": [],
+"trends": {},
+"changepoints": []
+},
+"Property T": {
+"stars": {
+"mean": 4.45,
+"n_reviews": 181
+},
+"scorecard": [
+{
+"aspect": "Food",
+"mean": 0.5027932961,
+"ci_low": 0.394268997,
+"ci_high": 0.5975928815,
+"n": 179,
+"cluster_mean": 0.4562955481,
+"diff": 0.046497748,
+"flag": "on_par",
+"n_reviews": 127,
+"q_value": 0.7104432236
+},
+{
+"aspect": "Room",
+"mean": 0.2133333333,
+"ci_low": 0.1242929496,
+"ci_high": 0.3157894737,
+"n": 150,
+"cluster_mean": 0.2469662701,
+"diff": -0.0336329367,
+"flag": "on_par",
+"n_reviews": 86,
+"q_value": 0.7627834553
+},
+{
+"aspect": "Housekeeping",
+"mean": 0.2,
+"ci_low": -0.0666666667,
+"ci_high": 0.5,
+"n": 15,
+"cluster_mean": 0.2478823118,
+"diff": -0.0478823118,
+"flag": "on_par",
+"n_reviews": 13,
+"q_value": 0.8653568241
+},
+{
+"aspect": "Staff",
+"mean": 0.480620155,
+"ci_low": 0.392,
+"ci_high": 0.5677966102,
+"n": 129,
+"cluster_mean": 0.4541209676,
+"diff": 0.0264991874,
+"flag": "on_par",
+"n_reviews": 96,
+"q_value": 0.8031213049
+},
+{
+"aspect": "Location",
+"mean": 0.5272727273,
+"ci_low": 0.4557924785,
+"ci_high": 0.5982142857,
+"n": 220,
+"cluster_mean": 0.5250979756,
+"diff": 0.0021747517,
+"flag": "on_par",
+"n_reviews": 136,
+"q_value": 0.9714884953
+},
+{
+"aspect": "Value for Money",
+"mean": 0.52,
+"ci_low": 0.2692307692,
+"ci_high": 0.76,
+"n": 25,
+"cluster_mean": 0.2679585894,
+"diff": 0.2520414106,
+"flag": "on_par",
+"n_reviews": 23,
+"q_value": 0.204987746
+},
+{
+"aspect": "Cleanliness",
+"mean": 0.652173913,
+"ci_low": 0.4468085106,
+"ci_high": 0.8235933504,
+"n": 46,
+"cluster_mean": 0.5823835406,
+"diff": 0.0697903724,
+"flag": "on_par",
+"n_reviews": 41,
+"q_value": 0.7536481152
+},
+{
+"aspect": "Booking Experience",
+"mean": 0.05,
+"ci_low": -0.1111111111,
+"ci_high": 0.2,
+"n": 20,
+"cluster_mean": 0.1294090458,
+"diff": -0.0794090458,
+"flag": "on_par",
+"n_reviews": 16,
+"q_value": 0.7104432236
+}
+],
+"priority_actions": [],
+"trends": {},
+"changepoints": []
+},
+"Property U": {
+"stars": {
+"mean": 3.9,
+"n_reviews": 145
+},
+"scorecard": [
+{
+"aspect": "Food",
+"mean": 0.375,
+"ci_low": 0.2910447761,
+"ci_high": 0.4600234375,
+"n": 136,
+"cluster_mean": 0.4562955481,
+"diff": -0.0812955481,
+"flag": "on_par",
+"n_reviews": 93,
+"q_value": 0.2336094639
+},
+{
+"aspect": "Room",
+"mean": 0.0909090909,
+"ci_low": 0.0073515994,
+"ci_high": 0.1709770115,
+"n": 132,
+"cluster_mean": 0.2469662701,
+"diff": -0.1560571791,
+"flag": "lag",
+"n_reviews": 72,
+"q_value": 0.0029702154
+},
+{
+"aspect": "Housekeeping",
+"mean": 0.1578947368,
+"ci_low": -0.0555555556,
+"ci_high": 0.3684210526,
+"n": 19,
+"cluster_mean": 0.2478823118,
+"diff": -0.089987575,
+"flag": "on_par",
+"n_reviews": 18,
+"q_value": 0.7154807529
+},
+{
+"aspect": "Staff",
+"mean": 0.3513513514,
+"ci_low": 0.2360677083,
+"ci_high": 0.4714484127,
+"n": 74,
+"cluster_mean": 0.4541209676,
+"diff": -0.1027696163,
+"flag": "on_par",
+"n_reviews": 56,
+"q_value": 0.2823681615
+},
+{
+"aspect": "Location",
+"mean": 0.4804469274,
+"ci_low": 0.4141414141,
+"ci_high": 0.5482022375,
+"n": 179,
+"cluster_mean": 0.5250979756,
+"diff": -0.0446510482,
+"flag": "on_par",
+"n_reviews": 102,
+"q_value": 0.499946128
+},
+{
+"aspect": "Value for Money",
+"mean": 0.3571428571,
+"ci_low": 0.1481481481,
+"ci_high": 0.5715659341,
+"n": 28,
+"cluster_mean": 0.2679585894,
+"diff": 0.0891842677,
+"flag": "on_par",
+"n_reviews": 24,
+"q_value": 0.7154807529
+},
+{
+"aspect": "Cleanliness",
+"mean": 0.375,
+"ci_low": 0.1428571429,
+"ci_high": 0.5901639344,
+"n": 64,
+"cluster_mean": 0.5823835406,
+"diff": -0.2073835406,
+"flag": "on_par",
+"n_reviews": 48,
+"q_value": 0.2407881272
+},
+{
+"aspect": "Booking Experience",
+"mean": 0.1052631579,
+"ci_low": 0.0,
+"ci_high": 0.2307692308,
+"n": 38,
+"cluster_mean": 0.1294090458,
+"diff": -0.0241458879,
+"flag": "on_par",
+"n_reviews": 31,
+"q_value": 0.8576185194
+}
+],
+"priority_actions": [
+{
+"aspect": "Room",
+"gap": 0.156,
+"volume": 0.197,
+"impact_score": 0.0307,
+"started": null,
+"rationale": "Room is 0.16 below the cluster (now +0.09 vs +0.25; your 95% CI +0.01 to +0.17 lies below the cluster, significant after multiple-testing correction). It appears in 20% of your aspect mentions.",
+"current_mean": 0.091,
+"reference_mean": 0.247,
+"basis": "cluster",
+"n": 132,
+"whose_problem": "yours alone",
+"whose_detail": "below the cluster average; the source has no review dates, so when it started and whether the market moved too are not tested"
+}
+],
+"trends": {},
+"changepoints": []
+},
+"Property V": {
+"stars": {
+"mean": 4.51,
+"n_reviews": 221
+},
+"scorecard": [
+{
+"aspect": "Food",
+"mean": 0.5836734694,
+"ci_low": 0.5190839695,
+"ci_high": 0.6533333333,
+"n": 245,
+"cluster_mean": 0.4562955481,
+"diff": 0.1273779213,
+"flag": "lead",
+"n_reviews": 176,
+"q_value": 0.0045233759
+},
+{
+"aspect": "Room",
+"mean": 0.4090909091,
+"ci_low": 0.3295275389,
+"ci_high": 0.4851849806,
+"n": 198,
+"cluster_mean": 0.2469662701,
+"diff": 0.162124639,
+"flag": "lead",
+"n_reviews": 121,
+"q_value": 0.0009364318
+},
+{
+"aspect": "Housekeeping",
+"mean": 0.3928571429,
+"ci_low": 0.1428571429,
+"ci_high": 0.6071428571,
+"n": 28,
+"cluster_mean": 0.2478823118,
+"diff": 0.144974831,
+"flag": "on_par",
+"n_reviews": 28,
+"q_value": 0.5238057638
+},
+{
+"aspect": "Staff",
+"mean": 0.4806629834,
+"ci_low": 0.4022331188,
+"ci_high": 0.5611184211,
+"n": 181,
+"cluster_mean": 0.4541209676,
+"diff": 0.0265420158,
+"flag": "on_par",
+"n_reviews": 142,
+"q_value": 0.7627834553
+},
+{
+"aspect": "Location",
+"mean": 0.506122449,
+"ci_low": 0.4324240908,
+"ci_high": 0.5809225618,
+"n": 245,
+"cluster_mean": 0.5250979756,
+"diff": -0.0189755266,
+"flag": "on_par",
+"n_reviews": 161,
+"q_value": 0.8344506184
+},
+{
+"aspect": "Value for Money",
+"mean": 0.4615384615,
+"ci_low": 0.275862069,
+"ci_high": 0.6541666667,
+"n": 26,
+"cluster_mean": 0.2679585894,
+"diff": 0.1935798721,
+"flag": "on_par",
+"n_reviews": 24,
+"q_value": 0.2012117628
+},
+{
+"aspect": "Cleanliness",
+"mean": 0.8461538462,
+"ci_low": 0.7272727273,
+"ci_high": 0.9516321045,
+"n": 65,
+"cluster_mean": 0.5823835406,
+"diff": 0.2637703055,
+"flag": "lead",
+"n_reviews": 59,
+"q_value": 8.88151e-05
+},
+{
+"aspect": "Booking Experience",
+"mean": 0.2222222222,
+"ci_low": 0.075,
+"ci_high": 0.3870967742,
+"n": 36,
+"cluster_mean": 0.1294090458,
+"diff": 0.0928131764,
+"flag": "on_par",
+"n_reviews": 25,
+"q_value": 0.5758011998
+}
+],
+"priority_actions": [],
+"trends": {},
+"changepoints": []
+},
+"Property W": {
+"stars": {
+"mean": 4.14,
+"n_reviews": 132
+},
+"scorecard": [
+{
+"aspect": "Food",
+"mean": 0.4342105263,
+"ci_low": 0.3167623241,
+"ci_high": 0.5548135464,
+"n": 152,
+"cluster_mean": 0.4562955481,
+"diff": -0.0220850218,
+"flag": "on_par",
+"n_reviews": 99,
+"q_value": 0.8588809646
+},
+{
+"aspect": "Room",
+"mean": 0.2038834951,
+"ci_low": 0.0826403681,
+"ci_high": 0.3173646907,
+"n": 103,
+"cluster_mean": 0.2469662701,
+"diff": -0.0430827749,
+"flag": "on_par",
+"n_reviews": 69,
+"q_value": 0.7536481152
+},
+{
+"aspect": "Housekeeping",
+"mean": 0.2380952381,
+"ci_low": 0.0,
+"ci_high": 0.4761904762,
+"n": 21,
+"cluster_mean": 0.2478823118,
+"diff": -0.0097870737,
+"flag": "on_par",
+"n_reviews": 21,
+"q_value": 0.9587449572
+},
+{
+"aspect": "Staff",
+"mean": 0.5490196078,
+"ci_low": 0.4399813084,
+"ci_high": 0.6569360218,
+"n": 102,
+"cluster_mean": 0.4541209676,
+"diff": 0.0948986402,
+"flag": "on_par",
+"n_reviews": 88,
+"q_value": 0.2728221125
+},
+{
+"aspect": "Location",
+"mean": 0.4931506849,
+"ci_low": 0.3959696588,
+"ci_high": 0.6,
+"n": 146,
+"cluster_mean": 0.5250979756,
+"diff": -0.0319472907,
+"flag": "on_par",
+"n_reviews": 97,
+"q_value": 0.7890811392
+},
+{
+"aspect": "Value for Money",
+"mean": 0.2727272727,
+"ci_low": -0.1,
+"ci_high": 0.7,
+"n": 11,
+"cluster_mean": 0.2679585894,
+"diff": 0.0047686833,
+"flag": "on_par",
+"n_reviews": 10,
+"q_value": 0.9873752003
+},
+{
+"aspect": "Cleanliness",
+"mean": 0.7777777778,
+"ci_low": 0.5813341493,
+"ci_high": 0.9444444444,
+"n": 36,
+"cluster_mean": 0.5823835406,
+"diff": 0.1953942372,
+"flag": "on_par",
+"n_reviews": 30,
+"q_value": 0.1927961826
+},
+{
+"aspect": "Booking Experience",
+"mean": 0.0588235294,
+"ci_low": -0.125,
+"ci_high": 0.2666666667,
+"n": 17,
+"cluster_mean": 0.1294090458,
+"diff": -0.0705855164,
+"flag": "on_par",
+"n_reviews": 14,
+"q_value": 0.7627834553
+}
+],
+"priority_actions": [],
+"trends": {},
+"changepoints": []
+},
+"Property X": {
+"stars": {
+"mean": 3.9,
+"n_reviews": 92
+},
+"scorecard": [
+{
+"aspect": "Food",
+"mean": 0.4245283019,
+"ci_low": 0.3018665044,
+"ci_high": 0.5500595238,
+"n": 106,
+"cluster_mean": 0.4562955481,
+"diff": -0.0317672462,
+"flag": "on_par",
+"n_reviews": 61,
+"q_value": 0.8344506184
+},
+{
+"aspect": "Room",
+"mean": 0.2019230769,
+"ci_low": 0.1121235722,
+"ci_high": 0.2989714809,
+"n": 104,
+"cluster_mean": 0.2469662701,
+"diff": -0.0450431931,
+"flag": "on_par",
+"n_reviews": 54,
+"q_value": 0.6896306474
+},
+{
+"aspect": "Housekeeping",
+"mean": -0.1666666667,
+"ci_low": null,
+"ci_high": null,
+"n": 6,
+"cluster_mean": 0.2478823118,
+"diff": -0.4145489785,
+"flag": "on_par",
+"n_reviews": 6,
+"q_value": null
+},
+{
+"aspect": "Staff",
+"mean": 0.5416666667,
+"ci_low": 0.3541586538,
+"ci_high": 0.7317073171,
+"n": 48,
+"cluster_mean": 0.4541209676,
+"diff": 0.087545699,
+"flag": "on_par",
+"n_reviews": 35,
+"q_value": 0.7154807529
+},
+{
+"aspect": "Location",
+"mean": 0.4409448819,
+"ci_low": 0.3379808261,
+"ci_high": 0.5396825397,
+"n": 127,
+"cluster_mean": 0.5250979756,
+"diff": -0.0841530937,
+"flag": "on_par",
+"n_reviews": 70,
+"q_value": 0.2728221125
+},
+{
+"aspect": "Value for Money",
+"mean": 0.3488372093,
+"ci_low": 0.1590909091,
+"ci_high": 0.5526315789,
+"n": 43,
+"cluster_mean": 0.2679585894,
+"diff": 0.0808786199,
+"flag": "on_par",
+"n_reviews": 32,
+"q_value": 0.7164981963
+},
+{
+"aspect": "Cleanliness",
+"mean": 0.5,
+"ci_low": 0.2894736842,
+"ci_high": 0.6923076923,
+"n": 42,
+"cluster_mean": 0.5823835406,
+"diff": -0.0823835406,
+"flag": "on_par",
+"n_reviews": 30,
+"q_value": 0.7154807529
+},
+{
+"aspect": "Booking Experience",
+"mean": 0.0714285714,
+"ci_low": 0.0,
+"ci_high": 0.2307692308,
+"n": 14,
+"cluster_mean": 0.1294090458,
+"diff": -0.0579804744,
+"flag": "on_par",
+"n_reviews": 13,
+"q_value": 0.7154807529
+}
+],
+"priority_actions": [],
+"trends": {},
+"changepoints": []
+},
+"Property Y": {
+"stars": {
+"mean": 3.49,
+"n_reviews": 65
+},
+"scorecard": [
+{
+"aspect": "Food",
+"mean": 0.3333333333,
+"ci_low": 0.1917482061,
+"ci_high": 0.4827864294,
+"n": 66,
+"cluster_mean": 0.4562955481,
+"diff": -0.1229622148,
+"flag": "on_par",
+"n_reviews": 43,
+"q_value": 0.287797052
+},
+{
+"aspect": "Room",
+"mean": -0.1724137931,
+"ci_low": -0.3272727273,
+"ci_high": -0.0178344431,
+"n": 58,
+"cluster_mean": 0.2469662701,
+"diff": -0.4193800632,
+"flag": "lag",
+"n_reviews": 32,
+"q_value": 1.05629e-05
+},
+{
+"aspect": "Housekeeping",
+"mean": -0.2727272727,
+"ci_low": null,
+"ci_high": null,
+"n": 11,
+"cluster_mean": 0.2478823118,
+"diff": -0.5206095846,
+"flag": "on_par",
+"n_reviews": 9,
+"q_value": null
+},
+{
+"aspect": "Staff",
+"mean": 0.3714285714,
+"ci_low": 0.1052631579,
+"ci_high": 0.6388888889,
+"n": 35,
+"cluster_mean": 0.4541209676,
+"diff": -0.0826923962,
+"flag": "on_par",
+"n_reviews": 29,
+"q_value": 0.8104926332
+},
+{
+"aspect": "Location",
+"mean": 0.4157303371,
+"ci_low": 0.3058668731,
+"ci_high": 0.5256578947,
+"n": 89,
+"cluster_mean": 0.5250979756,
+"diff": -0.1093676385,
+"flag": "on_par",
+"n_reviews": 52,
+"q_value": 0.204987746
+},
+{
+"aspect": "Value for Money",
+"mean": 0.2727272727,
+"ci_low": null,
+"ci_high": null,
+"n": 11,
+"cluster_mean": 0.2679585894,
+"diff": 0.0047686833,
+"flag": "on_par",
+"n_reviews": 8,
+"q_value": null
+},
+{
+"aspect": "Cleanliness",
+"mean": -0.09375,
+"ci_low": -0.3333333333,
+"ci_high": 0.2415948276,
+"n": 32,
+"cluster_mean": 0.5823835406,
+"diff": -0.6761335406,
+"flag": "lag",
+"n_reviews": 23,
+"q_value": 0.0001930077
+},
+{
+"aspect": "Booking Experience",
+"mean": 0.1538461538,
+"ci_low": 0.0,
+"ci_high": 0.3571428571,
+"n": 13,
+"cluster_mean": 0.1294090458,
+"diff": 0.024437108,
+"flag": "on_par",
+"n_reviews": 10,
+"q_value": 0.8993506281
+}
+],
+"priority_actions": [
+{
+"aspect": "Room",
+"gap": 0.419,
+"volume": 0.184,
+"impact_score": 0.0772,
+"started": null,
+"rationale": "Room is 0.42 below the cluster (now -0.17 vs +0.25; your 95% CI -0.33 to -0.02 lies below the cluster, significant after multiple-testing correction). It appears in 18% of your aspect mentions.",
+"current_mean": -0.172,
+"reference_mean": 0.247,
+"basis": "cluster",
+"n": 58,
+"whose_problem": "yours alone",
+"whose_detail": "below the cluster average; the source has no review dates, so when it started and whether the market moved too are not tested"
+},
+{
+"aspect": "Cleanliness",
+"gap": 0.676,
+"volume": 0.102,
+"impact_score": 0.0687,
+"started": null,
+"rationale": "Cleanliness is 0.68 below the cluster (now -0.09 vs +0.58; your 95% CI -0.33 to +0.24 lies below the cluster, significant after multiple-testing correction). It appears in 10% of your aspect mentions.",
+"current_mean": -0.094,
+"reference_mean": 0.582,
+"basis": "cluster",
+"n": 32,
+"whose_problem": "yours alone",
+"whose_detail": "below the cluster average; the source has no review dates, so when it started and whether the market moved too are not tested"
+}
+],
+"trends": {},
+"changepoints": []
+}
+}
+}

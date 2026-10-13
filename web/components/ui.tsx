@@ -1,6 +1,7 @@
 "use client";
 
-// Small shared UI pieces: SYNTHETIC banner, states, CSV download, generic table.
+// Small shared UI pieces: provenance chip, source toggle, states, CSV download, table.
+import { useEffect, useState } from "react";
 import { useData } from "@/lib/data";
 import { COLORS, WHOSE_COLORS } from "@/lib/theme";
 
@@ -9,11 +10,13 @@ export function PageIntro({
   icon,
   title,
   description,
+  chip,
 }: {
   eyebrow: string;
   icon: string;
   title: string;
   description: React.ReactNode;
+  chip?: React.ReactNode; // where the page's numbers come from
 }) {
   return (
     <header className="page-heading">
@@ -22,6 +25,7 @@ export function PageIntro({
           <span aria-hidden>{icon}</span> {eyebrow}
         </div>
         <h1>{title}</h1>
+        {chip}
         <p className="page-subtitle">{description}</p>
       </div>
     </header>
@@ -45,21 +49,72 @@ export function SectionHeading({
   );
 }
 
-export function SyntheticBanner() {
+/** Where a screen's numbers come from: every page shows one. */
+export function SourceChip({ kind }: { kind: "real" | "simulated" | "illustrative" }) {
   const { data } = useData();
-  if (!data) return null;
-  if (!data.meta.is_synthetic) {
-    return <p className="source-caption">Source: {data.meta.source_name}</p>;
+  const p = data?.meta.provenance;
+  if (kind === "real") {
+    if (!data || !p) return null;
+    const title =
+      `${p.dataset}: ${p.platform}-derived reviews (platform inferred, not stated per review). ` +
+      `${p.hotels} of the town's ${p.hotels_in_town} hotels: those with at least ${p.min_reviews} ` +
+      `reviews. The source has no review dates. Aggregates only: review text is never published.`;
+    return (
+      <span className="source-chip real" title={title}>
+        {p.town} · {p.hotels} hotels · {data.meta.n_reviews.toLocaleString()} real reviews ·{" "}
+        {p.platform}
+      </span>
+    );
+  }
+  if (kind === "simulated") {
+    return (
+      <span
+        className="source-chip simulated"
+        title="SYNTHETIC data. The real hill-hotel corpus we use has no review dates, so the time-series method is shown on a simulated timeline; its calibration is in docs/methodology.md section 10."
+      >
+        Method demo · simulated timeline
+      </span>
+    );
   }
   return (
-    <div className="banner" role="status">
-      <span className="banner-icon" aria-hidden>
-        ✦
-      </span>
-      <span>
-        <strong>SYNTHETIC DATA</strong> · {data.meta.source_name}. Figures describe generated reviews,
-        not real properties.
-      </span>
+    <span
+      className="source-chip simulated"
+      title="SYNTHETIC reviews. Real review text is never published: the real source is TripAdvisor-derived."
+    >
+      Illustrative examples · SYNTHETIC reviews
+    </span>
+  );
+}
+
+export type Source = "real" | "demo";
+
+/** Real cluster by default; `?source=demo` opens the simulated timeline. */
+export function useSource(): [Source, (s: Source) => void] {
+  const [source, setSource] = useState<Source>("real");
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get("source") === "demo") setSource("demo");
+  }, []);
+  return [source, setSource];
+}
+
+export function SourceToggle({ value, onChange }: { value: Source; onChange: (s: Source) => void }) {
+  const options: [Source, string][] = [
+    ["real", "Real cluster"],
+    ["demo", "Method demo: simulated timeline"],
+  ];
+  return (
+    <div className="source-toggle" role="group" aria-label="Data source">
+      {options.map(([key, label]) => (
+        <button
+          key={key}
+          type="button"
+          className={value === key ? "active" : ""}
+          aria-pressed={value === key}
+          onClick={() => onChange(key)}
+        >
+          {label}
+        </button>
+      ))}
     </div>
   );
 }

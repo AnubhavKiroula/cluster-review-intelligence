@@ -35,6 +35,18 @@ export const WHOSE_COLORS: Record<string, string> = {
   "not tested": COLORS.muted,
 };
 
+// CLAUDE.md rule 2: a figure drawn from SYNTHETIC data says so on the figure itself.
+export const SYNTHETIC_MARK = {
+  text: "SYNTHETIC",
+  xref: "paper",
+  yref: "paper",
+  x: 1,
+  y: 1.1,
+  xanchor: "right",
+  showarrow: false,
+  font: { size: 11, color: COLORS.muted },
+};
+
 // Diverging scale for the -1..+1 sentiment heatmap.
 export const DIVERGING: [number, string][] = [
   [0, COLORS.negative],

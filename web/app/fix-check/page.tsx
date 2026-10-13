@@ -10,9 +10,9 @@ import {
   Loading,
   PageIntro,
   SectionHeading,
-  SyntheticBanner,
+  SourceChip,
 } from "@/components/ui";
-import { COLORS } from "@/lib/theme";
+import { SYNTHETIC_MARK, COLORS } from "@/lib/theme";
 
 const VERDICT: Record<FixCheck["verdict"], { className: string; headline: string }> = {
   improved: { className: "state info", headline: "✅ Improved — relative to the market" },
@@ -28,7 +28,7 @@ const VERDICT: Record<FixCheck["verdict"], { className: string; headline: string
 const signed = (v: number | null) => (v == null ? "—" : `${v > 0 ? "+" : ""}${fmtNum(v)}`);
 
 export default function FixCheckPage() {
-  const { data, error } = useData();
+  const { demo: data, error } = useData(); // dates needed: the SYNTHETIC timeline
   const fix = useFixChecks();
   const [prop, setProp] = useState("");
   const [aspect, setAspect] = useState("");
@@ -116,7 +116,7 @@ export default function FixCheckPage() {
         yaxis: { title: "mean sentiment (−1…+1)", range: [-1.05, 1.05] },
         xaxis: { type: "date" },
         shapes,
-        annotations,
+        annotations: [...annotations, SYNTHETIC_MARK],
         showlegend: false,
       },
     };
@@ -139,12 +139,12 @@ export default function FixCheckPage() {
   return (
     <>
       <PageIntro
+        chip={<SourceChip kind="simulated" />}
         eyebrow="Intervention check"
         icon="🔧"
         title="Did my fix work?"
         description="Pick what you changed and the first month after the change. A plain before/after mixes your change with whatever the whole market did at the same time; this check removes the market first."
       />
-      <SyntheticBanner />
 
       <div className="controls">
         <div className="field">

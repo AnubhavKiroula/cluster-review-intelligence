@@ -10,7 +10,7 @@ import {
   Loading,
   PageIntro,
   SectionHeading,
-  SyntheticBanner,
+  SourceChip,
   Table,
 } from "@/components/ui";
 
@@ -29,7 +29,7 @@ interface Row {
 }
 
 export default function ExplorerPage() {
-  const { data, error } = useData();
+  const { demo: data, error } = useData(); // real review text is never published
   const [prop, setProp] = useState(ANY);
   const [aspect, setAspect] = useState(ANY);
   const [sentiment, setSentiment] = useState(ANY);
@@ -45,7 +45,7 @@ export default function ExplorerPage() {
       (prop === ANY || r.property_id === prop) && (!q || r.text.toLowerCase().includes(q));
 
     const byId = new Map<number, Review>();
-    for (const r of data.reviews) if (reviewOk(r)) byId.set(r.review_id, r);
+    for (const r of data.reviews ?? []) if (reviewOk(r)) byId.set(r.review_id, r);
 
     const mentionOk = (m: Mention) =>
       (!aspectActive || m.aspect === aspect) &&
@@ -54,7 +54,7 @@ export default function ExplorerPage() {
     const out: Row[] = [];
     if (aspectActive || sentActive) {
       // Inner join: only reviews with a matching clause.
-      for (const m of data.mentions) {
+      for (const m of data.mentions ?? []) {
         if (!mentionOk(m)) continue;
         const r = byId.get(m.review_id);
         if (!r) continue;
@@ -63,7 +63,7 @@ export default function ExplorerPage() {
     } else {
       // Left join: keep reviews even if nothing was detected.
       const mentionsByReview = new Map<number, Mention[]>();
-      for (const m of data.mentions) {
+      for (const m of data.mentions ?? []) {
         if (!byId.has(m.review_id)) continue;
         const list = mentionsByReview.get(m.review_id);
         if (list) list.push(m);
@@ -88,9 +88,9 @@ export default function ExplorerPage() {
         eyebrow="Evidence explorer"
         icon="🔍"
         title="Review explorer"
-        description="Audit the exact clause behind every detected aspect and sentiment, then search the cluster in seconds."
+        description="Audit the exact clause behind every detected aspect and sentiment. The searchable reviews are illustrative: real review text is never published."
+        chip={<SourceChip kind="illustrative" />}
       />
-      <SyntheticBanner />
 
       <TryYourOwnReview />
 

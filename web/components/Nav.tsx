@@ -52,8 +52,8 @@ export default function Nav() {
         <div className="workspace-card">
           <span className="status-dot" aria-hidden />
           <div>
-            <strong>{data?.meta.is_synthetic ? "Synthetic workspace" : "Connected workspace"}</strong>
-            <small>{data ? `${data.meta.properties.length} properties · ${data.meta.n_reviews.toLocaleString()} reviews` : "Loading cluster snapshot…"}</small>
+            <strong>{data?.meta.provenance ? `Real cluster: ${data.meta.provenance.town}` : "Workspace"}</strong>
+            <small>{data ? `${data.meta.properties.length} hotels · ${data.meta.n_reviews.toLocaleString()} reviews` : "Loading cluster snapshot…"}</small>
           </div>
         </div>
       </div>

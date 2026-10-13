@@ -10,13 +10,17 @@ import {
   Loading,
   PageIntro,
   SectionHeading,
-  SyntheticBanner,
+  SourceChip,
+  SourceToggle,
   Table,
+  useSource,
 } from "@/components/ui";
-import { COLORS, SCOPE_COLORS } from "@/lib/theme";
+import { COLORS, SCOPE_COLORS, SYNTHETIC_MARK } from "@/lib/theme";
 
 export default function MarketPage() {
-  const { data, error } = useData();
+  const { data: real, demo, error } = useData();
+  const [source, setSource] = useSource();
+  const data = source === "demo" ? demo : real;
 
   const chart = useMemo(() => {
     if (!data) return null;
@@ -60,6 +64,11 @@ export default function MarketPage() {
   if (!data) return <Loading />;
 
   const headline = data.market_headline;
+  const town = data.meta.provenance?.town ?? "this cluster";
+  // Descriptive only (not a market-wide test): where guests complain most.
+  const mostComplained = [...data.destination_summary]
+    .sort((a, b) => b.pct_negative - a.pct_negative)
+    .slice(0, 3);
   const marketWideCount = data.market_scope.filter((row) => row.scope === "market-wide").length;
   const propertySpecificCount = data.market_scope.filter((row) => row.scope === "property-specific").length;
 
@@ -69,15 +78,25 @@ export default function MarketPage() {
         eyebrow="Market diagnosis"
         icon="⚖️"
         title="Market-wide vs property-specific"
-        description="Is a decline one property's problem or the whole market's? One hotel's own reviews cannot tell; the cluster can."
+        description="Is a weakness one property's problem or the whole market's? One hotel's own reviews cannot tell; the cluster can."
+        chip={<SourceChip kind={source === "demo" ? "simulated" : "real"} />}
       />
-      <SyntheticBanner />
-      {headline && (
+      <SourceToggle value={source} onChange={setSource} />
+      {headline ? (
         <div className="callout">
-          <strong>{headline.aspect}</strong> is the biggest market-wide issue:{" "}
+          <strong>{headline.aspect}</strong> is the biggest market-wide weak spot:{" "}
           {fmtPct(headline.pct_negative)} of its mentions are negative across{" "}
-          {headline.n_properties_reviewed} properties ({headline.pattern}). The market shares it,
-          so it is not a gap against your competitors.
+          {headline.n_properties_reviewed} properties ({headline.pattern}). It is not a gap
+          against your competitors: it is a <strong>market opportunity for whoever fixes it
+          first</strong>.
+        </div>
+      ) : (
+        <div className="callout">
+          <strong>No shared weak spot in {town}.</strong> No aspect draws more complaints at
+          most properties, so every gap flagged below belongs to individual properties. Where
+          guests complain most across the cluster (descriptive, not a market test):{" "}
+          {mostComplained.map((r) => `${r.aspect} ${fmtPct(r.pct_negative)}`).join(", ")} of
+          mentions.
         </div>
       )}
       <div className="insight-strip">
@@ -110,6 +129,7 @@ export default function MarketPage() {
                 xaxis: { title: "share of properties affected", tickformat: ".0%", range: [-0.05, 1.05] },
                 yaxis: { title: "share of reviews negative", tickformat: ".0%" },
                 shapes: chart.shapes,
+                annotations: source === "demo" ? [SYNTHETIC_MARK] : [],
               }}
             />
           </div>

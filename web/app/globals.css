@@ -558,32 +558,6 @@ input[type="text"]:focus {
   box-shadow: 0 0 0 3px rgba(42, 157, 143, 0.1);
 }
 
-.banner {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  margin: 0 0 22px;
-  padding: 11px 14px;
-  border: 1px solid #f5d5ae;
-  border-left: 4px solid var(--amber);
-  border-radius: 10px;
-  background: var(--amber-soft);
-  color: #805528;
-  font-size: 12px;
-}
-
-.banner .banner-icon {
-  display: grid;
-  width: 23px;
-  height: 23px;
-  flex: 0 0 23px;
-  place-items: center;
-  border-radius: 7px;
-  background: #ffe1bb;
-  font-size: 12px;
-}
-
-.source-caption,
 .caption {
   margin: 10px 0 0;
   color: var(--muted);
@@ -870,4 +844,48 @@ code {
   margin-top: 4px;
   color: var(--muted);
   font-size: 12px;
+}
+
+/* Provenance chip in the page header, and the real / method-demo switch. */
+.source-chip {
+  display: inline-block;
+  margin: 2px 0 8px;
+  padding: 4px 11px;
+  border: 1px solid var(--grid);
+  border-radius: 999px;
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: help;
+}
+.source-chip.real {
+  border-color: #b9e1db;
+  background: #eef8f6;
+  color: #1f6f66;
+}
+.source-chip.simulated {
+  border-color: #f2d6b8;
+  background: #fff7ed;
+  color: #9a5a1c;
+}
+.source-toggle {
+  display: inline-flex;
+  margin: 4px 0 14px;
+  border: 1px solid var(--grid);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.source-toggle button {
+  padding: 7px 12px;
+  border: 0;
+  background: var(--paper);
+  color: var(--muted);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+.source-toggle button.active {
+  background: var(--navy);
+  color: #fff;
 }

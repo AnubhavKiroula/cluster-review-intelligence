@@ -9,7 +9,7 @@ Not a project dependency - a one-off tool:
     python scripts/capture_screenshots.py --channel chrome
 
 Each page is captured once its data has rendered, so the images show exactly what a
-visitor sees (SYNTHETIC banner included). Only the explorer's live classification
+visitor sees, provenance chip included. Only the explorer's live classification
 needs the API; port 3000 matches its default CORS origin.
 """
 
@@ -20,10 +20,14 @@ from playwright.sync_api import sync_playwright
 
 # (file, path, text that appears once rendered)
 PAGES = [
-    ("property_view_SYNTHETIC.png", "/property/?property=Property%20F",
+    # The REAL Kausani cluster (aggregates only; no "SYNTHETIC" in the name).
+    ("property_view_real_kausani.png", "/property/?property=Property%20Y", "Fix Room first"),
+    ("market_real_kausani.png", "/market/", "Scope by aspect"),
+    # The method demo on the SYNTHETIC timeline.
+    ("property_view_SYNTHETIC.png", "/property/?source=demo&property=Property%20F",
      "Fix Food first since 2025-06"),
-    ("market_quadrant_SYNTHETIC.png", "/market/", "Scope by aspect"),
-    ("fix_check_SYNTHETIC.png", "/fix-check/", "Before and after"),
+    ("fix_check_SYNTHETIC.png", "/fix-check/?property=Property%20A&aspect=Room&month=2025-12",
+     "Before and after"),
 ]
 EXPLORER = "review_explorer_SYNTHETIC.png"
 

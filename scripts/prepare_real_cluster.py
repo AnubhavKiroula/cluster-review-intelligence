@@ -18,7 +18,7 @@ A hotel joins the cluster with at least ``--min-reviews`` reviews (default
 2 x ``MIN_REVIEWS_FOR_FLAG`` = 20): the cluster average weighs every property equally,
 so a hotel with a handful of reviews would add noise without ever being testable.
 
-Also writes a LOCAL-ONLY map (``Property A`` -> hotel name) so the team can answer
+Also writes ``<file>.json`` (aggregate counts for the web snapshot) and a LOCAL-ONLY map (``Property A`` -> hotel name) so the team can answer
 "which hotel is B?". Both files live under the gitignored ``data/raw/external/``;
 never commit them.
 
@@ -29,6 +29,7 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import json
 import string
 import sys
 from itertools import count, islice, product
@@ -85,6 +86,7 @@ def build(town: str, min_reviews: int, src: Path = SRC) -> tuple[pd.DataFrame, p
         "town": town, "district": data["district"].iloc[0], "state": data["state"].iloc[0],
         "hotels_in_town": int(per_hotel.size), "reviews_in_town": int(per_hotel.sum()),
         "min_reviews": min_reviews, "hotels_kept": len(kept), "reviews_kept": len(reviews),
+        "median_reviews_per_hotel": float(per_hotel[kept].median()),
         "language_hint": reviews["language_hint"].value_counts().to_dict(),
     }
     return reviews, mapping, report
@@ -104,6 +106,8 @@ def main() -> None:
         reviews.columns)
     reviews.to_csv(out, index=False)
     mapping.to_csv(map_out, index=False)
+    # Aggregates only (counts, place names): the web snapshot exporter reads them.
+    out.with_suffix(".json").write_text(json.dumps(report, indent=1), encoding="utf-8")
     for k, v in report.items():
         print(f"{k}: {v}")
     print(f"wrote {out} and the local-only map {map_out.name}", file=sys.stderr)

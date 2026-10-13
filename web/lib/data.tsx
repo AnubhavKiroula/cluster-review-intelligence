@@ -1,17 +1,35 @@
 "use client";
 
-// Snapshot types + a context that fetches /data/cluster.json once and shares it.
+// Snapshot types + a context that fetches both snapshots once and shares them:
+// the REAL cluster (aggregates only) and the SYNTHETIC one (simulated timeline and
+// the explorer's illustrative review texts).
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+
+export interface Provenance {
+  town: string;
+  district: string;
+  state: string;
+  hotels: number;
+  hotels_in_town: number;
+  reviews_in_town: number;
+  min_reviews: number;
+  median_reviews_per_hotel: number;
+  platform: string;
+  platform_inferred: boolean;
+  dataset: string;
+}
 
 export interface Meta {
   is_synthetic: boolean;
+  has_dates: boolean;
   source_name: string;
   generated_at: string;
   properties: string[];
   aspects: string[];
-  date_min: string;
-  date_max: string;
+  date_min: string | null; // null: the source has no review dates
+  date_max: string | null;
   n_reviews: number;
+  provenance?: Provenance; // real cluster only
 }
 
 export interface ScorecardRow {
@@ -61,6 +79,7 @@ export interface Changepoint {
 }
 
 export interface PropertyData {
+  stars: { mean: number; n_reviews: number };
   scorecard: ScorecardRow[];
   priority_actions: PriorityRow[];
   trends: Record<string, TrendPoint[]>;
@@ -110,12 +129,13 @@ export interface Snapshot {
   // Worst market-wide aspect by share of negative mentions (null: none is market-wide).
   market_headline: DestinationRow | null;
   per_property: Record<string, PropertyData>;
-  reviews: Review[];
-  mentions: Mention[];
+  reviews?: Review[]; // SYNTHETIC snapshot only: real review text is never published
+  mentions?: Mention[];
 }
 
 interface State {
-  data: Snapshot | null;
+  data: Snapshot | null; // the real cluster
+  demo: Snapshot | null; // the SYNTHETIC cluster (method demo, illustrative texts)
   error: string | null;
 }
 
@@ -123,22 +143,27 @@ interface State {
 // (/property/ -> /property/data/...), so any page opened directly or by deep link 404s.
 export const dataUrl = (file: string): string => `/data/${file}`;
 
-const DataContext = createContext<State>({ data: null, error: null });
+async function fetchJson<T>(file: string): Promise<T> {
+  const r = await fetch(dataUrl(file));
+  if (!r.ok) throw new Error(`${file}: HTTP ${r.status}`);
+  return r.json();
+}
+
+const message = (e: unknown) => (e instanceof Error ? e.message : String(e));
+
+const DataContext = createContext<State>({ data: null, demo: null, error: null });
 
 export function DataProvider({ children }: { children: ReactNode }) {
-  const [state, setState] = useState<State>({ data: null, error: null });
+  const [state, setState] = useState<State>({ data: null, demo: null, error: null });
 
   useEffect(() => {
     let alive = true;
-    fetch(dataUrl("cluster.synthetic.json"))
-      .then((r) => {
-        if (!r.ok) throw new Error(`HTTP ${r.status}`);
-        return r.json();
-      })
-      .then((data: Snapshot) => alive && setState({ data, error: null }))
-      .catch((e: unknown) =>
-        alive && setState({ data: null, error: e instanceof Error ? e.message : String(e) }),
-      );
+    Promise.all([
+      fetchJson<Snapshot>("cluster.real.json"),
+      fetchJson<Snapshot>("cluster.synthetic.json"),
+    ])
+      .then(([data, demo]) => alive && setState({ data, demo, error: null }))
+      .catch((e: unknown) => alive && setState({ data: null, demo: null, error: message(e) }));
     return () => {
       alive = false;
     };
@@ -191,15 +216,9 @@ export function useFixChecks(): { data: FixCheckSnapshot | null; error: string |
   });
   useEffect(() => {
     let alive = true;
-    fetch(dataUrl("fixcheck.synthetic.json"))
-      .then((r) => {
-        if (!r.ok) throw new Error(`HTTP ${r.status}`);
-        return r.json();
-      })
-      .then((data: FixCheckSnapshot) => alive && setState({ data, error: null }))
-      .catch((e: unknown) =>
-        alive && setState({ data: null, error: e instanceof Error ? e.message : String(e) }),
-      );
+    fetchJson<FixCheckSnapshot>("fixcheck.synthetic.json")
+      .then((data) => alive && setState({ data, error: null }))
+      .catch((e: unknown) => alive && setState({ data: null, error: message(e) }));
     return () => {
       alive = false;
     };

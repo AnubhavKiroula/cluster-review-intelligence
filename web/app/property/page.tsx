@@ -11,14 +11,19 @@ import {
   Loading,
   PageIntro,
   SectionHeading,
-  SyntheticBanner,
+  SourceChip,
+  SourceToggle,
   Table,
   WhosePill,
+  useSource,
 } from "@/components/ui";
-import { COLORS, FLAG_COLORS } from "@/lib/theme";
+import { COLORS, FLAG_COLORS, SYNTHETIC_MARK } from "@/lib/theme";
 
 export default function PropertyPage() {
-  const { data, error } = useData();
+  const { data: real, demo, error } = useData();
+  const [source, setSource] = useSource();
+  const data = source === "demo" ? demo : real;
+  const marks = source === "demo" ? [SYNTHETIC_MARK] : [];
   const [prop, setProp] = useState<string>("");
   const [aspect, setAspect] = useState<string>("");
 
@@ -71,9 +76,9 @@ export default function PropertyPage() {
           hovertemplate: "%{x}<br>cluster %{y:.2f}<extra></extra>",
         },
       ],
-      layout: { yaxis: { title: "mean sentiment (−1…+1)", range: [-1.05, 1.05] } },
+      layout: { yaxis: { title: "mean sentiment (−1…+1)", range: [-1.05, 1.05] }, annotations: marks },
     };
-  }, [pdata, prop]);
+  }, [pdata, prop, source]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const trendChart = useMemo(() => {
     if (!pdata || !aspect) return null;
@@ -121,11 +126,11 @@ export default function PropertyPage() {
         yaxis: { title: "mean sentiment (−1…+1)", range: [-1.05, 1.05] },
         xaxis: { type: "date" },
         shapes,
-        annotations,
+        annotations: [...annotations, ...marks],
       },
       hasCps: cps.length > 0,
     };
-  }, [pdata, aspect]);
+  }, [pdata, aspect, source]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (error) return <ErrorState message={error} />;
   if (!data || !pdata) return <Loading />;
@@ -137,6 +142,7 @@ export default function PropertyPage() {
     (s) => s.scope === "market-wide" && s.properties.split(", ").includes(prop),
   );
   const strongest = [...pdata.scorecard].sort((a, b) => b.mean - a.mean)[0];
+  const town = data.meta.provenance?.town ?? "the cluster";
   const weakest = [...pdata.scorecard].sort((a, b) => a.mean - b.mean)[0];
 
   return (
@@ -146,8 +152,9 @@ export default function PropertyPage() {
         icon="🏨"
         title={prop}
         description="What to fix first, and whether each problem is yours alone or the whole market's. Only the cluster can tell the two apart."
+        chip={<SourceChip kind={source === "demo" ? "simulated" : "real"} />}
       />
-      <SyntheticBanner />
+      <SourceToggle value={source} onChange={setSource} />
 
       <div className="controls">
         <div className="field">
@@ -164,9 +171,12 @@ export default function PropertyPage() {
 
       <div className="insight-strip">
         <div className="insight-tile">
-          <div className="tile-label">Flagged opportunities</div>
-          <div className="tile-value">{actions.length}</div>
-          <div className="tile-note">Priority actions from the benchmark</div>
+          <div className="tile-label">Star average</div>
+          <div className="tile-value">{pdata.stars.mean.toFixed(2)}★</div>
+          <div className="tile-note">
+            {pdata.stars.n_reviews} reviews; {actions.length} flagged gap
+            {actions.length === 1 ? "" : "s"} below
+          </div>
         </div>
         <div className="insight-tile">
           <div className="tile-label">Strongest aspect</div>
@@ -283,6 +293,7 @@ export default function PropertyPage() {
         title="📈 Trend over time"
         description="Select an aspect to inspect monthly movement and significant changepoints."
       />
+      {data.meta.has_dates && (
       <div className="controls">
         <div className="field">
           <label htmlFor="aspect">Aspect</label>
@@ -295,7 +306,14 @@ export default function PropertyPage() {
           </select>
         </div>
       </div>
-      {trendChart ? (
+      )}
+      {!data.meta.has_dates ? (
+        <Info>
+          The {town} reviews carry no dates, so trends and changepoints cannot be computed.
+          The time method is shown on the simulated timeline: switch to{" "}
+          <strong>Method demo</strong> above, or open <Link href="/fix-check/">Did my fix work?</Link>.
+        </Info>
+      ) : trendChart ? (
         <>
           <div className="chart-panel">
             <Plot data={trendChart.data} layout={trendChart.layout} />

@@ -62,3 +62,55 @@ EXPECTED_LIVE = {
 def test_live_examples_classify_as_rehearsed(text):
     found = api.classify_text(text)
     assert list(zip(found["aspect"], found["sentiment"], strict=True)) == EXPECTED_LIVE[text]
+
+
+# --- The REAL cluster (pinned against the committed snapshot the site serves) ---------
+
+from scripts.demo import load_real  # noqa: E402
+
+
+@pytest.fixture(scope="module")
+def real():
+    return load_real()
+
+
+def _keys(obj):
+    if isinstance(obj, dict):
+        for k, v in obj.items():
+            yield k
+            yield from _keys(v)
+    elif isinstance(obj, list):
+        for v in obj:
+            yield from _keys(v)
+
+
+def test_real_snapshot_is_kausani_aggregates_without_text_or_dates(real):
+    meta, prov = real["meta"], real["meta"]["provenance"]
+    assert not meta["is_synthetic"] and not meta["has_dates"]
+    assert (prov["town"], prov["hotels"], meta["n_reviews"]) == ("Kausani", 25, 2751)
+    assert (prov["hotels_in_town"], prov["reviews_in_town"]) == (41, 2877)
+    assert prov["median_reviews_per_hotel"] == 66
+    # Real review text is never published: no text-bearing fields anywhere.
+    assert not {"reviews", "mentions", "text", "sentence", "review"} & set(_keys(real))
+    assert all(p.startswith("Property ") for p in real["per_property"])
+
+
+def test_real_hook_two_similar_star_averages(real):
+    i, y = real["per_property"]["Property I"], real["per_property"]["Property Y"]
+    assert (i["stars"]["mean"], y["stars"]["mean"]) == (3.44, 3.49)
+    assert i["priority_actions"] == []
+    rows = [(r["aspect"], round(r["gap"], 2), r["whose_problem"]) for r in y["priority_actions"]]
+    assert rows == [("Room", 0.42, "yours alone"), ("Cleanliness", 0.68, "yours alone")]
+    assert all(r["started"] is None for r in y["priority_actions"])  # no dates in the source
+
+
+def test_real_market_has_no_shared_weak_spot(real):
+    assert real["market_headline"] is None
+    scope = {r["aspect"]: r for r in real["market_scope"]}
+    assert {r["scope"] for r in scope.values()} == {"property-specific"}
+    assert scope["Room"]["properties"] == "Property M, Property O, Property U, Property Y"
+    flagged = [p for p, v in real["per_property"].items() if v["priority_actions"]]
+    assert len(flagged) == 7
+    top = sorted(real["destination_summary"], key=lambda r: -r["pct_negative"])[:3]
+    assert [(r["aspect"], round(r["pct_negative"] * 100)) for r in top] == [
+        ("Housekeeping", 14), ("Cleanliness", 9), ("Value for Money", 8)]

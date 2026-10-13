@@ -1,8 +1,9 @@
 {
 "meta": {
 "is_synthetic": true,
+"has_dates": true,
 "source_name": "SYNTHETIC sample (seed 42)",
-"generated_at": "2026-10-13T11:46:39+00:00",
+"generated_at": "2026-10-13T13:51:07+00:00",
 "properties": [
 "Property A",
 "Property B",
@@ -134,6 +135,10 @@
 },
 "per_property": {
 "Property A": {
+"stars": {
+"mean": 3.47,
+"n_reviews": 424
+},
 "scorecard": [
 {
 "aspect": "Food",
@@ -1169,6 +1174,10 @@
 "changepoints": []
 },
 "Property B": {
+"stars": {
+"mean": 3.13,
+"n_reviews": 433
+},
 "scorecard": [
 {
 "aspect": "Food",
@@ -2203,6 +2212,10 @@
 "changepoints": []
 },
 "Property C": {
+"stars": {
+"mean": 3.57,
+"n_reviews": 427
+},
 "scorecard": [
 {
 "aspect": "Food",
@@ -3238,6 +3251,10 @@
 "changepoints": []
 },
 "Property D": {
+"stars": {
+"mean": 2.9,
+"n_reviews": 413
+},
 "scorecard": [
 {
 "aspect": "Food",
@@ -4349,6 +4366,10 @@
 "changepoints": []
 },
 "Property E": {
+"stars": {
+"mean": 2.94,
+"n_reviews": 454
+},
 "scorecard": [
 {
 "aspect": "Food",
@@ -5452,6 +5473,10 @@
 "changepoints": []
 },
 "Property F": {
+"stars": {
+"mean": 3.28,
+"n_reviews": 434
+},
 "scorecard": [
 {
 "aspect": "Food",
@@ -6538,6 +6563,10 @@
 ]
 },
 "Property G": {
+"stars": {
+"mean": 3.3,
+"n_reviews": 425
+},
 "scorecard": [
 {
 "aspect": "Food",
@@ -7598,6 +7627,10 @@
 "changepoints": []
 },
 "Property H": {
+"stars": {
+"mean": 3.34,
+"n_reviews": 423
+},
 "scorecard": [
 {
 "aspect": "Food",
@@ -8653,6 +8686,10 @@
 "changepoints": []
 },
 "Property I": {
+"stars": {
+"mean": 3.33,
+"n_reviews": 404
+},
 "scorecard": [
 {
 "aspect": "Food",
@@ -9648,6 +9685,10 @@
 "changepoints": []
 },
 "Property J": {
+"stars": {
+"mean": 2.98,
+"n_reviews": 433
+},
 "scorecard": [
 {
 "aspect": "Food",
@@ -10715,6 +10756,10 @@
 "changepoints": []
 },
 "Property K": {
+"stars": {
+"mean": 2.88,
+"n_reviews": 438
+},
 "scorecard": [
 {
 "aspect": "Food",
@@ -11797,6 +11842,10 @@
 "changepoints": []
 },
 "Property L": {
+"stars": {
+"mean": 3.74,
+"n_reviews": 416
+},
 "scorecard": [
 {
 "aspect": "Food",
