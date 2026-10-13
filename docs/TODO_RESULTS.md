@@ -66,7 +66,7 @@ probe from the clause-level one in the transformer table above.
 | Measure | Rules | `open` model | `region` model (local) | Status |
 |---|---|---|---|---|
 | SentiMix Hinglish test (n=2,997) | 0.361 | 0.663 (0.646–0.680) | 0.629 (0.613–0.646) | measured |
-| YouTube Hinglish test (n=314) | 0.317 | 0.631 (0.573–0.682) | 0.609 (0.555–0.655) | measured |
+| YouTube Hinglish test (n=314) | 0.367 (0.317 before the 2026-10-13 negation fix) | 0.631 (0.573–0.682) | 0.609 (0.555–0.655) | measured |
 | Hill hotel reviews, hotel-grouped, weak labels (n=8,388) | 0.557 (0.539–0.574) | 0.390 | 0.687 (0.669–0.706) | measured |
 | Whole-sentence polarity, 36 SYNTHETIC templates | 36/36 | 17/36 | 24/36 | measured |
 | Food decline found, 20 SYNTHETIC seeds | 15/20 | 5/20 | 4/20 | measured |

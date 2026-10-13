@@ -2,8 +2,8 @@
 
 Hybrid by design: aspects still come from the transparent cue terms in
 ``aspects.yaml`` (via :class:`~cri.classify.RuleClassifier`); the model replaces
-only the *clause sentiment*, the part rules handle worst (post-negation such as
-"accha nahi tha", implicit sentiment). Only aspect-bearing clauses are scored, each
+only the *clause sentiment*, the part rules handle worst (sarcasm, implicit
+sentiment). Only aspect-bearing clauses are scored, each
 distinct clause once, in batches.
 
 Needs the optional extra: ``pip install -e ".[model]"`` (torch + transformers).

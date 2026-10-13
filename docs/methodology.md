@@ -32,11 +32,14 @@ multiword phrases, negation tokens; English, romanised Hindi and some
 Devanagari). It is validated when loaded: entries must be lowercase, non-empty
 strings, and no word may be both positive and negative. Multiword negative
 phrases (e.g. `not working`, `band tha`) match directly; a negation token
-(`not`, `nahi`, …) flips the sign of the next few sentiment words. Clause
-sentiment is the sign of the net score: **−1, 0 or +1**.
+(`not`, `no`, …) flips the sign of the next few sentiment words. Hindi negators
+(`nahi`, `नहीं`; `post_negation` in `lexicon.yaml`) follow the word they negate, so
+they flip the sentiment word up to 2 tokens *before* them ("accha nahi tha" → −1,
+"koi problem nahi" → +1), and act like `not` only when nothing precedes them.
+Clause sentiment is the sign of the net score: **−1, 0 or +1**.
 
-Known weakness: negation that *follows* the word it negates ("accha nahi tha")
-is read as positive. The transformer backend (§9) exists for such cases.
+Known weaknesses: sarcasm and implicit sentiment. The transformer backend (§9)
+exists for such cases.
 
 ## 4. The statistical unit: one value per review and aspect
 
@@ -262,8 +265,8 @@ recall.
 - **Small clusters.** Market-wide patterns need a consistent shift across
   properties; with ~5 properties only strong, consistent patterns are detectable,
   and below 3 properties the scope is `undetermined`.
-- **Classifier.** The rule baseline misses sarcasm, post-negation and implicit
-  sentiment; real-data precision/recall/F1 are `TBD`.
+- **Classifier.** The rule baseline misses sarcasm and implicit sentiment;
+  real-data precision/recall/F1 are `TBD`.
 
 ## 12. "Did my fix work?" — market-adjusted before/after (`intervention_check`)
 

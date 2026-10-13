@@ -66,7 +66,7 @@ model).
 | Test set | n | `open` model | `region` model | Rules | Majority |
 |---|---|---|---|---|---|
 | SentiMix official test (tweets) | 2,997 | **0.663** (0.646–0.680) | 0.629 (0.613–0.646) | 0.361 | 0.179 |
-| YouTube held-out | 314 | **0.631** (0.573–0.682) | 0.609 (0.555–0.655) | 0.317 | 0.209 |
+| YouTube held-out | 314 | **0.631** (0.573–0.682) | 0.609 (0.555–0.655) | 0.367¹ | 0.209 |
 | Hill hotel reviews, hotel-grouped (weak labels) | 8,388 | 0.390 (0.378–0.402) | **0.687** (0.669–0.706) | 0.557 | 0.311 |
 | — Uttarakhand | 5,097 | 0.392 | **0.685** | 0.554 | — |
 | — Himachal Pradesh | 2,403 | 0.394 | **0.673** | 0.559 | — |
@@ -78,6 +78,25 @@ Tapovan 0.674 vs 0.559 (901), Shimla 0.661 vs 0.585 (827), Leh 0.720 vs 0.567 (6
 Kufri 0.689 vs 0.522 (469), Kausani 0.706 vs 0.619 (387), Shivpuri 0.691 vs 0.582
 (338), Kaza 0.594 vs 0.529 (235), Sangla 0.797 vs 0.378 (227). Manali, Dalhousie and
 Mashobra have no hotel in the test split.
+
+¹ After the 2026-10-13 Hindi negation fix (below); 0.317 before it. SentiMix (0.361)
+and the hill reviews (0.557) are unchanged by the fix.
+
+**Rule update, 2026-10-13: Hindi negation.** Hindi negators follow the word they
+negate ("accha nahi tha"), but the rules flipped only the words *after* a negator,
+so "accha nahi tha" scored +1. Now `nahi` / `नहीं` flip the sentiment word up to 2
+tokens before them, and feminine/plural forms (`achi`, `acche`, …) map to `accha`.
+Developed on the dev splits; the test splits were scored once, with a paired
+bootstrap (2,000 resamples) of the change in macro-F1:
+
+| Test set | n | Predictions changed | Macro-F1 before → after | Paired 95% CI of the change |
+|---|---|---|---|---|
+| YouTube held-out | 314 | 27 | 0.317 → 0.367 | +0.018 to +0.087 |
+| SentiMix official test | 2,997 | 28 | 0.361 → 0.361 | −0.005 to +0.004 |
+| Hill hotel reviews | 8,388 | — | 0.557 → 0.557 | unchanged (mostly English) |
+
+The SYNTHETIC cluster's labels are identical before and after (seed 42), so every
+calibration and demo number is unchanged; the template probe stays 36/36.
 
 On the hill reviews the `region` model's neutral class is weak (F1 0.42): 3★
 reviews are mixed, and the weak label calls them all neutral.
@@ -93,7 +112,7 @@ test 0.687 vs 0.551 (`--neutral drop`). Decided on dev, confirmed on test.
 | Whole-sentence polarity of the 36 SYNTHETIC templates | 36/36 | 17/36 | 24/36 |
 | SYNTHETIC cluster seed 42: Property F food decline (injected 2025-06) | found, 2025-06 | not found | found, 2025-04 |
 | SYNTHETIC cluster seed 42: December Room market-wide | found (12/12) | found (8/12) | not found |
-| "Khaana accha nahi tha." (post-negation; rules' known miss) | +1 (wrong) | −1 | 0 |
+| "Khaana accha nahi tha." (Hindi post-negation) | −1 (+1 before the 2026-10-13 fix) | −1 | 0 |
 | 20 SYNTHETIC seeds: food decline found (±1 month) | 15/20 | 5/20 (Wilson 0.11–0.47) | 4/20 (0.08–0.42) |
 | 20 SYNTHETIC seeds: December Room market-wide | 20/20 | 20/20 | 14/20 (0.48–0.85) |
 | 20 pattern-free seeds with any false alarm | 1/20 | 0/20 | 1/20 |

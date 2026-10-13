@@ -72,13 +72,13 @@ Typed into *Try your own review*. The output below is as of this commit, pinned 
 | `कमरा साफ़ था और view zabardast tha.` | Room +1, Location +1, Cleanliness +1 |
 | `Heater kaam nahi kar raha tha, raat bhar thand lagi.` | Room −1 |
 | `Staff bahut helpful tha, paisa vasool.` | Staff +1, Value for Money +1 |
+| `Khaana accha nahi tha.` | Food −1 (Hindi negation comes *after* the word) |
 
 **Do not type these live.** They are known misses of the rule baseline, which makes
 them good material for the honesty step:
 
 | Text | Rule output | Why |
 |---|---|---|
-| `Khaana accha nahi tha.` | Food +1 (should be −1) | Hindi negation comes *after* the word |
 | `Wah kya staff hai, ek ghanta wait karaya.` | Staff 0 (should be −1) | sarcasm |
 | `The bathroom was spotless.` | Cleanliness 0 (should be +1) | word not in the lexicon |
 

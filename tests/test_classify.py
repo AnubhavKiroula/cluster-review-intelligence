@@ -7,6 +7,7 @@ import pytest
 
 from cri import classify
 from cri.classify import RuleClassifier, get_classifier, load_aspects, parse_lexicon
+from cri.normalize import normalize
 
 
 def _single(clf, text):
@@ -49,6 +50,23 @@ def test_negation_flips_sentiment():
     assert RuleClassifier.sentence_sentiment("the food was good") == 1
 
 
+@pytest.mark.parametrize("text, expected", [
+    ("Khaana accha nahi tha.", -1),          # Hindi negates the word BEFORE it
+    ("Kamra saaf nahi tha", -1),
+    ("कमरा साफ़ नहीं था", -1),                # Devanagari negator
+    ("Staff bilkul helpful nahi tha", -1),   # up to two tokens back
+    ("khana accha nahin tha", -1),           # spelling variant -> nahi
+    ("room clean nhi tha", -1),
+    ("koi problem nahi", 1),                 # "no problem" is positive
+    ("nahi accha laga", -1),                 # nothing before it: flips what follows
+    ("Heater kaam nahi kar raha tha", -1),   # negated-verb phrase still negative
+    ("service achi nahi thi", -1),           # feminine form -> accha
+    ("khana achi thi", 1),
+])
+def test_hindi_post_negation(text, expected):
+    assert RuleClassifier.sentence_sentiment(normalize(text)) == expected
+
+
 def test_multiple_aspects_in_one_review():
     clf = RuleClassifier()
     res = clf.classify_review(
@@ -69,11 +87,19 @@ def _valid_lexicon():
     }
 
 
+def test_post_negation_is_optional_and_validated():
+    assert parse_lexicon(_valid_lexicon())["post_negation"] == []
+    with pytest.raises(ValueError, match="both 'post_negation' and 'positive'"):
+        parse_lexicon({**_valid_lexicon(), "post_negation": ["good"]})
+    with pytest.raises(ValueError, match="both 'negation' and 'post_negation'"):
+        parse_lexicon({**_valid_lexicon(), "post_negation": ["not"]})
+
+
 def test_lexicon_loads_from_yaml_into_module_names():
     assert "badhiya" in classify.POSITIVE and "bekaar" in classify.NEGATIVE
     assert "बढ़िया" in classify.POSITIVE  # Devanagari survives the YAML round trip
     assert "not working" in classify.NEGATIVE_PHRASES
-    assert classify.NEGATION >= {"not", "nahi"}
+    assert classify.NEGATION >= {"not", "no"} and classify.POST_NEGATION >= {"nahi", "नहीं"}
     assert not classify.POSITIVE & classify.NEGATIVE
 
 

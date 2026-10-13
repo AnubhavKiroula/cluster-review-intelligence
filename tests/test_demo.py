@@ -54,6 +54,7 @@ EXPECTED_LIVE = {
         [("Room", 1), ("Location", 1), ("Cleanliness", 1)],
     "Heater kaam nahi kar raha tha, raat bhar thand lagi.": [("Room", -1)],
     "Staff bahut helpful tha, paisa vasool.": [("Staff", 1), ("Value for Money", 1)],
+    "Khaana accha nahi tha.": [("Food", -1)],
 }
 
 

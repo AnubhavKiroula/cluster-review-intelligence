@@ -69,11 +69,15 @@ def parse_lexicon(data: object, source: str = "lexicon.yaml") -> dict[str, list[
     missing = [k for k in keys if k not in data]
     if missing:
         raise ValueError(f"{source}: missing key(s) {missing}.")
+    keys += ("post_negation",) if "post_negation" in data else ()  # optional
     lex = {k: _check_terms(source, k, data[k]) for k in keys}
     for k in keys:
         _check_matchable(source, k, lex[k], phrase=k.endswith("_phrases"))
+    lex.setdefault("post_negation", [])  # Hindi negators that follow the word they negate
     pairs = (("positive", "negative"), ("positive_phrases", "negative_phrases"),
-             ("negation", "positive"), ("negation", "negative"))
+             ("negation", "positive"), ("negation", "negative"),
+             ("post_negation", "positive"), ("post_negation", "negative"),
+             ("negation", "post_negation"))
     for a, b in pairs:
         both = sorted(set(lex[a]) & set(lex[b]))
         if both:
@@ -103,6 +107,8 @@ NEGATIVE = frozenset(_LEXICON["negative"])
 POSITIVE_PHRASES = tuple(_LEXICON["positive_phrases"])
 NEGATIVE_PHRASES = tuple(_LEXICON["negative_phrases"])
 NEGATION = frozenset(_LEXICON["negation"])
+POST_NEGATION = frozenset(_LEXICON["post_negation"])
+POST_NEGATION_WINDOW = 2  # "accha nahi", "accha bilkul nahi": at most 2 tokens back
 
 
 # --- Interface ------------------------------------------------------------------
@@ -165,8 +171,13 @@ class RuleClassifier(Classifier):
             if phrase in sentence:
                 score -= 1
         negate = 0
-        for tok in tokenize(sentence):
-            if tok in NEGATION:
+        last = None  # (token index, counted delta) of the latest sentiment word
+        for i, tok in enumerate(tokenize(sentence)):
+            if tok in POST_NEGATION and last and i - last[0] <= POST_NEGATION_WINDOW:
+                score -= 2 * last[1]  # Hindi negates what precedes it: "accha nahi"
+                last = None
+                continue
+            if tok in NEGATION or tok in POST_NEGATION:
                 negate = 3  # flip the next few sentiment tokens
                 continue
             delta = 0
@@ -176,7 +187,9 @@ class RuleClassifier(Classifier):
                 delta = -1
             if delta and negate > 0:
                 delta = -delta
-            score += delta
+            if delta:
+                score += delta
+                last = (i, delta)
             if negate > 0:
                 negate -= 1
         if score > 0:
