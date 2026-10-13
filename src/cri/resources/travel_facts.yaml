@@ -1,0 +1,140 @@
+# Verifiable facts for the travel layer. NOTHING in this file is synthetic.
+#
+# Every value was read from the cited document on 2026-10-13. If a fact cannot be
+# sourced it does not belong here: illustrative values live in travel_synthetic.yaml.
+# Validated on load by cri.travel.data (every `source` key must exist below, and
+# every holiday's weekday must match its date).
+
+sources:
+  wikidata:
+    title: "Wikidata (CC0): coordinates (P625) and elevation (P2044)"
+    url: "https://www.wikidata.org/"
+  holidays_2026_uk:
+    title: >-
+      Gazetted holidays 2026 for Central Government offices in Uttarakhand, CGEWCC Dehradun,
+      as per DoPT O.M. F.No.12/2/2023-JCA dated 03.07.2025
+    url: "https://surveyofindia.gov.in/UserFiles/files/List%20of%20Holidays-2026%20(2).pdf"
+  holidays_2027:
+    title: >-
+      DoPT O.M. F.No.12/2/2023-JCA dated 16.07.2026, Annexure-I (holidays 2027), forwarded by
+      the Department of Posts on 08.09.2026; the CGEWCC Dehradun list for Uttarakhand is identical
+    url: "https://utilities.cept.gov.in/dop/pdfbind.ashx?id=15435"
+  hptdc:
+    title: "HPTDC (Himachal Pradesh Tourism Development Corporation), Access: important distances"
+    url: "https://hptdc.hp.gov.in/index.php/access"
+  nainital_nic:
+    title: "District Nainital (NIC), How to reach Nainital by road"
+    url: "https://nainital.nic.in/how-to-reach-nainital-by-road/"
+  dehradun_nic:
+    title: "District Dehradun (NIC), Mussoorie"
+    url: "https://dehradun.nic.in/tourist-place/mussoorie/"
+  utdb_2021_2023:
+    title: "Uttarakhand Tourism Development Board, Tourists Statistics of Major Tourist Destinations 2021-2023"
+    url: "https://uttarakhandtourism.gov.in/assets/pdf/Statistic21-23.pdf"
+  desnz_2026:
+    title: >-
+      UK DESNZ Greenhouse gas reporting: conversion factors 2026, flat file (revised July 2026),
+      Open Government Licence v3.0
+    url: "https://www.gov.uk/government/publications/greenhouse-gas-reporting-conversion-factors-2026"
+  indiaghg_road:
+    title: "India GHG Program, India Specific Road Transport Emission Factors (2015), Table: four wheelers"
+    url: "https://indiaghgp.org/sites/default/files/Road%20Transport%20Technical%20Paper.pdf"
+
+# Coordinates and elevation: Wikidata (source: wikidata). kind: destination | origin.
+places:
+  mussoorie:   {name: Mussoorie,   state: Uttarakhand,      district: Dehradun,      lat: 30.4561, lon: 78.0781, elevation_m: 1825, wikidata: Q668395,  kind: destination}
+  dhanaulti:   {name: Dhanaulti,   state: Uttarakhand,      district: Tehri Garhwal, lat: 30.45,   lon: 78.25,   elevation_m: 2286, wikidata: Q5268925, kind: destination}
+  kanatal:     {name: Kanatal,     state: Uttarakhand,      district: Tehri Garhwal, lat: 30.4153, lon: 78.3211, elevation_m: 2590, wikidata: Q6360738, kind: destination}
+  chakrata:    {name: Chakrata,    state: Uttarakhand,      district: Dehradun,      lat: 30.69,   lon: 77.86,   elevation_m: 2118, wikidata: Q858555,  kind: destination}
+  nainital:    {name: Nainital,    state: Uttarakhand,      district: Nainital,      lat: 29.3919, lon: 79.4542, elevation_m: 2084, wikidata: Q773213,  kind: destination}
+  kausani:     {name: Kausani,     state: Uttarakhand,      district: Bageshwar,     lat: 29.8431, lon: 79.6033, elevation_m: 1890, wikidata: Q2565866, kind: destination}
+  lansdowne:   {name: Lansdowne,   state: Uttarakhand,      district: Pauri Garhwal, lat: 29.83,   lon: 78.68,   elevation_m: 1700, wikidata: Q2233977, kind: destination}
+  shimla:      {name: Shimla,      state: Himachal Pradesh, district: Shimla,        lat: 31.1033, lon: 77.1722, elevation_m: 2205, wikidata: Q83786,   kind: destination}
+  manali:      {name: Manali,      state: Himachal Pradesh, district: Kullu,         lat: 32.245,  lon: 77.1882, elevation_m: 2050, wikidata: Q83443,   kind: destination}
+  mcleodganj:  {name: "Dharamshala - McLeod Ganj", state: Himachal Pradesh, district: Kangra, lat: 32.2386, lon: 76.3236, elevation_m: 2004, wikidata: Q3072050, kind: destination}
+  dalhousie:   {name: Dalhousie,   state: Himachal Pradesh, district: Chamba,        lat: 32.53,   lon: 75.98,   elevation_m: 1970, wikidata: Q1925180, kind: destination}
+  kasauli:     {name: Kasauli,     state: Himachal Pradesh, district: Solan,         lat: 30.9,    lon: 76.96,   elevation_m: 1800, wikidata: Q2287036, kind: destination}
+  delhi:       {name: New Delhi,   state: Delhi,            district: New Delhi,     lat: 28.6139, lon: 77.2089, elevation_m: 216,  wikidata: Q987,     kind: origin}
+  dehradun:    {name: Dehradun,    state: Uttarakhand,      district: Dehradun,      lat: 30.318,  lon: 78.029,  elevation_m: 435,  wikidata: Q199528,  kind: origin}
+  chandigarh:  {name: Chandigarh,  state: Chandigarh,       district: Chandigarh,    lat: 30.7333, lon: 76.7797, elevation_m: 350,  wikidata: Q43433,   kind: origin}
+
+# Official road distances (km). Any other pair is estimated from coordinates (see
+# cri.travel.data.TravelData.road_km), and labelled as an estimate.
+distances_km:
+  - {from: delhi,      to: shimla,     km: 370, source: hptdc}
+  - {from: delhi,      to: manali,     km: 570, source: hptdc}
+  - {from: delhi,      to: mcleodganj, km: 520, source: hptdc, note: "HPTDC lists Delhi - Dharamshala"}
+  - {from: delhi,      to: dalhousie,  km: 555, source: hptdc}
+  - {from: delhi,      to: kasauli,    km: 325, source: hptdc}
+  - {from: chandigarh, to: shimla,     km: 117, source: hptdc}
+  - {from: chandigarh, to: manali,     km: 320, source: hptdc}
+  - {from: chandigarh, to: mcleodganj, km: 252, source: hptdc, note: "HPTDC lists Chandigarh - Dharamshala"}
+  - {from: chandigarh, to: dalhousie,  km: 318, source: hptdc}
+  - {from: chandigarh, to: kasauli,    km: 65,  source: hptdc}
+  - {from: delhi,      to: nainital,   km: 310, source: nainital_nic}
+  - {from: dehradun,   to: nainital,   km: 300, source: nainital_nic}
+  - {from: dehradun,   to: mussoorie,  km: 38,  source: dehradun_nic}
+  - {from: mussoorie,  to: dhanaulti,  km: 24,  source: dehradun_nic}
+
+# Gazetted holidays for Central Government offices. State-government holidays are NOT
+# included (their notifications could not be read; see docs/DATA_SOURCES.md).
+holidays:
+  coverage: {start: 2026-01-01, end: 2027-12-31}
+  items:
+    - {date: 2026-01-26, weekday: Monday,    name: Republic Day,               source: holidays_2026_uk}
+    - {date: 2026-03-04, weekday: Wednesday, name: Holi,                       source: holidays_2026_uk}
+    - {date: 2026-03-21, weekday: Saturday,  name: Id-ul-Fitr,                 source: holidays_2026_uk, moon_dependent: true}
+    - {date: 2026-03-26, weekday: Thursday,  name: Ram Navami,                 source: holidays_2026_uk}
+    - {date: 2026-03-31, weekday: Tuesday,   name: Mahavir Jayanti,            source: holidays_2026_uk}
+    - {date: 2026-04-03, weekday: Friday,    name: Good Friday,                source: holidays_2026_uk}
+    - {date: 2026-05-01, weekday: Friday,    name: Buddha Purnima,             source: holidays_2026_uk}
+    - {date: 2026-05-27, weekday: Wednesday, name: Id-ul-Zuha (Bakrid),        source: holidays_2026_uk, moon_dependent: true}
+    - {date: 2026-06-26, weekday: Friday,    name: Muharram,                   source: holidays_2026_uk, moon_dependent: true}
+    - {date: 2026-08-15, weekday: Saturday,  name: Independence Day,           source: holidays_2026_uk}
+    - {date: 2026-08-26, weekday: Wednesday, name: Milad-un-Nabi,              source: holidays_2026_uk, moon_dependent: true}
+    - {date: 2026-09-04, weekday: Friday,    name: Janmashtami,                source: holidays_2026_uk}
+    - {date: 2026-10-02, weekday: Friday,    name: Mahatma Gandhi's Birthday,  source: holidays_2026_uk}
+    - {date: 2026-10-20, weekday: Tuesday,   name: Dussehra,                   source: holidays_2026_uk}
+    - {date: 2026-11-08, weekday: Sunday,    name: Diwali,                     source: holidays_2026_uk}
+    - {date: 2026-11-24, weekday: Tuesday,   name: Guru Nanak's Birthday,      source: holidays_2026_uk}
+    - {date: 2026-12-25, weekday: Friday,    name: Christmas Day,              source: holidays_2026_uk}
+    - {date: 2027-01-26, weekday: Tuesday,   name: Republic Day,               source: holidays_2027}
+    - {date: 2027-03-10, weekday: Wednesday, name: Id-ul-Fitr,                 source: holidays_2027, moon_dependent: true}
+    - {date: 2027-03-23, weekday: Tuesday,   name: Holi,                       source: holidays_2027}
+    - {date: 2027-03-26, weekday: Friday,    name: Good Friday,                source: holidays_2027}
+    - {date: 2027-04-15, weekday: Thursday,  name: Ram Navami,                 source: holidays_2027}
+    - {date: 2027-04-19, weekday: Monday,    name: Mahavir Jayanti,            source: holidays_2027}
+    - {date: 2027-05-17, weekday: Monday,    name: Id-ul-Zuha (Bakrid),        source: holidays_2027, moon_dependent: true}
+    - {date: 2027-05-20, weekday: Thursday,  name: Buddha Purnima,             source: holidays_2027}
+    - {date: 2027-06-16, weekday: Wednesday, name: Muharram,                   source: holidays_2027, moon_dependent: true}
+    - {date: 2027-08-15, weekday: Sunday,    name: Independence Day,           source: holidays_2027}
+    - {date: 2027-08-15, weekday: Sunday,    name: Milad-un-Nabi,              source: holidays_2027, moon_dependent: true}
+    - {date: 2027-08-25, weekday: Wednesday, name: Janmashtami,                source: holidays_2027}
+    - {date: 2027-10-02, weekday: Saturday,  name: Mahatma Gandhi's Birthday,  source: holidays_2027}
+    - {date: 2027-10-09, weekday: Saturday,  name: Dussehra,                   source: holidays_2027}
+    - {date: 2027-10-29, weekday: Friday,    name: Diwali,                     source: holidays_2027}
+    - {date: 2027-11-14, weekday: Sunday,    name: Guru Nanak's Birthday,      source: holidays_2027}
+    - {date: 2027-12-25, weekday: Saturday,  name: Christmas Day,              source: holidays_2027}
+
+# Official annual tourist arrivals (Indian + foreign). UTDB has no separate rows for
+# Dhanaulti, Kanatal, Chakrata or Lansdowne; Himachal publishes no destination series.
+arrivals:
+  - {place: mussoorie, year: 2023, total: 1471913, source: utdb_2021_2023}
+  - {place: nainital,  year: 2023, total: 784497,  source: utdb_2021_2023}
+  - {place: kausani,   year: 2023, total: 82563,   source: utdb_2021_2023, note: "UTDB row 'Kausani & Bageshwar' (combined)"}
+
+# Emission factors. `per` says what one unit is: a vehicle-km is shared by everyone in
+# the car; a passenger-km is per traveller.
+emission_factors:
+  car:
+    value: 0.130
+    unit: kg CO2
+    per: vehicle-km
+    source: indiaghg_road
+    note: "Petrol hatchback under 1400 cc (the paper also gives 0.140 with a 10% uplift); hill driving likely emits more"
+  bus:
+    value: 0.03948
+    unit: kg CO2e
+    per: passenger-km
+    source: desnz_2026
+    note: "UK coach factor (Business travel - land, Bus, Coach); no Indian intercity bus factor was found"
