@@ -49,21 +49,45 @@ def _outside(labelled: pd.DataFrame, finding: dict) -> tuple[pd.DataFrame, str]:
     return labelled[~((labelled["aspect"] == finding["aspect"]) & inside)], where
 
 
+def _neighbourhood_detail(property_id: str, hood: dict) -> str:
+    others = [m for m in hood["members"] if m != property_id]
+    return (
+        f"{hood['aspect']} fell at you and {len(others)} neighbours within "
+        f"{hood['radius_km']:.2f} km ({', '.join(others)}) from {hood['change_month']}: "
+        f"you {hood['gaps'][property_id]:+.2f} and the group {hood['delta']:+.2f} relative "
+        f"to the rest of the market; a decline this concentrated in one place arises by "
+        f"chance with p = {hood['p_value']:.3f}"
+    )
+
+
 def _whose_problem(
-    labelled: pd.DataFrame, property_id: str, aspect: str, decline, findings: list[dict]
+    labelled: pd.DataFrame,
+    property_id: str,
+    aspect: str,
+    decline,
+    findings: list[dict],
+    near: dict[str, dict] | None = None,
 ) -> tuple[str, str]:
-    """``yours alone`` | ``everyone's`` | ``not tested`` for one priority row.
+    """``yours alone`` | ``your neighbourhood's`` | ``everyone's`` | ``not tested``
+    for one priority row.
 
     Derived for THIS property, never joined from ``market_scope`` by aspect: a
-    market-adjusted decline is the property's own; a lag is re-tested with the
-    market-wide patterns it takes part in set aside. It is ``everyone's`` only if
-    the lag disappears without them. Below ``MIN_PROPERTIES_FOR_SCOPE`` properties
-    there is no market to separate, so nothing is tested.
+    property taking part in a significant neighbourhood-wide decline (``near``, by
+    aspect) shares it with its neighbours; otherwise a market-adjusted decline is
+    the property's own; a lag is re-tested with the market-wide patterns it takes
+    part in set aside. It is ``everyone's`` only if the lag disappears without them.
+    Below ``MIN_PROPERTIES_FOR_SCOPE`` properties there is no market to separate,
+    so nothing is tested.
     """
     k = labelled.loc[labelled["aspect"] == aspect, "property_id"].nunique()
     if k < MIN_PROPERTIES_FOR_SCOPE:
         return "not tested", undetermined_note(int(k))
     shared = [f for f in findings if f["aspect"] == aspect and property_id in f["gaps"]]
+    hood = (near or {}).get(aspect)
+    # A market-wide pattern takes precedence: a decline the whole market shares is
+    # not the neighbourhood's to solve.
+    if hood is not None and property_id in hood["members"] and not shared:
+        return "your neighbourhood's", _neighbourhood_detail(property_id, hood)
     also = "; ".join(f"the {describe_finding(f)} is everyone's" for f in shared)
     if decline is not None:
         detail = (
@@ -92,7 +116,12 @@ def _whose_problem(
     return "everyone's", f"{patterns}; {where} you are on par with the market ({mine})"
 
 
-def priority_actions(labelled: pd.DataFrame, property_id: str, top_n: int = 5) -> pd.DataFrame:
+def priority_actions(
+    labelled: pd.DataFrame,
+    property_id: str,
+    top_n: int = 5,
+    neighbourhoods: list[dict] | None = None,
+) -> pd.DataFrame:
     """Rank the aspects a property should fix first.
 
     For each aspect, the *current level* is the property's mean since its latest
@@ -105,8 +134,9 @@ def priority_actions(labelled: pd.DataFrame, property_id: str, top_n: int = 5) -
 
     ``gap = reference - current`` (positive = worse), ``volume`` = the aspect's share
     of the property's mentions, ``impact_score = gap x volume``. Only aspects that are
-    worse AND backed by evidence are listed: a significant decline, or a lag flag
-    (FDR-controlled) against the cluster.
+    worse AND backed by evidence are listed: a significant decline, a lag flag
+    (FDR-controlled) against the cluster, or membership of a significant
+    neighbourhood-wide decline (``neighbourhoods``; its month is ``started``).
 
     ``whose_problem`` answers "is it me or the market?" for this property (see
     ``_whose_problem``); ``whose_detail`` says why. With fewer than 3 properties
@@ -121,6 +151,7 @@ def priority_actions(labelled: pd.DataFrame, property_id: str, top_n: int = 5) -
     own = labelled[labelled["property_id"] == property_id]
     total = len(own)
     findings = market_findings(labelled)
+    near = {f["aspect"]: f for f in neighbourhoods or []}
 
     rows: list[dict] = []
     for r in bench.itertuples(index=False):
@@ -141,6 +172,13 @@ def priority_actions(labelled: pd.DataFrame, property_id: str, top_n: int = 5) -
             else:
                 reference = _cluster_mean_since(labelled, r.aspect, since)
                 evidence = "a significant decline relative to the market"
+        elif r.aspect in near and property_id in near[r.aspect]["members"]:
+            started = near[r.aspect]["change_month"]
+            since = pd.Timestamp(f"{started}-01")
+            series = own[own["aspect"] == r.aspect]
+            current = float(series.loc[series["date"] >= since, "sentiment"].mean())
+            reference = _cluster_mean_since(labelled, r.aspect, since)
+            evidence = "a significant decline shared with your neighbours"
         elif r.flag == "lag":
             current, reference = float(r.mean), float(r.cluster_mean)
             evidence = (
@@ -153,7 +191,7 @@ def priority_actions(labelled: pd.DataFrame, property_id: str, top_n: int = 5) -
         if not gap > 0:
             continue
         volume = r.n / total
-        whose = _whose_problem(labelled, property_id, r.aspect, cp, findings)
+        whose = _whose_problem(labelled, property_id, r.aspect, cp, findings, near)
         compared = "the cluster" if basis == "cluster" else f"your level before {started}"
         when = f" since {started}" if started else ""
         rows.append(
@@ -183,10 +221,13 @@ def priority_actions(labelled: pd.DataFrame, property_id: str, top_n: int = 5) -
     return out
 
 
-def destination_summary(labelled: pd.DataFrame) -> pd.DataFrame:
+def destination_summary(
+    labelled: pd.DataFrame, neighbourhoods: list[dict] | None = None
+) -> pd.DataFrame:
     """Tourism-board view: one row per aspect across the whole cluster, worst first.
 
-    ``scope`` is ``market-wide`` / ``property-specific`` from the market analysis,
+    ``scope`` is ``market-wide`` / ``neighbourhood-wide`` / ``property-specific``
+    from the market analysis (``neighbourhood-wide`` needs ``neighbourhoods``),
     ``stable`` when no significant negative shift was found, and ``undetermined``
     when too few properties review the aspect to separate the market from one
     property. ``n_properties_reviewed`` counts properties with reviews on the aspect
@@ -200,7 +241,7 @@ def destination_summary(labelled: pd.DataFrame) -> pd.DataFrame:
         pct_negative=("sentiment", lambda s: float((s < 0).mean())),
         n_properties_reviewed=("property_id", "nunique"),
     )
-    scope = market_wide_summary(labelled).set_index("aspect")
+    scope = market_wide_summary(labelled, neighbourhoods=neighbourhoods).set_index("aspect")
     rows = []
     for aspect in stats.index:
         k = int(stats.at[aspect, "n_properties_reviewed"])

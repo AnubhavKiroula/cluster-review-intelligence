@@ -55,7 +55,8 @@ def test_food_decline_is_strongest_negative_shift(labelled):
 
 
 def test_food_decline_is_the_propertys_own_not_the_markets(labelled):
-    row = detect_changepoints(labelled).iloc[0]
+    cps = detect_changepoints(labelled)
+    row = cps[(cps["property_id"] == "Property F") & (cps["aspect"] == "Food")].iloc[0]
     assert abs(row["market_delta"]) < 0.1  # the market did not move with it
     assert row["raw_delta"] == pytest.approx(row["delta"], abs=0.1)
 

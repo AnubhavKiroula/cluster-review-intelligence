@@ -5,7 +5,10 @@
 For every seed it builds two datasets with the same generator mechanics:
 
 * injected - the real generator: Property F's food declines from 2025-06
-  (property-specific) and Room dips every December in all properties (market-wide);
+  (property-specific), Room dips every December in all properties (market-wide), and
+  Location declines at four neighbouring properties from 2025-03 (neighbourhood-wide;
+  their per-property Location declines are injected, so they are not counted as
+  extra);
 * null     - ``inject_patterns=False``: no patterns at all, so any finding on it is a
   false alarm by construction.
 
@@ -22,7 +25,13 @@ import pandas as pd
 
 from .benchmark import detect_changepoints, detect_market_patterns, market_wide_summary
 from .classify import Classifier
-from .generate import FOOD_DECLINE_MONTH, FOOD_DECLINE_PROPERTY, generate
+from .generate import (
+    FOOD_DECLINE_MONTH,
+    FOOD_DECLINE_PROPERTY,
+    ROAD_WORKS_ASPECT,
+    ROAD_WORKS_PROPERTIES,
+    generate,
+)
 from .pipeline import label_reviews
 
 TRUE_ASPECT = "Food"
@@ -54,6 +63,11 @@ def evaluate_seed(seed: int, classifier: Classifier | None = None) -> dict:
     cps = detect_changepoints(injected)
     is_true = (cps["property_id"] == FOOD_DECLINE_PROPERTY) & (cps["aspect"] == TRUE_ASPECT)
     hits = cps[is_true & (cps["direction"] == "negative")]
+    is_road_works = (
+        cps["property_id"].isin(ROAD_WORKS_PROPERTIES)
+        & (cps["aspect"] == ROAD_WORKS_ASPECT)
+        & (cps["direction"] == "negative")
+    )
     window = _window(FOOD_DECLINE_MONTH)
     market = detect_market_patterns(injected)
     is_room_dec = (
@@ -71,7 +85,8 @@ def evaluate_seed(seed: int, classifier: Classifier | None = None) -> dict:
         ),
         "food_property_specific": scope.get(TRUE_ASPECT) == "property-specific",
         "room_december_market_wide": bool(is_room_dec.any()),
-        "extra_changepoints": int((~is_true).sum()),
+        "road_works_changepoints": int(is_road_works.sum()),
+        "extra_changepoints": int((~(is_true | is_road_works)).sum()),
         "extra_market_patterns": int((~is_room_dec).sum()),
         "null_changepoints": len(detect_changepoints(null)),
         "null_market_patterns": len(detect_market_patterns(null)),
