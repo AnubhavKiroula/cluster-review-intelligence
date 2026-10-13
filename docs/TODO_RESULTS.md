@@ -34,6 +34,20 @@ Reproduce with `python -m cri.calibration --seeds 1-20` (details: methodology §
 | Pattern-free seeds with any false alarm   | 1/20   | —             | previous fixed-threshold detectors: 20/20 |
 | Extra changepoints per injected seed      | 0.10   | —             | FDR (not FWER) control; see methodology §11 |
 
+## "Did my fix work?" check (SYNTHETIC simulations, reproducible)
+
+Reproduce with `python scripts/calibrate_intervention.py` (details: methodology §12).
+Simulated 6-property clusters; "naive" = plain before/after on the property alone.
+
+| Scenario (seeds)                          | Market-adjusted correct | Wilson 95% CI | Naive correct |
+|-------------------------------------------|-------------------------|---------------|---------------|
+| Nothing changed (100)                     | 94/100                  | 0.88–0.97     | 95/100        |
+| Whole market improved (100)               | 93/100                  | 0.86–0.97     | 0/100         |
+| Real fix, +1.0 (50)                       | 50/50                   | 0.93–1.00     | 50/50         |
+| Small fix, +0.2 (50)                      | 14/50                   | 0.17–0.42     | 19/50         |
+| Fix after a decline (50)                  | 50/50                   | 0.93–1.00     | 50/50         |
+| Behaviour on real reviews with a known, dated change | TBD          | TBD           | TBD           |
+
 ## Optional transformer backend (measured, SYNTHETIC + hand-written)
 
 | Measure | Rule baseline | Transformer | Status |
