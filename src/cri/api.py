@@ -86,14 +86,15 @@ class ClusterData:
 
 
 @functools.lru_cache(maxsize=4)
-def _classifier(backend: str | None, aspects_path: str | None):
+def _classifier(backend: str | None, aspects_path: str | None, model_path: str | None):
     # Keyed by everything a classifier is built from: the transformer backend loads
     # a ~541 MB model, so it must not be rebuilt for every load or typed review.
     return get_classifier(backend)
 
 
 def _configured_classifier():
-    return _classifier(os.environ.get("CRI_MODEL_BACKEND"), os.environ.get("CRI_ASPECTS_PATH"))
+    return _classifier(os.environ.get("CRI_MODEL_BACKEND"), os.environ.get("CRI_ASPECTS_PATH"),
+                       os.environ.get("CRI_LEARNED_MODEL_PATH"))
 
 
 def _with_review_ids(reviews: pd.DataFrame) -> pd.DataFrame:

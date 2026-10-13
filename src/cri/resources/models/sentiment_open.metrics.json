@@ -1,0 +1,408 @@
+{
+ "meta": {
+  "name": "sentiment_open",
+  "trained": "2026-10-13",
+  "neutral_3star": "keep",
+  "seed": 42,
+  "sources": {
+   "sentimix": "SentiMix Hinglish tweets (SemEval-2020 Task 9), Zenodo 10.5281/zenodo.3974927, CC BY 4.0",
+   "youtube": "Hinglish YouTube comments, huggingface.co/datasets/shae2977/hinglish-youtube-sentiments-dataset @84abda5, CC BY 4.0"
+  },
+  "classes": [
+   -1,
+   0,
+   1
+  ],
+  "C": 1.0,
+  "tuning": {
+   "0.5": {
+    "dev_mean_macro_f1": 0.6042,
+    "sentimix": 0.6049,
+    "youtube": 0.6035
+   },
+   "1.0": {
+    "dev_mean_macro_f1": 0.6114,
+    "sentimix": 0.6099,
+    "youtube": 0.6128
+   },
+   "2.0": {
+    "dev_mean_macro_f1": 0.6016,
+    "sentimix": 0.6064,
+    "youtube": 0.5968
+   },
+   "4.0": {
+    "dev_mean_macro_f1": 0.589,
+    "sentimix": 0.6015,
+    "youtube": 0.5764
+   }
+  },
+  "n_features": 60000,
+  "n_train": {
+   "sentimix": 13995,
+   "youtube": 2545
+  },
+  "templates_correct": {
+   "model": [
+    17,
+    36
+   ],
+   "rules": [
+    36,
+    36
+   ]
+  }
+ },
+ "test": {
+  "region": {
+   "model": {
+    "n": 8388,
+    "macro_f1": 0.39,
+    "macro_f1_ci95": [
+     0.378,
+     0.402
+    ],
+    "per_class": {
+     "-1": {
+      "precision": 0.778,
+      "recall": 0.017,
+      "f1": 0.034,
+      "support": 404
+     },
+     "0": {
+      "precision": 0.171,
+      "recall": 0.514,
+      "f1": 0.257,
+      "support": 629
+     },
+     "1": {
+      "precision": 0.937,
+      "recall": 0.828,
+      "f1": 0.879,
+      "support": 7355
+     }
+    },
+    "confusion": [
+     [
+      7,
+      295,
+      102
+     ],
+     [
+      2,
+      323,
+      304
+     ],
+     [
+      0,
+      1268,
+      6087
+     ]
+    ]
+   },
+   "rules": {
+    "n": 8388,
+    "macro_f1": 0.557,
+    "macro_f1_ci95": [
+     0.539,
+     0.574
+    ],
+    "per_class": {
+     "-1": {
+      "precision": 0.599,
+      "recall": 0.493,
+      "f1": 0.541,
+      "support": 404
+     },
+     "0": {
+      "precision": 0.205,
+      "recall": 0.18,
+      "f1": 0.191,
+      "support": 629
+     },
+     "1": {
+      "precision": 0.928,
+      "recall": 0.947,
+      "f1": 0.938,
+      "support": 7355
+     }
+    },
+    "confusion": [
+     [
+      199,
+      113,
+      92
+     ],
+     [
+      71,
+      113,
+      445
+     ],
+     [
+      62,
+      326,
+      6967
+     ]
+    ]
+   },
+   "majority_macro_f1": 0.311
+  },
+  "sentimix": {
+   "model": {
+    "n": 2997,
+    "macro_f1": 0.663,
+    "macro_f1_ci95": [
+     0.646,
+     0.68
+    ],
+    "per_class": {
+     "-1": {
+      "precision": 0.684,
+      "recall": 0.673,
+      "f1": 0.679,
+      "support": 899
+     },
+     "0": {
+      "precision": 0.576,
+      "recall": 0.595,
+      "f1": 0.585,
+      "support": 1099
+     },
+     "1": {
+      "precision": 0.733,
+      "recall": 0.718,
+      "f1": 0.725,
+      "support": 999
+     }
+    },
+    "confusion": [
+     [
+      605,
+      246,
+      48
+     ],
+     [
+      232,
+      654,
+      213
+     ],
+     [
+      47,
+      235,
+      717
+     ]
+    ]
+   },
+   "rules": {
+    "n": 2997,
+    "macro_f1": 0.361,
+    "macro_f1_ci95": [
+     0.346,
+     0.377
+    ],
+    "per_class": {
+     "-1": {
+      "precision": 0.491,
+      "recall": 0.061,
+      "f1": 0.109,
+      "support": 899
+     },
+     "0": {
+      "precision": 0.393,
+      "recall": 0.894,
+      "f1": 0.546,
+      "support": 1099
+     },
+     "1": {
+      "precision": 0.769,
+      "recall": 0.297,
+      "f1": 0.429,
+      "support": 999
+     }
+    },
+    "confusion": [
+     [
+      55,
+      824,
+      20
+     ],
+     [
+      48,
+      982,
+      69
+     ],
+     [
+      9,
+      693,
+      297
+     ]
+    ]
+   },
+   "majority_macro_f1": 0.179
+  },
+  "youtube": {
+   "model": {
+    "n": 314,
+    "macro_f1": 0.631,
+    "macro_f1_ci95": [
+     0.573,
+     0.682
+    ],
+    "per_class": {
+     "-1": {
+      "precision": 0.699,
+      "recall": 0.699,
+      "f1": 0.699,
+      "support": 143
+     },
+     "0": {
+      "precision": 0.494,
+      "recall": 0.539,
+      "f1": 0.516,
+      "support": 76
+     },
+     "1": {
+      "precision": 0.705,
+      "recall": 0.653,
+      "f1": 0.678,
+      "support": 95
+     }
+    },
+    "confusion": [
+     [
+      100,
+      29,
+      14
+     ],
+     [
+      23,
+      41,
+      12
+     ],
+     [
+      20,
+      13,
+      62
+     ]
+    ]
+   },
+   "rules": {
+    "n": 314,
+    "macro_f1": 0.317,
+    "macro_f1_ci95": [
+     0.272,
+     0.367
+    ],
+    "per_class": {
+     "-1": {
+      "precision": 0.857,
+      "recall": 0.042,
+      "f1": 0.08,
+      "support": 143
+     },
+     "0": {
+      "precision": 0.269,
+      "recall": 0.895,
+      "f1": 0.413,
+      "support": 76
+     },
+     "1": {
+      "precision": 0.63,
+      "recall": 0.358,
+      "f1": 0.456,
+      "support": 95
+     }
+    },
+    "confusion": [
+     [
+      6,
+      125,
+      12
+     ],
+     [
+      0,
+      68,
+      8
+     ],
+     [
+      1,
+      60,
+      34
+     ]
+    ]
+   },
+   "majority_macro_f1": 0.209
+  },
+  "region_breakdown": {
+   "Himachal Pradesh": {
+    "n": 2403,
+    "model": 0.394,
+    "rules": 0.559
+   },
+   "Ladakh": {
+    "n": 888,
+    "model": 0.346,
+    "rules": 0.552
+   },
+   "Uttarakhand": {
+    "n": 5097,
+    "model": 0.392,
+    "rules": 0.554
+   },
+   "town:Kausani": {
+    "n": 387,
+    "model": 0.438,
+    "rules": 0.619
+   },
+   "town:Kaza": {
+    "n": 235,
+    "model": 0.321,
+    "rules": 0.529
+   },
+   "town:Kufri": {
+    "n": 469,
+    "model": 0.397,
+    "rules": 0.522
+   },
+   "town:Lansdowne": {
+    "n": 27,
+    "model": 0.313,
+    "rules": 0.333
+   },
+   "town:Leh": {
+    "n": 690,
+    "model": 0.34,
+    "rules": 0.567
+   },
+   "town:Nainital": {
+    "n": 1707,
+    "model": 0.401,
+    "rules": 0.544
+   },
+   "town:New Tehri": {
+    "n": 12,
+    "model": 0.19,
+    "rules": 0.667
+   },
+   "town:Sangla": {
+    "n": 227,
+    "model": 0.368,
+    "rules": 0.378
+   },
+   "town:Shimla": {
+    "n": 827,
+    "model": 0.394,
+    "rules": 0.585
+   },
+   "town:Shivpuri": {
+    "n": 338,
+    "model": 0.366,
+    "rules": 0.582
+   },
+   "town:Tapovan": {
+    "n": 901,
+    "model": 0.398,
+    "rules": 0.559
+   }
+  }
+ }
+}

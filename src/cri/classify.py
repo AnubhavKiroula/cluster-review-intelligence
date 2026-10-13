@@ -23,7 +23,7 @@ import yaml
 
 from .normalize import normalize, split_clauses, split_sentences, tokenize
 
-BACKENDS = ("rule", "transformer")
+BACKENDS = ("rule", "transformer", "learned")
 
 
 # --- Config loading + validation ------------------------------------------------
@@ -234,4 +234,10 @@ def get_classifier(name: str | None = None) -> Classifier:
         from .transformer_backend import TransformerClassifier
 
         return TransformerClassifier()
+    if choice == "learned":
+        # Same hybrid (rule aspects + model clause sentiment) with the trained linear model.
+        from .learned_backend import load_learned_sentiment_fn
+        from .transformer_backend import TransformerClassifier
+
+        return TransformerClassifier(sentiment_fn=load_learned_sentiment_fn())
     raise ValueError(f"Unknown classifier backend {choice!r}; available: {', '.join(BACKENDS)}.")

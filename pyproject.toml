@@ -33,6 +33,12 @@ dev = [
     "matplotlib==3.10.8",
     "httpx==0.28.1",
 ]
+# Training the learned sentiment backend (scripts/train_sentiment.py). Inference needs
+# only numpy, so the API and CI do not install this.
+train = [
+    "scikit-learn==1.9.1",
+    "scipy==1.16.3",
+]
 # HTTP API for the Next.js frontend (web/): uvicorn cri.server:app
 api = [
     "fastapi==0.143.0",
@@ -46,7 +52,7 @@ cri-generate = "cri.generate:main"
 where = ["src"]
 
 [tool.setuptools.package-data]
-cri = ["resources/*.yaml"]
+cri = ["resources/*.yaml", "resources/models/*.npz", "resources/models/*.json"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
