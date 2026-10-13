@@ -3,6 +3,11 @@
 // Map of the cluster: one labelled point per property, coloured by its status, and
 // any neighbourhood-wide decline drawn as a shaded circle. Plotly's MapLibre map
 // (`scattermap`) on an OpenFreeMap basemap: no API key, attribution shown by MapLibre.
+//
+// Zoom: + / - / reset buttons, Ctrl (or Cmd) + scroll, and a two-finger pinch.
+// MapLibre's "cooperative gestures" keep a plain scroll or one-finger swipe for the
+// page, so the map never traps scrolling.
+import { useEffect, useRef, useState } from "react";
 import Plot from "@/components/Plot";
 import type { Neighbourhood, PropertyLocation } from "@/lib/data";
 import { usePalette } from "@/lib/theme";
@@ -20,6 +25,32 @@ export interface MapPoint {
 const MAP_FONT = "Noto Sans Regular";
 const KM_PER_DEG = 111.2;
 const TILE_PX = 512;
+// Town level to street level: further out the map is mostly empty, further in the
+// SYNTHETIC positions would suggest more precision than they have.
+const MIN_ZOOM = 10;
+const MAX_ZOOM = 17;
+
+// The part of MapLibre's Map this component uses (Plotly does not export the type).
+interface MapLibreMap {
+  jumpTo(options: { center?: [number, number]; zoom?: number }, eventData?: object): void;
+  getZoom(): number;
+  getCenter(): { lng: number; lat: number };
+  setMinZoom(z: number): void;
+  setMaxZoom(z: number): void;
+  on(event: "moveend", listener: () => void): void;
+  cooperativeGestures?: { enable(): void };
+}
+
+interface View {
+  center: { lat: number; lon: number };
+  zoom: number;
+}
+
+const clampZoom = (z: number) => Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, z));
+
+function reducedMotion(): boolean {
+  return typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
 
 function circle(lat: number, lon: number, radiusKm: number, steps = 64) {
   const lats: number[] = [];
@@ -45,7 +76,7 @@ function fit(locations: PropertyLocation[], width: number, height: number) {
   const spanLat = Math.max(Math.max(...lats) - Math.min(...lats), 0.002) * pad;
   const zLon = Math.log2((360 * width) / (TILE_PX * spanLon));
   const zLat = Math.log2((360 * height * Math.cos((lat * Math.PI) / 180)) / (TILE_PX * spanLat));
-  return { center: { lat, lon }, zoom: Math.min(16, Math.max(10, Math.min(zLon, zLat))) };
+  return { center: { lat, lon }, zoom: Math.min(16, Math.max(MIN_ZOOM, Math.min(zLon, zLat))) };
 }
 
 export default function ClusterMap({
@@ -62,6 +93,84 @@ export default function ClusterMap({
   summary: string;
 }) {
   const C = usePalette();
+  const mapRef = useRef<MapLibreMap | null>(null);
+  // The starting view, fitted once to the screen; Reset returns to it.
+  const [home] = useState<View>(() =>
+    fit(locations, typeof window === "undefined" ? 1000 : Math.min(window.innerWidth - 32, 1040), height),
+  );
+  // Only for the buttons' disabled state; updated once a move ends.
+  const [zoom, setZoom] = useState(home.zoom);
+  const animating = useRef(false);
+
+  // Configure the MapLibre map as soon as Plotly has created it. Plotly's own "drawn"
+  // callback only fires once the basemap has loaded (seconds later), so poll the
+  // chart element from mount instead; a new map (Plotly may rebuild it) is
+  // configured again.
+  const wrapRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const configure = (map: MapLibreMap) => {
+      mapRef.current = map;
+      map.setMinZoom(MIN_ZOOM);
+      map.setMaxZoom(MAX_ZOOM);
+      map.cooperativeGestures?.enable();
+      map.on("moveend", () => {
+        if (!animating.current) setZoom(map.getZoom());
+      });
+    };
+    const timer = window.setInterval(() => {
+      const gd = wrapRef.current?.querySelector(".js-plotly-plot");
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const map = (gd as any)?._fullLayout?.map?._subplot?.map as MapLibreMap | undefined;
+      if (map && map !== mapRef.current) configure(map);
+    }, 100);
+    return () => window.clearInterval(timer);
+  }, []);
+
+  // Move over ~250 ms with jumpTo: in the MapLibre build bundled with Plotly 2.35,
+  // easeTo / zoomIn / zoomTo leave the view unchanged, while jumpTo works.
+  // Each jump carries an `originalEvent`, so Plotly records it as the visitor's own
+  // view (as it does for a drag) and, with `uirevision`, keeps it when the page
+  // re-renders or the basemap style changes.
+  const moveTo = (target: View) => {
+    const map = mapRef.current;
+    if (!map) return;
+    const z1 = clampZoom(target.zoom);
+    const jump = (z: number, lon: number, lat: number) =>
+      map.jumpTo({ zoom: z, center: [lon, lat] }, { originalEvent: { type: "map-control" } });
+    const finish = () => {
+      animating.current = false;
+      setZoom(map.getZoom());
+    };
+    if (reducedMotion()) {
+      jump(z1, target.center.lon, target.center.lat);
+      finish();
+      return;
+    }
+    const z0 = map.getZoom();
+    const c0 = map.getCenter();
+    const start = performance.now();
+    animating.current = true;
+    const step = (now: number) => {
+      const t = Math.min(1, (now - start) / 250);
+      const e = 1 - (1 - t) ** 3; // ease-out
+      jump(
+        z0 + (z1 - z0) * e,
+        c0.lng + (target.center.lon - c0.lng) * e,
+        c0.lat + (target.center.lat - c0.lat) * e,
+      );
+      if (t < 1) requestAnimationFrame(step);
+      else finish();
+    };
+    requestAnimationFrame(step);
+  };
+  const zoomBy = (delta: number) => {
+    const map = mapRef.current;
+    if (!map) return;
+    const c = map.getCenter();
+    moveTo({ center: { lat: c.lat, lon: c.lng }, zoom: map.getZoom() + delta });
+  };
+  const reset = () => moveTo(home);
+
   const byId = new Map(locations.map((l) => [l.property_id, l]));
   const shown = points.filter((p) => byId.has(p.id));
   const letter = (id: string) => id.replace(/^Property\s+/, "");
@@ -98,21 +207,43 @@ export default function ClusterMap({
   };
 
   return (
-    <Plot
-      height={height}
-      summary={summary}
-      data={[...areas, markers]}
-      layout={{
-        margin: { l: 0, r: 0, t: 0, b: 0 },
-        // The map fills the content column: the viewport minus the page gutters.
-        map: {
-          style: C.mapStyle,
-          ...fit(locations, typeof window === "undefined" ? 1000 : Math.min(window.innerWidth - 32, 1040), height),
-        },
-        showlegend: false,
-      }}
-      // Wheel-zoom would trap the page's scrolling; dragging still pans the map.
-      config={{ scrollZoom: false }}
-    />
+    <div className="map-wrap" ref={wrapRef}>
+      <Plot
+        height={height}
+        summary={summary}
+        data={[...areas, markers]}
+        layout={{
+          margin: { l: 0, r: 0, t: 0, b: 0 },
+          // uirevision: Plotly keeps the visitor's pan and zoom (drags, Ctrl+scroll and
+          // the buttons) when the page re-renders or the basemap style changes.
+          map: { style: C.mapStyle, center: home.center, zoom: home.zoom, uirevision: "cluster-map" },
+          uirevision: "cluster-map",
+          showlegend: false,
+        }}
+        // Scroll zoom is on, but cooperative: only with Ctrl/Cmd (see attach).
+        config={{ scrollZoom: true }}
+      />
+      <div className="map-controls" role="group" aria-label="Map zoom">
+        <button
+          type="button"
+          onClick={() => zoomBy(1)}
+          aria-label="Zoom in"
+          disabled={zoom >= MAX_ZOOM - 0.01}
+        >
+          <span aria-hidden>+</span>
+        </button>
+        <button
+          type="button"
+          onClick={() => zoomBy(-1)}
+          aria-label="Zoom out"
+          disabled={zoom <= MIN_ZOOM + 0.01}
+        >
+          <span aria-hidden>−</span>
+        </button>
+        <button type="button" onClick={reset} aria-label="Reset map view" className="map-reset">
+          Reset
+        </button>
+      </div>
+    </div>
   );
 }

@@ -21,7 +21,13 @@ interface PlotProps {
   summary: string;
 }
 
-export default function Plot({ data, layout = {}, height = 420, config = {}, summary }: PlotProps) {
+export default function Plot({
+  data,
+  layout = {},
+  height = 420,
+  config = {},
+  summary,
+}: PlotProps) {
   const base = baseLayout(usePalette());
   // Merge the axes rather than replace them: a page that sets an axis title must not
   // drop the themed grid and line colours.

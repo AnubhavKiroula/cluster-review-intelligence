@@ -99,8 +99,13 @@ Light values shown; the dark variant of each is in `globals.css` and `lib/theme.
   in `plotly.js-dist-min`, so no new dependency) on OpenFreeMap vector tiles
   (Positron, or Dark in dark mode): free, no API key, attribution shown by MapLibre.
   Each point is labelled with its status, not only coloured; a neighbourhood-wide
-  decline is a shaded circle; wheel-zoom is off so the page still scrolls; every map
-  has a "Show the numbers" table. `/market/?aspect=Location` deep-links the market map.
+  decline is a shaded circle; every map has a "Show the numbers" table.
+  Zoom: + / − / Reset buttons (keyboard-operable), Ctrl/⌘ + scroll, and a two-finger
+  pinch, limited to zoom 10 (town) to 17 (street). MapLibre's cooperative gestures
+  leave a plain scroll or one-finger swipe to the page. The buttons move the map with
+  `jumpTo` marked as a user move, so Plotly keeps the view (`uirevision`) through
+  re-renders and dark-mode switches; `easeTo`/`zoomIn` do nothing in the MapLibre
+  build bundled with Plotly 2.35. `/market/?aspect=Location` deep-links the market map.
   Positions are SYNTHETIC in the sample; real ones are grid-snapped by the exporter.
 - **SYNTHETIC label:** `SyntheticBanner` is built to be rendered once by
   `app/layout.tsx`, so no page can omit it. It is hidden for now; see above.
