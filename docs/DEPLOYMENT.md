@@ -23,7 +23,7 @@ precomputed *Did my fix work?* results (a few minutes to generate).
 
 1. Merge the work to `main`.
 2. On <https://vercel.com>, **Add New → Project** and import
-   `AnubhavKiroula/cluster-review-intelligence`.
+   `PxA-Labs/cluster-review-intelligence`.
 3. **Root Directory: `web`.** Framework preset: Next.js (detected). Leave the build
    command and output at their defaults: `output: "export"` in `next.config.mjs` makes
    the build static. No environment variables.
@@ -74,7 +74,7 @@ once someone deploys - see the fallback below.
 1. Merge the work to `main` (Cloud deploys a branch; `main` is the one to demo).
 2. Go to <https://share.streamlit.io> and sign in with GitHub.
 3. **Create app** → **Deploy a public app from GitHub**:
-   - Repository: `AnubhavKiroula/cluster-review-intelligence`
+   - Repository: `PxA-Labs/cluster-review-intelligence`
    - Branch: `main`
    - Main file path: `app/Home.py`
    - App URL: pick a short subdomain.
