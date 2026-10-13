@@ -34,7 +34,7 @@ local time in ``LOCAL_TZ`` while naive dates stay as they are (so months are the
 calendar months the guests experienced).
 
 All functions are pure: they never mutate ``ClusterData``. In a UI or server, cache
-``load_cluster`` once (cri.server keeps one ``ClusterData`` per process).
+``load_cluster`` once (the web snapshot exporter loads it once per run).
 Unknown property/aspect names or invalid arguments raise ``ValueError`` naming
 the valid options; empty results are empty frames with the documented columns.
 """
