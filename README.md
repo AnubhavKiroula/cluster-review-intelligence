@@ -374,6 +374,20 @@ On Windows without `make`, run the commands directly; the `Makefile` only wraps 
 
 ### 9.1 Web app (`web/`)
 
+<video src="https://github.com/AnubhavKiroula/cluster-review-intelligence/raw/main/docs/screenshots/demo_SYNTHETIC.mp4" poster="https://github.com/AnubhavKiroula/cluster-review-intelligence/raw/main/docs/screenshots/demo_poster_SYNTHETIC.jpg" controls muted playsinline width="100%"></video>
+
+**Twenty seconds, silent, on SYNTHETIC data.** Property F's Food sentiment falls in
+`2025-06`. The plain before-and-after is −1.21; the market moved +0.01 over the same
+months; so −1.22 is this property's alone. Then the three kinds of verdict a decline can
+get — *yours alone*, *everyone's*, *your neighbourhood's* — and one Hinglish review
+splitting into `Food +1` and `Room −1`. Every figure is read from the bundled SYNTHETIC
+snapshot; none is computed for the clip. It is silent by design: the soundtrack used in
+the shareable cut is not redistributed here ([`docs/CREDITS.md`](docs/CREDITS.md)).
+
+If the player does not load, GitHub serves the file directly:
+[demo_SYNTHETIC.mp4](docs/screenshots/demo_SYNTHETIC.mp4) ·
+[poster frame](docs/screenshots/demo_poster_SYNTHETIC.jpg).
+
 | Page | Route | Data source |
 |---|---|---|
 | Home | `/` | Snapshot |
