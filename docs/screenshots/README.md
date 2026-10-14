@@ -6,7 +6,8 @@ the API (`cri.server`) for live classification.
 
 | File | Page |
 |---|---|
-| `demo_SYNTHETIC.mp4` | 20s silent overview: the 2025-06 Food changepoint at Property F, the market-adjusted split (−1.21 / +0.01 / −1.22), the three kinds of verdict, and a Hinglish review splitting into two aspects |
+| `demo_SYNTHETIC.gif` | The clip below as an animated GIF (1280×720, 15fps, 0.19 MB). This is what the README embeds: GitHub strips `<video>` from Markdown, and a link to a repo-hosted `.mp4` renders as a plain link, so a GIF is the only form that plays in the page itself |
+| `demo_SYNTHETIC.mp4` | 20s silent overview: the 2025-06 Food changepoint at Property F, the market-adjusted split (−1.21 / +0.01 / −1.22), the three kinds of verdict, and a Hinglish review splitting into two aspects. Full quality, with a scrubber |
 | `demo_poster_SYNTHETIC.jpg` | Poster frame for the clip above (the market-adjusted split), also baked as its first frame |
 | `property_view_SYNTHETIC.png` | Property F: "Fix Food first since 2025-06", whose problem it is, scorecard vs cluster with 95% intervals, trend with the detected changepoint |
 | `market_quadrant_SYNTHETIC.png` | Market-wide vs property-specific, with the worst market-wide aspect |

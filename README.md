@@ -15,7 +15,7 @@ romanised Hindi (Hinglish) or Devanagari.
 
 ---
 
-<video src="https://github.com/AnubhavKiroula/cluster-review-intelligence/raw/main/docs/screenshots/demo_SYNTHETIC.mp4" poster="https://github.com/AnubhavKiroula/cluster-review-intelligence/raw/main/docs/screenshots/demo_poster_SYNTHETIC.jpg" controls muted playsinline width="100%"></video>
+![Twenty-second overview on SYNTHETIC data: Property F's Food sentiment falls in 2025-06; the plain before-and-after is −1.21, the market moved +0.01 over the same months, so −1.22 is this property's alone; then the three kinds of verdict, and a Hinglish review splitting into Food +1 and Room −1](docs/screenshots/demo_SYNTHETIC.gif)
 
 **Twenty seconds, on SYNTHETIC data.** Property F's Food sentiment falls in
 `2025-06`. The plain before-and-after is −1.21; the market moved +0.01 over the same
@@ -24,7 +24,7 @@ can get — *yours alone*, *everyone's*, *your neighbourhood's* — and one Hing
 review splitting into `Food +1` and `Room −1`. Every figure is read from the bundled
 snapshot; none is computed for the clip.
 
-If the player does not load:
+Full quality, with a scrubber:
 [demo_SYNTHETIC.mp4](docs/screenshots/demo_SYNTHETIC.mp4) ·
 [poster frame](docs/screenshots/demo_poster_SYNTHETIC.jpg).
 
